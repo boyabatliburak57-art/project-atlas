@@ -32,6 +32,7 @@ export interface ProviderInstrumentDto {
   readonly marketCode: string;
   readonly currencyCode: string;
   readonly isin?: string | undefined;
+  readonly status?: 'active' | 'suspended' | 'delisted' | undefined;
 }
 
 export interface ProviderBarDto {

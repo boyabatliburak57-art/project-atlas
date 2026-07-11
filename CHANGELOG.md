@@ -19,6 +19,8 @@
 - Migration constraint integration testleri ve ADR-004 veri erişimi kararı
 - TASK-008 provider capability ve normalize instrument/bar sözleşmeleri
 - Güvenli provider error taxonomy, validation wrapper, registry ve fake provider adapter
+- TASK-009 BIST instrument import service, PostgreSQL store ve worker job sözleşmesi
+- Idempotent mapping, dry-run, deactivation preview ve ingestion run gözlemlenebilirliği
 
 ### Doğrulandı
 

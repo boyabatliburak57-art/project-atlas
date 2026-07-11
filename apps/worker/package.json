@@ -9,6 +9,7 @@
     "lint": "eslint src",
     "start": "node dist/main.js",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -18,8 +19,10 @@
     "vitest": "4.1.10"
   },
   "dependencies": {
+    "@atlas/database": "workspace:*",
     "bullmq": "5.80.1",
     "dotenv": "17.4.2",
+    "drizzle-orm": "0.45.2",
     "zod": "4.4.3"
   }
 }

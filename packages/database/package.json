@@ -3,9 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",
+  "main": "./dist/src/index.js",
+  "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./schema": "./src/schema/index.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "require": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "require": "./dist/src/schema/index.js",
+      "default": "./dist/src/schema/index.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

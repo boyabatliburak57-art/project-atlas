@@ -21,9 +21,13 @@ Queue adları `atlas.<domain>.v<major>` biçimindedir:
 
 - `atlas.system.v1`
 - `atlas.system.dead-letter.v1`
+- `atlas.market-data.v1`
 
 Job adları `<domain>.<operation>.v<major>` biçimindedir. Heartbeat işi
 `system.heartbeat.v1` adını kullanır.
+
+Instrument senkronizasyon handler'ı `market-data.instrument-sync.v1` iş adını kullanır. Queue
+payload yalnızca provider code ve dry-run bayrağı taşır; provider response veya secret taşımaz.
 
 ## İdempotent job örneği
 
@@ -58,12 +62,27 @@ requested range gibi doğal idempotency anahtarından türetilmelidir.
 
 Fake adapter yalnızca test ve sonraki ingest görevlerinin deterministik doğrulaması içindir.
 
+## BIST instrument import
+
+Instrument import pipeline:
+
+- canonical BIST sembolünü normalize eder ve geçersiz karakteri reddeder,
+- duplicate provider symbol ve duplicate ISIN kayıtlarını raporlar,
+- instrument'ı mapping, ISIN veya aktif normalized symbol üzerinden eşleştirir,
+- instrument ve provider mapping değişikliklerini transaction içinde uygular,
+- sembol değişikliğinde eski sembolü history tablosuna yazar,
+- provider listesinden eksilen aktif mapping'leri yalnızca deactivation adayı olarak raporlar,
+- dry-run sırasında ingestion run dahil hiçbir veritabanı kaydı oluşturmaz,
+- gerçek koşuları `ingestion_runs` tablosunda completed/failed durumuyla izler.
+
 ## Kontroller
 
 ```bash
 pnpm --filter worker lint
 pnpm --filter worker typecheck
 pnpm --filter worker test
+TEST_DATABASE_URL=postgresql://atlas:password@127.0.0.1:5432/atlas_test \
+  pnpm --filter worker test:integration
 pnpm --filter worker build
 ```
 

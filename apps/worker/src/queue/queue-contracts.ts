@@ -2,12 +2,14 @@ import type { JobsOptions } from 'bullmq';
 
 export const QUEUE_NAMES = {
   deadLetter: 'atlas.system.dead-letter.v1',
+  marketData: 'atlas.market-data.v1',
   system: 'atlas.system.v1',
 } as const;
 
 export const JOB_NAMES = {
   deadLetter: 'system.dead-letter.v1',
   heartbeat: 'system.heartbeat.v1',
+  instrumentSync: 'market-data.instrument-sync.v1',
 } as const;
 
 export const DEFAULT_JOB_OPTIONS = {

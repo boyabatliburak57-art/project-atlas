@@ -210,3 +210,14 @@ Metrikler:
 5. Kalite kontrolü yapılır.
 6. Bar güncelleme olayı üretilir.
 7. İndikatör hesapları sonraki fazda tetiklenir.
+
+## 16. Instrument sync uygulama kararı
+
+İlk instrument sync akışı provider mapping, ISIN ve aktif normalized symbol sırasıyla eşleştirme
+yapar. Yazımlar tek transaction içinde uygulanır ve gerçek koşu `ingestion_runs` kaydı üretir.
+Dry-run yalnızca plan ve metrik döndürür; kalıcı veri yazmaz.
+
+Provider listesinden eksilen aktif mapping veya instrument otomatik olarak silinmez ya da
+deactivate edilmez. Sonuçta `deactivationCandidates` olarak raporlanır. Açık sembol değişimi
+ISIN ile eşleştiğinde internal instrument korunur, eski provider mapping pasifleştirilir ve eski
+canonical symbol history tablosuna yazılır.

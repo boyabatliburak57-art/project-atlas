@@ -1,6 +1,6 @@
 # TASK-009 — BIST Instrument Import Pipeline
 
-**Durum:** Hazır  
+**Durum:** Tamamlandı
 **Bağımlılık:** TASK-008
 
 ## Amaç
@@ -53,3 +53,20 @@ Fake provider kullanarak BIST instrument import application service ve worker jo
 Provider listesinden kaybolan enstrümanı otomatik silme; yalnızca raporla.
 Dry-run ve integration test ekle.
 ```
+
+## Tamamlanma notu
+
+- **Tarih:** 2026-07-12
+- **Durum:** Tamamlandı
+- **Değişiklik:** BIST symbol normalizasyonu, provider instrument import service, PostgreSQL
+  transaction store, sürümlü worker job sözleşmesi, dry-run ve güvenli metrik/log akışı eklendi.
+- **Idempotency:** Mapping, ardından ISIN, ardından aktif normalized symbol eşleştirilir;
+  tekrar çalıştırma duplicate instrument veya mapping üretmez.
+- **Güvenlik:** Provider cevabı TASK-008 validation sınırından geçer; queue payload secret veya
+  ham provider verisi taşımaz; hata kaydında normalize error code kullanılır.
+- **Migration:** Yok; TASK-007 tabloları kullanıldı.
+- **Test:** Unit testlere ek olarak PostgreSQL 17 üzerinde fake provider ile idempotency,
+  dry-run, mapping, deactivation preview, ingestion run ve sembol değişimi doğrulandı.
+- **Bilinen sınırlama:** Eksik instrument/mapping otomatik deactivate edilmez; yalnızca aday
+  olarak raporlanır. Gerçek provider ve production schedule kapsam dışıdır.
+- **Sonraki görev:** TASK-010

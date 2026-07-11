@@ -43,6 +43,7 @@ export const providerInstrumentSchema = z.strictObject({
   marketCode: z.string().trim().min(1).max(32),
   currencyCode: z.string().trim().length(3).toUpperCase(),
   isin: z.string().trim().length(12).optional(),
+  status: z.enum(['active', 'suspended', 'delisted']).default('active'),
 });
 
 export const providerInstrumentListSchema = z.array(providerInstrumentSchema);
