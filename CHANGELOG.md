@@ -17,5 +17,7 @@
 - pnpm workspace ve Turborepo tabanlı minimal monorepo iskeleti
 - Ortak strict TypeScript, ESLint, Prettier ve editör yapılandırmaları
 - Web, API, worker, config, types, domain ve validation workspace'leri
+- Healthcheck ve kalıcı volume içeren yerel PostgreSQL ve Redis Compose ortamı
+- Yerel altyapı ortam değişkenleri ve geliştirme rehberi
 
 Bu sürüm uygulama kodu içermez.

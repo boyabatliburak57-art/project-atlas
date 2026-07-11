@@ -54,3 +54,6 @@ pnpm typecheck
 Monorepo; `apps/web`, `apps/api`, `apps/worker` ile `packages/config`, `packages/types`,
 `packages/domain` ve `packages/validation` workspace'lerinden oluşur. Framework ve ürün
 özellikleri henüz kurulmamıştır.
+
+PostgreSQL ve Redis içeren yerel Docker ortamı için
+[`guides/LOCAL_DEVELOPMENT.md`](guides/LOCAL_DEVELOPMENT.md) belgesini izleyin.
