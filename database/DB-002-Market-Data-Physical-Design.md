@@ -7,6 +7,15 @@
 
 BIST sembol ana verisi ve OHLCV barları için ilk fiziksel PostgreSQL tasarımını tanımlar.
 
+## 1.1 Uygulama kararları
+
+- ORM ve migration aracı: Drizzle
+- PostgreSQL driver: node-postgres
+- UUID: PostgreSQL `gen_random_uuid()` varsayılanı
+- Aktif bar revizyonu: en yüksek `revision` değerini seçen `current_price_bars` görünümü
+- Audit zamanı: tüm TASK-007 tablolarında `created_at` ve `updated_at` `timestamptz`
+- Seed: sabit UUID ile idempotent `manual-import` provider upsert'i
+
 ## 2. Tablolar
 
 ### `instruments`
@@ -31,6 +40,15 @@ Constraint:
 
 - aktif sembol için normalize edilmiş sembol benzersizliği,
 - durum izin listesi.
+
+### `sectors`
+
+- `id uuid primary key`
+- `code varchar unique`
+- `name varchar`
+- `parent_id uuid nullable`
+- `created_at timestamptz`
+- `updated_at timestamptz`
 
 ### `instrument_symbol_history`
 
@@ -93,6 +111,10 @@ instrument_id + provider_id + timeframe + open_time + revision
 ```
 
 Okuma için aktif revision görünümü veya ayrı `is_current` yaklaşımı fiziksel migration sırasında seçilecektir.
+
+İlk migration'da `current_price_bars` görünümü seçilmiştir. Görünüm her instrument, provider,
+timeframe ve bar başlangıcı için en yüksek revision kaydını döndürür; ek mutable `is_current`
+kolonu tutulmaz.
 
 ### `data_quality_issues`
 
@@ -170,3 +192,10 @@ Temel kural:
 - Secret saklayan kolon yok.
 - Seed işlemi idempotent.
 - Migration temiz veritabanında ve mevcut şema üzerinde test ediliyor.
+
+## 7. Geri dönüş yaklaşımı
+
+Migration'lar forward-only uygulanır. Sorunda önce uygulama rollout'u durdurulur veya geri
+alınır; ardından veri kaybetmeyen compensating migration tercih edilir. Destructive geri dönüş
+gerekiyorsa doğrulanmış backup/restore prosedürü kullanılır. Otomatik `down` migration zorunlu
+değildir.

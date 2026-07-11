@@ -23,6 +23,7 @@ Bu dosya Project Atlas repository'sindeki bağlayıcı belgelerin okunma sıras�
 3. `architecture/ADR-001-Modular-Monolith.md`
 4. `architecture/ADR-002-TypeScript-NestJS-Backend.md`
 5. `architecture/ADR-003-Versioned-Scan-Rule-AST.md`
+6. `architecture/ADR-004-Drizzle-PostgreSQL-Data-Access.md`
 
 ## Veri ve API
 

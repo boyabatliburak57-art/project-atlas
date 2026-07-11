@@ -14,6 +14,9 @@
 - TASK-006 kapsamında BullMQ worker uygulaması iskeleti
 - Sürümlü queue sözleşmeleri, heartbeat, retry ve dead-letter temeli
 - Redis fail-fast bağlantısı, structured logging ve graceful shutdown
+- TASK-007 kapsamında Drizzle tabanlı ilk PostgreSQL şeması ve migration'lar
+- Instrument Master ve Market Data için sekiz tablo, current revision görünümü ve seed
+- Migration constraint integration testleri ve ADR-004 veri erişimi kararı
 
 ## 0.2.0-engineering-baseline — 2026-07-11
 

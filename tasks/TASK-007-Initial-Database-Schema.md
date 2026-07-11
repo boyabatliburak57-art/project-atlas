@@ -1,6 +1,6 @@
 # TASK-007 — Initial Database Schema
 
-**Durum:** Hazır  
+**Durum:** PostgreSQL doğrulaması bekliyor
 **Bağımlılık:** TASK-005
 
 ## Amaç
@@ -63,3 +63,14 @@ Sadece belirtilen tabloları ekle.
 TimescaleDB ve partition ekleme.
 Migration ve constraint integration testlerini çalıştır.
 ```
+
+## Tamamlanma notu
+
+- **Tarih:** 2026-07-12
+- **Durum:** PostgreSQL doğrulaması bekliyor
+- **Değişiklik:** Drizzle database paketi, sekiz tablo, current revision görünümü, migration,
+  idempotent seed ve PostgreSQL integration testleri eklendi.
+- **Migration:** İki forward migration; sekiz tablo ve `current_price_bars` görünümü.
+- **Geri dönüş:** Compensating migration veya doğrulanmış backup/restore.
+- **Bilinen sınırlama:** Docker/PostgreSQL erişimi doğrulanana kadar integration testi bekliyor.
+- **Sonraki görev:** TASK-007 PostgreSQL integration doğrulaması; ardından TASK-008

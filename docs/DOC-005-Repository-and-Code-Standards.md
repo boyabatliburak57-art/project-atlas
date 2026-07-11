@@ -13,6 +13,7 @@ project-atlas/
 │   └── worker/
 ├── packages/
 │   ├── config/
+│   ├── database/
 │   ├── domain/
 │   ├── types/
 │   ├── validation/
