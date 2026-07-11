@@ -12,5 +12,7 @@
 - T3 Code başlangıç ve sistem talimatı
 - İlk üç görev kartı
 - GitHub ve T3 Code entegrasyon rehberleri
+- Repository yapısı, indeks yolları, Markdown ve Mermaid blokları doğrulaması
+- Temel Markdown lint yapılandırması
 
 Bu sürüm uygulama kodu içermez.

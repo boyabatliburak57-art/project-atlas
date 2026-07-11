@@ -3,7 +3,7 @@
 ## Temel belgeler
 
 | Sıra | Dosya | Amaç |
-|---|---|---|
+| --- | --- | --- |
 | 1 | `README.md` | Projenin genel tanımı |
 | 2 | `T3_CODE_START_HERE.md` | T3 Code başlangıç akışı |
 | 3 | `SYSTEM_PROMPT.md` | Çalışma ve kodlama kuralları |

@@ -2,8 +2,9 @@
   "name": "project-atlas-foundation",
   "version": "0.1.0-foundation",
   "generatedAt": "2026-07-11",
-  "fileCount": 20,
+  "fileCount": 21,
   "files": [
+    ".markdownlint.json",
     "ATLAS_INDEX.md",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
