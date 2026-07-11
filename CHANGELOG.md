@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.2.0-engineering-baseline — 2026-07-11
+
+### Eklendi
+
+- DOC-004 Technology Stack
+- DOC-005 Repository and Code Standards
+- DOC-006 Security and Privacy Requirements
+- DOC-007 Development and Release Workflow
+- ADR-001 Modular Monolith
+- ADR-002 TypeScript and NestJS Backend
+- ADR-003 Versioned Scan Rule AST
+- ARCH-002 Market Data Engine
+- DB-002 Market Data Physical Design
+- API-002 Instruments and Market Data API
+- T3 Code execution checklist
+- TASK-004–TASK-010
+- Pull request template
+
+### Değişti
+
+- Doküman indeksi v0.2 kapsamına göre güncellendi.
+- README sürüm ve aşama bilgisi güncellendi.
+
 ## 0.1.0-foundation — 2026-07-11
 
 ### Eklendi
@@ -12,12 +35,5 @@
 - T3 Code başlangıç ve sistem talimatı
 - İlk üç görev kartı
 - GitHub ve T3 Code entegrasyon rehberleri
-- Repository yapısı, indeks yolları, Markdown ve Mermaid blokları doğrulaması
-- Temel Markdown lint yapılandırması
-- pnpm workspace ve Turborepo tabanlı minimal monorepo iskeleti
-- Ortak strict TypeScript, ESLint, Prettier ve editör yapılandırmaları
-- Web, API, worker, config, types, domain ve validation workspace'leri
-- Healthcheck ve kalıcı volume içeren yerel PostgreSQL ve Redis Compose ortamı
-- Yerel altyapı ortam değişkenleri ve geliştirme rehberi
 
 Bu sürüm uygulama kodu içermez.

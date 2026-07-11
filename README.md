@@ -36,24 +36,14 @@ Project Atlas, Borsa İstanbul (BIST) paylarını teknik ve temel verilerle tara
 **Sürüm:** 0.1.0-foundation  
 **Aşama:** Dokümantasyon ve temel proje hazırlığı
 
-## Geliştirme
+## v0.2 ile eklenenler
 
-Gereksinimler:
-
-- Node.js `22.14.0`
-- pnpm `9.15.4`
-
-Temel komutlar:
-
-```bash
-pnpm install
-pnpm lint
-pnpm typecheck
-```
-
-Monorepo; `apps/web`, `apps/api`, `apps/worker` ile `packages/config`, `packages/types`,
-`packages/domain` ve `packages/validation` workspace'lerinden oluşur. Framework ve ürün
-özellikleri henüz kurulmamıştır.
-
-PostgreSQL ve Redis içeren yerel Docker ortamı için
-[`guides/LOCAL_DEVELOPMENT.md`](guides/LOCAL_DEVELOPMENT.md) belgesini izleyin.
+- Teknoloji yığını kararları
+- Repository ve kod standartları
+- Güvenlik ve gizlilik gereksinimleri
+- Geliştirme ve release süreci
+- Mimari karar kayıtları
+- Market Data Engine mimarisi
+- Market Data fiziksel veri tasarımı
+- Instrument ve bar API taslağı
+- TASK-004 ile TASK-010 arası uygulama görevleri
