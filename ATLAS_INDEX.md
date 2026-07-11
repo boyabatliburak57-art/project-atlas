@@ -2,18 +2,18 @@
 
 ## Temel belgeler
 
-| Sıra | Dosya | Amaç |
-| --- | --- | --- |
-| 1 | `README.md` | Projenin genel tanımı |
-| 2 | `T3_CODE_START_HERE.md` | T3 Code başlangıç akışı |
-| 3 | `SYSTEM_PROMPT.md` | Çalışma ve kodlama kuralları |
-| 4 | `docs/DOC-000-Project-Constitution.md` | Değişmez proje ilkeleri |
-| 5 | `docs/DOC-001-Business-Requirements.md` | İş ihtiyaçları ve hedefler |
-| 6 | `docs/DOC-002-Product-Requirements.md` | Ürün modülleri ve kullanıcı akışları |
-| 7 | `docs/DOC-003-Software-Requirements.md` | Teknik ve kalite gereksinimleri |
-| 8 | `architecture/ARCH-001-System-Overview.md` | Sistem bileşenleri |
-| 9 | `database/DB-001-Conceptual-Model.md` | Kavramsal veri modeli |
-| 10 | `api/API-001-Overview.md` | API ilkeleri |
+| Sıra | Dosya                                      | Amaç                                 |
+| ---- | ------------------------------------------ | ------------------------------------ |
+| 1    | `README.md`                                | Projenin genel tanımı                |
+| 2    | `T3_CODE_START_HERE.md`                    | T3 Code başlangıç akışı              |
+| 3    | `SYSTEM_PROMPT.md`                         | Çalışma ve kodlama kuralları         |
+| 4    | `docs/DOC-000-Project-Constitution.md`     | Değişmez proje ilkeleri              |
+| 5    | `docs/DOC-001-Business-Requirements.md`    | İş ihtiyaçları ve hedefler           |
+| 6    | `docs/DOC-002-Product-Requirements.md`     | Ürün modülleri ve kullanıcı akışları |
+| 7    | `docs/DOC-003-Software-Requirements.md`    | Teknik ve kalite gereksinimleri      |
+| 8    | `architecture/ARCH-001-System-Overview.md` | Sistem bileşenleri                   |
+| 9    | `database/DB-001-Conceptual-Model.md`      | Kavramsal veri modeli                |
+| 10   | `api/API-001-Overview.md`                  | API ilkeleri                         |
 
 ## İlk görevler
 

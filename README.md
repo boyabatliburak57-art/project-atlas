@@ -35,3 +35,22 @@ Project Atlas, Borsa İstanbul (BIST) paylarını teknik ve temel verilerle tara
 
 **Sürüm:** 0.1.0-foundation  
 **Aşama:** Dokümantasyon ve temel proje hazırlığı
+
+## Geliştirme
+
+Gereksinimler:
+
+- Node.js `22.14.0`
+- pnpm `9.15.4`
+
+Temel komutlar:
+
+```bash
+pnpm install
+pnpm lint
+pnpm typecheck
+```
+
+Monorepo; `apps/web`, `apps/api`, `apps/worker` ile `packages/config`, `packages/types`,
+`packages/domain` ve `packages/validation` workspace'lerinden oluşur. Framework ve ürün
+özellikleri henüz kurulmamıştır.

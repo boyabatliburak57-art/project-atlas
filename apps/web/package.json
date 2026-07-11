@@ -1,0 +1,14 @@
+{
+  "name": "@atlas/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@atlas/config": "workspace:*"
+  }
+}
