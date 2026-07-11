@@ -1,0 +1,28 @@
+{
+  "name": "project-atlas-foundation",
+  "version": "0.1.0-foundation",
+  "generatedAt": "2026-07-11",
+  "fileCount": 20,
+  "files": [
+    "ATLAS_INDEX.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "SYSTEM_PROMPT.md",
+    "T3_CODE_START_HERE.md",
+    "api/API-001-Overview.md",
+    "architecture/ARCH-001-System-Overview.md",
+    "database/DB-001-Conceptual-Model.md",
+    "docs/DOC-000-Project-Constitution.md",
+    "docs/DOC-001-Business-Requirements.md",
+    "docs/DOC-002-Product-Requirements.md",
+    "docs/DOC-003-Software-Requirements.md",
+    "guides/GITHUB_SETUP.md",
+    "guides/T3_CODE_INTEGRATION.md",
+    "tasks/TASK-001-Repository-Validation.md",
+    "tasks/TASK-002-Monorepo-Scaffold.md",
+    "tasks/TASK-003-Docker-Development-Environment.md",
+    "templates/ADR_TEMPLATE.md",
+    "templates/TASK_TEMPLATE.md"
+  ]
+}
