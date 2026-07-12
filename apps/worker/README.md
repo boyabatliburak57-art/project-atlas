@@ -29,6 +29,9 @@ Job adları `<domain>.<operation>.v<major>` biçimindedir. Heartbeat işi
 Instrument senkronizasyon handler'ı `market-data.instrument-sync.v1` iş adını kullanır. Queue
 payload yalnızca provider code ve dry-run bayrağı taşır; provider response veya secret taşımaz.
 
+OHLCV ingestion handler'ı `market-data.bar-ingestion.v1` iş adını kullanır. Payload provider
+code/symbol, timeframe, ISO tarih aralığı ve opsiyonel limit taşır.
+
 ## İdempotent job örneği
 
 Heartbeat producer aynı zaman aralığında deterministik `jobId` üretir:
@@ -74,6 +77,21 @@ Instrument import pipeline:
 - provider listesinden eksilen aktif mapping'leri yalnızca deactivation adayı olarak raporlar,
 - dry-run sırasında ingestion run dahil hiçbir veritabanı kaydı oluşturmaz,
 - gerçek koşuları `ingestion_runs` tablosunda completed/failed durumuyla izler.
+
+## OHLCV ingestion
+
+Bar ingestion pipeline:
+
+- normalize provider barlarını request range, timeframe, symbol mapping, future timestamp,
+  OHLC ve volume kurallarıyla yeniden doğrular,
+- geçersiz barı `data_quality_issues` kaydına çevirir ve `price_bars` tablosuna yazmaz,
+- yeni barı revision 1 olarak ekler,
+- açık barı aynı revision üzerinde güncelleyip kapatabilir,
+- kapalı bar değişikliğini yeni `corrected` revision olarak ekler,
+- kapalı barın yeniden açılmasını reddeder,
+- aynı kalıcı içeriği duplicate metriğiyle atlar,
+- doğal bar anahtarını PostgreSQL transaction advisory lock ile eşzamanlı ingest yarışından
+  korur.
 
 ## Kontroller
 

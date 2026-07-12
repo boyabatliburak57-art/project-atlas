@@ -116,6 +116,16 @@ Okuma için aktif revision görünümü veya ayrı `is_current` yaklaşımı fiz
 timeframe ve bar başlangıcı için en yüksek revision kaydını döndürür; ek mutable `is_current`
 kolonu tutulmaz.
 
+TASK-010 revision politikası:
+
+- açık bar revision satırı mutable olup provider güncellemeleriyle değişebilir,
+- açık bar kapandığında aynı revision final hale gelir,
+- kapalı barın finansal içeriği değişirse `revision + 1` ve `quality_status = corrected` kaydı
+  eklenir,
+- aynı içerik tekrar geldiğinde yeni satır eklenmez,
+- kapalı bar açık duruma döndürülemez,
+- eşzamanlı doğal anahtar yazımları transaction advisory lock ile serileştirilir.
+
 ### `data_quality_issues`
 
 - `id uuid`

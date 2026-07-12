@@ -7,6 +7,7 @@ export const QUEUE_NAMES = {
 } as const;
 
 export const JOB_NAMES = {
+  barIngestion: 'market-data.bar-ingestion.v1',
   deadLetter: 'system.dead-letter.v1',
   heartbeat: 'system.heartbeat.v1',
   instrumentSync: 'market-data.instrument-sync.v1',

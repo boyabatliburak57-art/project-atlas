@@ -21,6 +21,8 @@
 - Güvenli provider error taxonomy, validation wrapper, registry ve fake provider adapter
 - TASK-009 BIST instrument import service, PostgreSQL store ve worker job sözleşmesi
 - Idempotent mapping, dry-run, deactivation preview ve ingestion run gözlemlenebilirliği
+- TASK-010 OHLCV validation, quality issue ve idempotent bar persistence çekirdeği
+- Açık bar güncelleme, kapalı bar revision politikası ve bar ingestion worker handler'ı
 
 ### Doğrulandı
 
