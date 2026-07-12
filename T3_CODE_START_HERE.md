@@ -47,3 +47,26 @@ Kod yazmadan önce:
 4. Doküman çelişkisi varsa dur.
 5. Çelişki yoksa uygulama planını ver.
 ```
+
+## v0.3 başlangıç mesajı
+
+```text
+Önce ATLAS_INDEX.md, SYSTEM_PROMPT.md, DOC-008, DOC-009, ARCH-003, ARCH-004, ADR-004, ADR-005, DB-003 ve API-003 dosyalarını oku. Henüz kod üretme. Indicator/Scanner sınırını, warm-up ve versioning politikasını, üç durumlu değerlendirmeyi ve TASK-011 geçiş kapısını özetle.
+```
+
+## v0.3.1 remediation başlangıç mesajı
+
+```text
+Foundation audit sonucu NO-GO olarak raporlandı.
+
+Önce şu dosyaları oku:
+- reports/foundation-milestone-audit.md
+- reports/REMEDIATION_PLAN-v0.3.1.md
+- docs/DOC-010-Quality-Gates-and-Toolchain-Policy.md
+- architecture/ADR_INDEX.md
+
+TASK-012 veya sonraki Indicator Engine görevlerine başlama.
+
+Sırasıyla TASK-011A, 011B, 011C, 011D, 011E ve 011F uygulanacak.
+Her görevden önce ilgili kabul kriterlerini özetle.
+```

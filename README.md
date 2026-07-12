@@ -47,3 +47,18 @@ Project Atlas, Borsa İstanbul (BIST) paylarını teknik ve temel verilerle tara
 - Market Data fiziksel veri tasarımı
 - Instrument ve bar API taslağı
 - TASK-004 ile TASK-010 arası uygulama görevleri
+
+## v0.3 ile eklenenler
+
+- Indicator Engine gereksinimleri ve mimarisi
+- Scanner Engine gereksinimleri ve mimarisi
+- İndikatör sürümleme ve fixture standardı
+- Üç durumlu scanner değerlendirmesi
+- Indicator/scanner veri modeli ve API taslağı
+- TASK-011–TASK-020
+
+## v0.3.1 geçiş kuralı
+
+Foundation audit NO-GO sonucu nedeniyle Indicator Engine görevleri geçici olarak durdurulmuştur.
+
+Önce TASK-011A ile TASK-011F uygulanır. Re-audit GO sonucu vermeden TASK-012 başlatılmaz.

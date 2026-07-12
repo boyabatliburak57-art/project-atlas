@@ -1,8 +1,6 @@
 # Atlas Doküman İndeksi
 
-Bu dosya Project Atlas repository'sindeki bağlayıcı belgelerin okunma sırasını tanımlar.
-
-## Zorunlu temel belgeler
+## Temel belgeler
 
 1. `README.md`
 2. `T3_CODE_START_HERE.md`
@@ -15,54 +13,65 @@ Bu dosya Project Atlas repository'sindeki bağlayıcı belgelerin okunma sıras�
 9. `docs/DOC-005-Repository-and-Code-Standards.md`
 10. `docs/DOC-006-Security-and-Privacy-Requirements.md`
 11. `docs/DOC-007-Development-and-Release-Workflow.md`
+12. `docs/DOC-008-Indicator-Engine-Requirements.md`
+13. `docs/DOC-009-Scanner-Engine-Requirements.md`
 
-## Mimari belgeler
+## Mimari
 
-1. `architecture/ARCH-001-System-Overview.md`
-2. `architecture/ARCH-002-Market-Data-Engine.md`
-3. `architecture/ADR-001-Modular-Monolith.md`
-4. `architecture/ADR-002-TypeScript-NestJS-Backend.md`
-5. `architecture/ADR-003-Versioned-Scan-Rule-AST.md`
-6. `architecture/ADR-004-Drizzle-PostgreSQL-Data-Access.md`
+- ARCH-001 System Overview
+- ARCH-002 Market Data Engine
+- ARCH-003 Indicator Engine
+- ARCH-004 Scanner Engine
+- ADR-001–ADR-005
 
 ## Veri ve API
 
-1. `database/DB-001-Conceptual-Model.md`
-2. `database/DB-002-Market-Data-Physical-Design.md`
-3. `api/API-001-Overview.md`
-4. `api/API-002-Instruments-and-Market-Data.md`
+- DB-001 Conceptual Model
+- DB-002 Market Data Physical Design
+- DB-003 Indicator and Scanner Schema
+- API-001 Overview
+- API-002 Instruments and Market Data
+- API-003 Indicators and Scanner
 
 ## Görev sırası
 
-1. `TASK-001` Repository Validation
-2. `TASK-002` Monorepo Scaffold
-3. `TASK-003` Docker Development Environment
-4. `TASK-004` Web App Scaffold
-5. `TASK-005` API App Scaffold
-6. `TASK-006` Worker App Scaffold
-7. `TASK-007` Initial Database Schema
-8. `TASK-008` Market Data Provider Abstraction
-9. `TASK-009` BIST Instrument Import Pipeline
-10. `TASK-010` OHLCV Ingestion Core
+- TASK-001–TASK-010: Foundation ve Market Data
+- TASK-011: Foundation Milestone Audit
+- TASK-012–TASK-017: Indicator Engine
+- TASK-018–TASK-020: Scanner AST, evaluator ve planner
 
-## Öncelik kuralı
+## Geçiş kapısı
 
-Çelişki halinde:
+TASK-011 kritik failure içeriyorsa TASK-012'ye geçilmez. TASK-020 sonunda tam scan run execution henüz yoktur; sonraki paket queue execution, persistence, hazır taramalar ve scanner UI akışını ekleyecektir.
+
+## Öncelik
 
 1. Project Constitution
 2. Kabul edilmiş ADR
 3. Security Requirements
 4. Software Requirements
-5. Architecture/Database/API belgeleri
-6. Product Requirements
-7. Business Requirements
-8. Task Card
-9. Kod içi yorum
+5. Engine Requirements
+6. Architecture/Database/API
+7. Product Requirements
+8. Business Requirements
+9. Task Card
+10. Kod içi yorum
 
-Alt seviye belge üst seviye belgeyi geçersiz kılamaz.
+## v0.3.1 Remediation Geçiş Kapısı
 
-## T3 Code okuma kuralı
+TASK-011 audit sonucu NO-GO ise aşağıdaki görevler sırasıyla uygulanır:
 
-T3 Code her görevde tüm repository'yi körlemesine okumamalıdır.
+1. `tasks/TASK-011A-Formatting-Baseline.md`
+2. `tasks/TASK-011B-ADR-Identifier-Remediation.md`
+3. `tasks/TASK-011C-Secret-Scanning-and-CI.md`
+4. `tasks/TASK-011D-Node-Version-Enforcement.md`
+5. `tasks/TASK-011E-Market-Data-Worker-Wiring.md`
+6. `tasks/TASK-011F-Foundation-Reaudit.md`
 
-Zorunlu başlangıç belgeleri ile görev kartında referans verilen ilgili belgeleri okumalı; etkilenen modülleri ve çelişkileri uygulamadan önce özetlemelidir.
+Referanslar:
+
+- `reports/REMEDIATION_PLAN-v0.3.1.md`
+- `docs/DOC-010-Quality-Gates-and-Toolchain-Policy.md`
+- `architecture/ADR_INDEX.md`
+
+TASK-011F sonucu GO olmadan TASK-012 uygulanmaz.

@@ -1,34 +1,38 @@
 # Changelog
 
-## Unreleased
+## 0.3.1-foundation-remediation — 2026-07-11
 
 ### Eklendi
 
-- TASK-004 kapsamında Next.js App Router web uygulaması iskeleti
-- Tailwind CSS ve shadcn/ui kuruluma hazır frontend yapılandırması
-- TanStack Query provider, public environment doğrulaması ve Vitest temel testleri
-- TASK-005 kapsamında NestJS API uygulaması iskeleti
-- Liveness/readiness, OpenAPI, environment doğrulaması ve standart hata zarfı
-- Structured JSON logging ile request/correlation id altyapısı
-- Güvenlik advisory'si için patched PostCSS transitive dependency override'ı
-- TASK-006 kapsamında BullMQ worker uygulaması iskeleti
-- Sürümlü queue sözleşmeleri, heartbeat, retry ve dead-letter temeli
-- Redis fail-fast bağlantısı, structured logging ve graceful shutdown
-- TASK-007 kapsamında Drizzle tabanlı ilk PostgreSQL şeması ve migration'lar
-- Instrument Master ve Market Data için sekiz tablo, current revision görünümü ve seed
-- Migration constraint integration testleri ve ADR-004 veri erişimi kararı
-- TASK-008 provider capability ve normalize instrument/bar sözleşmeleri
-- Güvenli provider error taxonomy, validation wrapper, registry ve fake provider adapter
-- TASK-009 BIST instrument import service, PostgreSQL store ve worker job sözleşmesi
-- Idempotent mapping, dry-run, deactivation preview ve ingestion run gözlemlenebilirliği
-- TASK-010 OHLCV validation, quality issue ve idempotent bar persistence çekirdeği
-- Açık bar güncelleme, kapalı bar revision politikası ve bar ingestion worker handler'ı
+- Foundation remediation plan
+- DOC-010 Quality Gates and Toolchain Policy
+- ADR index
+- TASK-011A Formatting Baseline
+- TASK-011B ADR Identifier Remediation
+- TASK-011C Secret Scanning and CI
+- TASK-011D Node Version Enforcement
+- TASK-011E Market Data Worker Wiring
+- TASK-011F Foundation Re-Audit
 
-### Doğrulandı
+### Değişti
 
-- TASK-006 Redis bağlantısı, heartbeat tüketimi ve kontrollü worker kapanışı
-- TASK-007 migration, foreign key, unique constraint ve idempotent seed senaryoları
-  PostgreSQL 17 üzerinde doğrulandı
+- TASK-012 öncesine zorunlu remediation geçiş kapısı eklendi.
+- README ve ATLAS_INDEX güncellendi.
+
+## 0.3.0-indicator-scanner-core — 2026-07-11
+
+### Eklendi
+
+- DOC-008 Indicator Engine Requirements
+- DOC-009 Scanner Engine Requirements
+- ARCH-003 Indicator Engine
+- ARCH-004 Scanner Engine
+- ADR-004 Indicator Versioning and Fixtures
+- ADR-005 Three-State Scan Evaluation
+- DB-003 Indicator and Scanner Schema
+- API-003 Indicators and Scanner
+- Indicator Fixture Guide
+- TASK-011–TASK-020
 
 ## 0.2.0-engineering-baseline — 2026-07-11
 
