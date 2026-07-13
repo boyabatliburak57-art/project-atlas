@@ -62,3 +62,14 @@ Project Atlas, Borsa İstanbul (BIST) paylarını teknik ve temel verilerle tara
 Foundation audit NO-GO sonucu nedeniyle Indicator Engine görevleri geçici olarak durdurulmuştur.
 
 Önce TASK-011A ile TASK-011F uygulanır. Re-audit GO sonucu vermeden TASK-012 başlatılmaz.
+
+## v0.4 ile eklenenler
+
+- Scanner Runtime ve persistence
+- Saved/preset scan revision modeli
+- Scanner runtime API ve UX
+- TASK-021–TASK-030
+
+## v0.4.1 geçiş kuralı
+
+TASK-021A, TASK-021B ve TASK-021C tamamlanıp re-audit GO sonucu vermeden TASK-022 başlatılmaz.

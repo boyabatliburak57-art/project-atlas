@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.4.1-runtime-remediation — 2026-07-11
+
+### Eklendi
+
+- Indicator/Scanner Core remediation plan
+- DOC-014 Documentation Identifier and Formatting Policy
+- TASK-021A ADR-006 Collision Remediation
+- TASK-021B Markdown Formatting Remediation
+- TASK-021C Indicator/Scanner Core Re-Audit
+
+### Değişti
+
+- TASK-022 öncesine zorunlu repository gate remediation eklendi.
+- Resmî index dışında kalan Drizzle kararı, içeriği ve tarihi korunarak `ADR-006` kimliğinden
+  `ADR-008` kimliğine taşındı; `ADR-006` Scan Run kararına ayrıldı.
+
+## 0.4.0-scanner-runtime — 2026-07-11
+
+### Eklendi
+
+- DOC-011, DOC-012, DOC-013
+- ARCH-005, ADR-006, ADR-007
+- DB-004, API-004
+- Scanner Runtime Test Matrix
+- TASK-021–TASK-030
+
 ## 0.3.1-foundation-remediation — 2026-07-11
 
 ### Eklendi
@@ -18,12 +44,6 @@
 
 - TASK-012 öncesine zorunlu remediation geçiş kapısı eklendi.
 - README ve ATLAS_INDEX güncellendi.
-- Index dışında kalan Drizzle veri erişimi kararı ADR-004'ten ADR-006'ya taşındı.
-- ADR dosya adı, başlığı, resmî indeks ve manifest referansları benzersiz kimlikle hizalandı.
-- Gitleaks v8.30.1 local çalışma ağacı/Git geçmişi scan'i ve fail-closed CI kapısı eklendi.
-- Synthetic detection testi ve merkezi suppression politikası belgelendi.
-- Node 22.14.0 ve pnpm 9.15.4 local/CI toolchain kaynakları hizalandı.
-- Fail-fast version checker, Corepack politikası ve Node 22 quality-gates workflow'u eklendi.
 
 ## 0.3.0-indicator-scanner-core — 2026-07-11
 

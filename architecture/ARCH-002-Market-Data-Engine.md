@@ -65,11 +65,6 @@ Provider capability örnekleri:
 - pagination,
 - rate limits.
 
-İlk uygulama kararında ham adapter yanıtları `unknown` kabul edilir. Validation wrapper;
-capability, instrument ve bar şemalarını doğruladıktan sonra normalize edilmiş sözleşmeyi
-registry tüketicilerine açar. Registry provider code ile çözümleme yapar. Secret sözleşmede
-taşınmaz; ham upstream hata metni güvenli provider error taxonomy dışına çıkarılmaz.
-
 ## 6. Normalize edilmiş bar
 
 ```typescript
@@ -210,35 +205,3 @@ Metrikler:
 5. Kalite kontrolü yapılır.
 6. Bar güncelleme olayı üretilir.
 7. İndikatör hesapları sonraki fazda tetiklenir.
-
-## 16. Instrument sync uygulama kararı
-
-İlk instrument sync akışı provider mapping, ISIN ve aktif normalized symbol sırasıyla eşleştirme
-yapar. Yazımlar tek transaction içinde uygulanır ve gerçek koşu `ingestion_runs` kaydı üretir.
-Dry-run yalnızca plan ve metrik döndürür; kalıcı veri yazmaz.
-
-Provider listesinden eksilen aktif mapping veya instrument otomatik olarak silinmez ya da
-deactivate edilmez. Sonuçta `deactivationCandidates` olarak raporlanır. Açık sembol değişimi
-ISIN ile eşleştiğinde internal instrument korunur, eski provider mapping pasifleştirilir ve eski
-canonical symbol history tablosuna yazılır.
-
-## 17. OHLCV ingest uygulama kararı
-
-Fetch range command provider code/symbol, timeframe ve `[from, to)` aralığını taşır. Provider
-normalization sınırından geçen barlar mapping, request range, timeframe, future timestamp,
-decimal/OHLC ve volume kurallarıyla application katmanında tekrar doğrulanır. Geçersiz bar ham
-payload saklanmadan normalize quality issue kodlarıyla karantinaya alınır.
-
-Revision politikası:
-
-- ilk kayıt revision 1,
-- açık bar değişikliği aynı revision üzerinde mutable güncelleme,
-- açık barın kapanması aynı revision üzerinde finalizasyon,
-- kapalı bar değişikliği yeni `corrected` revision,
-- kapalı barın yeniden açılması validation error,
-- aynı içerik idempotent duplicate.
-
-Provider, instrument, timeframe ve open time doğal anahtarı transaction-scoped PostgreSQL
-advisory lock ile serileştirilir. Güncel okuma en yüksek revision'ı seçen
-`current_price_bars` görünümünü kullanır. Ingestion run metadata inserted, updated, revised,
-duplicate ve quality issue sayaçlarını taşır.

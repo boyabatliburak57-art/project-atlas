@@ -76,7 +76,7 @@ kullanılarak local cache bypass edildi; çıktılar `Cached: 0` gösterdi.
 ### TASK-011B — ADR identifier remediation
 
 - **Sonuç:** passed.
-- Drizzle kararı `architecture/ADR-006-Drizzle-PostgreSQL-Data-Access.md` kimliğindedir;
+- Drizzle kararı `architecture/ADR-008-Drizzle-PostgreSQL-Data-Access.md` kimliğindedir;
   indicator versioning kararı `architecture/ADR-004-Indicator-Versioning-and-Fixtures.md`
   kimliğini korur.
 - Altı ADR'nin filename, H1 ve index kimlikleri uyumludur. Duplicate ve mismatch negatif

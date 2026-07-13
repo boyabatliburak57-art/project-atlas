@@ -70,3 +70,23 @@ TASK-012 veya sonraki Indicator Engine görevlerine başlama.
 Sırasıyla TASK-011A, 011B, 011C, 011D, 011E ve 011F uygulanacak.
 Her görevden önce ilgili kabul kriterlerini özetle.
 ```
+
+## v0.4 başlangıç mesajı
+
+```text
+Project Atlas v0.4 belgelerini oku: DOC-011, DOC-012, DOC-013, ARCH-005, ADR-006, ADR-007, DB-004, API-004 ve SCANNER_RUNTIME_TEST_MATRIX. Henüz kod üretme. ScanRun state machine, idempotency, batching, progress fallback, immutable revisions ve TASK-021/TASK-030 geçiş kapılarını özetle.
+```
+
+## v0.4.1 remediation başlangıç mesajı
+
+```text
+Indicator/Scanner Core milestone audit sonucu NO-GO olarak raporlandı.
+
+Başarısız kapılar:
+- pnpm validate:adr: duplicate ADR-006
+- pnpm format:check: dokuz Markdown dosyası
+
+Önce remediation planını, DOC-014'ü, ADR_INDEX'i ve milestone audit raporunu oku.
+TASK-022'ye başlama.
+Sırasıyla TASK-021A, TASK-021B ve TASK-021C uygulanacak.
+```

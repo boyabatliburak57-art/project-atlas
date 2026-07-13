@@ -1,6 +1,6 @@
 # TASK-006 — Worker Application Scaffold
 
-**Durum:** Tamamlandı
+**Durum:** Hazır
 **Bağımlılık:** TASK-002, TASK-003
 
 ## Amaç
@@ -42,15 +42,3 @@ apps/worker içinde BullMQ tabanlı minimal worker iskeleti oluştur.
 Graceful shutdown, logging, retry standardı ve test altyapısını ekle.
 Gerçek market data veya scanner job'ı yazma.
 ```
-
-## Tamamlanma notu
-
-- **Tarih:** 2026-07-11
-- **Durum:** Tamamlandı
-- **Değişiklik:** BullMQ, Redis bağlantısı, queue standardı, heartbeat, retry,
-  dead-letter metadata, JSON logging, graceful shutdown ve test altyapısı eklendi.
-- **Migration:** Yok.
-- **Doğrulama:** Redis 7 healthcheck ve `PONG`, worker bağlantısı, heartbeat tüketimi ve
-  derlenmiş worker sürecinin kontrollü kapanışı canlı ortamda doğrulandı.
-- **Bilinen sınırlama:** Heartbeat internal süreç kontrolüdür; dış health endpointi yoktur.
-- **Sonraki görev:** TASK-007

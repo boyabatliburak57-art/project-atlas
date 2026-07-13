@@ -1,6 +1,6 @@
 # TASK-010 — OHLCV Ingestion Core
 
-**Durum:** Tamamlandı
+**Durum:** Hazır
 **Bağımlılık:** TASK-008, TASK-009
 
 ## Amaç
@@ -57,23 +57,3 @@ Validasyon, quality issue, ingestion run ve idempotent persistence ekle.
 Indicator veya scanner kodu ekleme.
 Integration testleri çalıştır.
 ```
-
-## Tamamlanma notu
-
-- **Tarih:** 2026-07-12
-- **Durum:** Tamamlandı
-- **Değişiklik:** Fetch range command, sürümlü worker job handler, contextual OHLCV validation,
-  PostgreSQL persistence store, quality issue ve ingestion run metrikleri eklendi.
-- **Revision:** Yeni bar revision 1; açık bar aynı revision üzerinde güncellenip kapanabilir;
-  kapalı bar düzeltmesi yeni `corrected` revision üretir; kapalı bar yeniden açılamaz.
-- **Idempotency:** Provider/instrument/timeframe/open time anahtarı transaction advisory lock ile
-  serileştirilir. Aynı içerik duplicate metriğiyle atlanır ve yeni bar üretmez.
-- **Güvenlik:** Provider response TASK-008 validation sınırından geçer; quality issue yalnızca
-  normalize kod ve güvenli kimlik bilgileri taşır, ham upstream payload/hata taşımaz.
-- **Migration:** Yok; TASK-007 `price_bars`, `data_quality_issues`, `ingestion_runs` ve
-  `current_price_bars` yapıları kullanıldı.
-- **Test:** PostgreSQL 17 üzerinde geçerli/geçersiz bar, tekrar batch, açık bar güncelleme ve
-  kapanış, kapalı revision, mapping eksikliği, malformed response ve ingest sayaçları doğrulandı.
-- **Bilinen sınırlama:** Gerçek provider, cron, aggregation, corporate action adjustment,
-  indicator ve scanner kapsam dışıdır.
-- **Sonraki görev:** Yeni görev kartı bekleniyor.

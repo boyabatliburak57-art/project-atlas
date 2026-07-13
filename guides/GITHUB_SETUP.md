@@ -12,7 +12,7 @@
 docs: add Atlas foundation documentation
 ```
 
-1. `Commit changes` seç.
+6. `Commit changes` seç.
 
 ## Terminal yöntemi
 
