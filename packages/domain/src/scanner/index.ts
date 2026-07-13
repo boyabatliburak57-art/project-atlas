@@ -4,4 +4,5 @@ export * from './normalization/normalize-scan-rule.js';
 export * from './operators/operator-evaluator.js';
 export * from './operators/operator-registry.js';
 export * from './planning/index.js';
+export * from './runtime/index.js';
 export * from './validation/scan-rule-validator.js';
