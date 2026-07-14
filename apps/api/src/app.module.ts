@@ -22,6 +22,8 @@ import {
   IndicatorCatalogService,
 } from './indicators/indicator-catalog.service';
 import { ScannerRuntimeController } from './scanner/scanner-runtime.controller';
+import { ScannerCatalogController } from './scanner/scanner-catalog.controller';
+import { ScannerCatalogService } from './scanner/scanner-catalog.service';
 import {
   ApiDatabase,
   BullMqScannerProgressReader,
@@ -51,6 +53,7 @@ import { PresetScansService } from './preset-scans/preset-scans.service';
     HealthController,
     IndicatorCatalogController,
     ScannerRuntimeController,
+    ScannerCatalogController,
     SavedScansController,
     PresetScansController,
   ],
@@ -106,6 +109,7 @@ import { PresetScansService } from './preset-scans/preset-scans.service';
     },
     IndicatorCatalogService,
     ScannerRuntimeService,
+    ScannerCatalogService,
     SavedScansService,
     PresetScansService,
   ],

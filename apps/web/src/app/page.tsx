@@ -19,6 +19,9 @@ export default function HomePage() {
           <span>Project Atlas</span>
         </Link>
         <nav aria-label="Ana navigasyon">
+          <Link className="text-link" href="/scanner">
+            Scanner
+          </Link>{' '}
           <Link className="text-link" href="/health">
             Sistem durumu
           </Link>
