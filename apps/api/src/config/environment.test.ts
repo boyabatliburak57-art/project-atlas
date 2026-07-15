@@ -14,6 +14,7 @@ describe('parseEnvironment', () => {
       REDIS_URL: 'redis://127.0.0.1:6379',
       SCANNER_PROGRESS_POLL_AFTER_MS: 1_000,
       SCANNER_PROGRESS_STALE_AFTER_MS: 15_000,
+      WATCHLIST_MARKET_DATA_STALE_AFTER_MS: 129_600_000,
     });
   });
 

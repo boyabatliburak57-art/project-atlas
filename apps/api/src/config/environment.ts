@@ -30,6 +30,12 @@ const environmentSchema = z.object({
     .min(1_000)
     .max(300_000)
     .default(15_000),
+  WATCHLIST_MARKET_DATA_STALE_AFTER_MS: z.coerce
+    .number()
+    .int()
+    .min(60_000)
+    .max(604_800_000)
+    .default(129_600_000),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;

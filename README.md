@@ -85,3 +85,18 @@ Açık bulgular:
 - D-002: custom scan AST request round-trip E2E eksikliği
 
 TASK-030A, TASK-030B, TASK-030C ve TASK-030D tamamlanıp re-audit GO vermeden sonraki pakete geçilmez.
+
+## v0.5 ile eklenenler
+
+- Alarm değerlendirme ve bildirim gereksinimleri
+- Çoklu özel watchlist ve scanner universe desteği
+- Notification Center ve kullanıcı tercihleri
+- Alert evaluation ve notification delivery runtime mimarileri
+- Alerts, watchlists ve notifications veri/API tasarımları
+- TASK-031–TASK-040
+
+## v0.5 geçiş kuralı
+
+TASK-031, TASK-030D GO sonucuna bağlıdır. TASK-031 tamamlanmadan TASK-032 başlatılmaz.
+
+TASK-040 Alerts and Watchlists milestone audit sonucu GO olmadan sonraki pakete geçilmez.

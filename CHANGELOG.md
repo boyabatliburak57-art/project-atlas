@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.0-alerts-watchlists — 2026-07-14
+
+### Eklendi
+
+- DOC-016–DOC-018
+- ARCH-006–ARCH-007
+- DB-005
+- API-005
+- Alert/Notification Test Matrix
+- TASK-031–TASK-040
+
+### Değişti
+
+- v0.5 belgeleri README ve ATLAS_INDEX içine mevcut remediation kapıları korunarak eklendi.
+- Mevcut ADR-008 kararı, ADR-006 ve ADR-007 numaraları değiştirilmeden resmi ADR indeksine eklendi.
+
 ## 0.4.2-scanner-runtime-remediation — 2026-07-14
 
 ### Eklendi

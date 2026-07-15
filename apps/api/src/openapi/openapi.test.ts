@@ -23,7 +23,7 @@ describe('OpenAPI document', () => {
     await application.close();
   });
 
-  it('contains health, indicator, scanner runtime and saved scan operations', () => {
+  it('contains health, scanner, saved scan and watchlist operations', () => {
     const document = createOpenApiDocument(application);
 
     expect(document.info.version).toBe('1.0');
@@ -65,6 +65,27 @@ describe('OpenAPI document', () => {
     expect(
       document.paths['/api/v1/preset-scans/{code}/runs']?.post,
     ).toBeDefined();
+    expect(document.paths['/api/v1/watchlists']?.get).toBeDefined();
+    expect(document.paths['/api/v1/watchlists']?.post).toBeDefined();
+    expect(document.paths['/api/v1/watchlists/{id}']?.get).toBeDefined();
+    expect(document.paths['/api/v1/watchlists/{id}']?.patch).toBeDefined();
+    expect(document.paths['/api/v1/watchlists/{id}']?.delete).toBeDefined();
+    expect(
+      document.paths['/api/v1/watchlists/{id}/restore']?.post,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/watchlists/{id}/items']?.post).toBeDefined();
+    expect(
+      document.paths['/api/v1/watchlists/{id}/items/{itemId}']?.patch,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/watchlists/{id}/items/{itemId}']?.delete,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/watchlists/{id}/reorder']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/watchlists/{id}/market-summary']?.get,
+    ).toBeDefined();
     const listParameters =
       document.paths['/api/v1/indicators']?.get?.parameters;
     expect(JSON.stringify(listParameters)).toContain('category');
@@ -83,6 +104,14 @@ describe('OpenAPI document', () => {
       document.paths['/api/v1/scanner/runs/{runId}/results']?.get?.parameters;
     expect(JSON.stringify(resultParameters)).toContain('cursor');
     expect(JSON.stringify(resultParameters)).toContain('includeExplanation');
+    const watchlistParameters =
+      document.paths['/api/v1/watchlists']?.get?.parameters;
+    expect(JSON.stringify(watchlistParameters)).toContain('cursor');
+    expect(JSON.stringify(watchlistParameters)).toContain('includeDeleted');
+    const summaryParameters =
+      document.paths['/api/v1/watchlists/{id}/market-summary']?.get?.parameters;
+    expect(JSON.stringify(summaryParameters)).toContain('cursor');
+    expect(JSON.stringify(summaryParameters)).toContain('limit');
     expect(document.components?.securitySchemes).toHaveProperty('bearer');
     const progressSchema = document.components?.schemas?.ScanRunProgressDto;
     expect(JSON.stringify(progressSchema)).toContain('source');

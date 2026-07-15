@@ -33,3 +33,4 @@ Repository'de bu indeks dışındaki başka bir kabul edilmiş belge `ADR-004` k
 
 | ADR-006 | Scan Run as Resource | Accepted |
 | ADR-007 | Immutable Scan Revisions | Accepted |
+| ADR-008 | PostgreSQL Veri Erişimi için Drizzle | Accepted |

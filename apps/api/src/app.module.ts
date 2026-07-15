@@ -47,6 +47,17 @@ import { PresetScansController } from './preset-scans/preset-scans.controller';
 import { PostgresPresetScanReader } from './preset-scans/preset-scans.infrastructure';
 import { PRESET_SCAN_READER } from './preset-scans/preset-scans.ports';
 import { PresetScansService } from './preset-scans/preset-scans.service';
+import { WatchlistsController } from './watchlists/watchlists.controller';
+import {
+  createWatchlistApplication,
+  PostgresWatchlistMarketSummaryReader,
+  PostgresWatchlistRepository,
+} from './watchlists/watchlists.infrastructure';
+import {
+  WATCHLIST_APPLICATION,
+  WATCHLIST_MARKET_SUMMARY_READER,
+} from './watchlists/watchlists.ports';
+import { WatchlistsService } from './watchlists/watchlists.service';
 
 @Module({
   controllers: [
@@ -56,6 +67,7 @@ import { PresetScansService } from './preset-scans/preset-scans.service';
     ScannerCatalogController,
     SavedScansController,
     PresetScansController,
+    WatchlistsController,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -76,6 +88,8 @@ import { PresetScansService } from './preset-scans/preset-scans.service';
     BullMqScannerRunDispatcher,
     BullMqScannerProgressReader,
     PostgresPresetScanReader,
+    PostgresWatchlistRepository,
+    PostgresWatchlistMarketSummaryReader,
     {
       provide: SCAN_RUN_APPLICATION,
       inject: [ApiDatabase],
@@ -85,6 +99,15 @@ import { PresetScansService } from './preset-scans/preset-scans.service';
       provide: SAVED_SCAN_APPLICATION,
       inject: [ApiDatabase],
       useFactory: createSavedScanApplication,
+    },
+    {
+      provide: WATCHLIST_APPLICATION,
+      inject: [PostgresWatchlistRepository],
+      useFactory: createWatchlistApplication,
+    },
+    {
+      provide: WATCHLIST_MARKET_SUMMARY_READER,
+      useExisting: PostgresWatchlistMarketSummaryReader,
     },
     {
       provide: SCANNER_RUNTIME_READER,
@@ -112,6 +135,7 @@ import { PresetScansService } from './preset-scans/preset-scans.service';
     ScannerCatalogService,
     SavedScansService,
     PresetScansService,
+    WatchlistsService,
   ],
 })
 export class AppModule implements NestModule {

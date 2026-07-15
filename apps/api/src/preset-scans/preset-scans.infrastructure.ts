@@ -3,6 +3,7 @@ import {
   presetScans,
   scanCategories,
 } from '@atlas/database';
+import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq } from 'drizzle-orm';
 
 import { ApiDatabase } from '../scanner/scanner-runtime.infrastructure';
@@ -12,8 +13,9 @@ import type {
   PublishedPresetScanView,
 } from './preset-scans.ports';
 
+@Injectable()
 export class PostgresPresetScanReader implements PresetScanReader {
-  constructor(private readonly connection: ApiDatabase) {}
+  constructor(@Inject(ApiDatabase) private readonly connection: ApiDatabase) {}
 
   async categories(): Promise<readonly PresetCategoryView[]> {
     return this.connection.database

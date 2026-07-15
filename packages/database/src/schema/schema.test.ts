@@ -2,11 +2,20 @@ import { getTableName } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
 import {
+  alertEvaluations,
+  alertRevisions,
+  alerts,
+  alertStates,
+  alertTriggers,
   dataProviders,
   dataQualityIssues,
   ingestionRuns,
   instruments,
   instrumentSymbolHistory,
+  notificationDeliveries,
+  notificationOutbox,
+  notificationPreferences,
+  notifications,
   priceBars,
   providerInstrumentMappings,
   presetScanRevisions,
@@ -20,6 +29,9 @@ import {
   scanRunEvents,
   scanRuns,
   sectors,
+  watchlistItems,
+  watchlistItemTags,
+  watchlists,
 } from './index';
 
 describe('initial database schema', () => {
@@ -72,6 +84,38 @@ describe('initial database schema', () => {
       'scan_run_batches',
       'scan_results',
       'scan_run_events',
+    ]);
+  });
+
+  it('exports the twelve alerts, watchlists and notifications tables', () => {
+    expect(
+      [
+        watchlists,
+        watchlistItems,
+        watchlistItemTags,
+        alerts,
+        alertRevisions,
+        alertEvaluations,
+        alertStates,
+        alertTriggers,
+        notifications,
+        notificationPreferences,
+        notificationDeliveries,
+        notificationOutbox,
+      ].map(getTableName),
+    ).toEqual([
+      'watchlists',
+      'watchlist_items',
+      'watchlist_item_tags',
+      'alerts',
+      'alert_revisions',
+      'alert_evaluations',
+      'alert_states',
+      'alert_triggers',
+      'notifications',
+      'notification_preferences',
+      'notification_deliveries',
+      'notification_outbox',
     ]);
   });
 });

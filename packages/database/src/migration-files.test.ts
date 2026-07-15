@@ -15,8 +15,8 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the eighteen scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(18);
+  it('creates the thirty scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(30);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
   });
 
@@ -40,5 +40,32 @@ describe('generated PostgreSQL migrations', () => {
     expect(sql).toContain('scan_results_run_instrument_unique');
     expect(sql).toContain('scan_run_batches_run_batch_unique');
     expect(sql).toContain('preset_scan_revisions_one_published_unique');
+  });
+
+  it('contains alert, watchlist and notification integrity guards', () => {
+    for (const table of [
+      'watchlists',
+      'watchlist_items',
+      'watchlist_item_tags',
+      'alerts',
+      'alert_revisions',
+      'alert_evaluations',
+      'alert_states',
+      'alert_triggers',
+      'notifications',
+      'notification_preferences',
+      'notification_deliveries',
+      'notification_outbox',
+    ]) {
+      expect(sql).toContain(`CREATE TABLE "${table}"`);
+    }
+
+    expect(sql).toContain('watchlist_items_watchlist_instrument_unique');
+    expect(sql).toContain('alert_evaluations_identity_unique');
+    expect(sql).toContain('alert_triggers_deduplication_key_unique');
+    expect(sql).toContain('notification_deliveries_channel_idempotency_unique');
+    expect(sql).toContain('notifications_user_read_occurred_idx');
+    expect(sql).toContain('notification_outbox_status_available_idx');
+    expect(sql).toContain('prevent_alert_revision_mutation');
   });
 });

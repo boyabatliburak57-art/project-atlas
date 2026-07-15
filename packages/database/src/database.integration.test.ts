@@ -39,6 +39,21 @@ const scannerTables = [
   'scan_runs',
 ] as const;
 
+const alertsWatchlistsNotificationTables = [
+  'alert_evaluations',
+  'alert_revisions',
+  'alert_states',
+  'alert_triggers',
+  'alerts',
+  'notification_deliveries',
+  'notification_outbox',
+  'notification_preferences',
+  'notifications',
+  'watchlist_item_tags',
+  'watchlist_items',
+  'watchlists',
+] as const;
+
 describe('PostgreSQL migrations', () => {
   const { db, pool } = createDatabase(requireTestDatabaseUrl());
 
@@ -54,7 +69,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the eighteen domain tables', async () => {
+  it('clean-migrates exactly the thirty domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -63,11 +78,20 @@ describe('PostgreSQL migrations', () => {
     `);
 
     expect(result.rows.map((row) => row.table_name)).toEqual([
+      'alert_evaluations',
+      'alert_revisions',
+      'alert_states',
+      'alert_triggers',
+      'alerts',
       'data_providers',
       'data_quality_issues',
       'ingestion_runs',
       'instrument_symbol_history',
       'instruments',
+      'notification_deliveries',
+      'notification_outbox',
+      'notification_preferences',
+      'notifications',
       'preset_scan_revisions',
       'preset_scans',
       'price_bars',
@@ -81,6 +105,9 @@ describe('PostgreSQL migrations', () => {
       'scan_run_events',
       'scan_runs',
       'sectors',
+      'watchlist_item_tags',
+      'watchlist_items',
+      'watchlists',
     ]);
   });
 
@@ -314,7 +341,219 @@ describe('PostgreSQL migrations', () => {
     });
   });
 
+  it('enforces watchlist ownership indexes, foreign keys and uniqueness', async () => {
+    const ownerUserId = randomUUID();
+    const watchlist = await pool.query<{ id: string }>(
+      `insert into watchlists (owner_user_id, name)
+       values ($1, 'BIST Leaders') returning id`,
+      [ownerUserId],
+    );
+    const instrument = await pool.query<{ id: string }>(`
+      insert into instruments
+        (symbol, normalized_symbol, name, market_code, currency_code, status)
+      values ('WLIST1', 'WLIST1', 'Watchlist Instrument', 'BIST', 'TRY', 'active')
+      returning id
+    `);
+    const values = [watchlist.rows[0]!.id, instrument.rows[0]!.id];
+    const item = await pool.query<{ id: string }>(
+      `insert into watchlist_items (watchlist_id, instrument_id, sort_order)
+       values ($1, $2, 0) returning id`,
+      values,
+    );
+
+    await expect(
+      pool.query(
+        `insert into watchlist_items (watchlist_id, instrument_id)
+         values ($1, $2)`,
+        values,
+      ),
+    ).rejects.toMatchObject({ code: '23505' });
+    await expect(
+      pool.query(
+        `insert into watchlist_items (watchlist_id, instrument_id)
+         values ($1, $2)`,
+        [randomUUID(), instrument.rows[0]!.id],
+      ),
+    ).rejects.toMatchObject({ code: '23503' });
+
+    await pool.query(
+      `insert into watchlist_item_tags (watchlist_item_id, tag)
+       values ($1, 'momentum')`,
+      [item.rows[0]!.id],
+    );
+    await expect(
+      pool.query(
+        `insert into watchlist_item_tags (watchlist_item_id, tag)
+         values ($1, 'momentum')`,
+        [item.rows[0]!.id],
+      ),
+    ).rejects.toMatchObject({ code: '23505' });
+
+    const indexes = await pool.query<{ indexname: string }>(`
+      select indexname from pg_indexes
+      where schemaname = 'public'
+        and indexname in (
+          'watchlists_owner_status_updated_idx',
+          'watchlist_items_watchlist_instrument_unique'
+        )
+      order by indexname
+    `);
+    expect(indexes.rows.map(({ indexname }) => indexname)).toEqual([
+      'watchlist_items_watchlist_instrument_unique',
+      'watchlists_owner_status_updated_idx',
+    ]);
+  });
+
+  it('keeps alert revisions immutable and deduplicates evaluations and triggers', async () => {
+    const ownerUserId = randomUUID();
+    const savedScan = await pool.query<{ id: string }>(
+      `insert into saved_scans (owner_user_id, name)
+       values ($1, 'Alert Source') returning id`,
+      [ownerUserId],
+    );
+    const savedScanId = savedScan.rows[0]!.id;
+    await pool.query(
+      `insert into saved_scan_revisions
+        (saved_scan_id, revision, rule_version, rule_ast, created_by)
+       values ($1, 1, 1, '{}', $2)`,
+      [savedScanId, ownerUserId],
+    );
+    const alert = await pool.query<{ id: string }>(
+      `insert into alerts (owner_user_id, name, current_revision)
+       values ($1, 'New Match', 1) returning id`,
+      [ownerUserId],
+    );
+    const alertId = alert.rows[0]!.id;
+    const revisionInsert = `insert into alert_revisions
+      (alert_id, revision, source_type, saved_scan_id, saved_scan_revision,
+       trigger_policy, repeat_policy, channels, created_by)
+      values ($1, 1, 'saved_scan', $2, 1, 'newMatch', 'everyNewMatch',
+              '["in_app"]', $3)`;
+    await pool.query(revisionInsert, [alertId, savedScanId, ownerUserId]);
+
+    await expect(
+      pool.query(
+        `update alert_revisions set repeat_policy = 'once'
+         where alert_id = $1 and revision = 1`,
+        [alertId],
+      ),
+    ).rejects.toMatchObject({ code: '23514' });
+    await expect(
+      pool.query(
+        `delete from alert_revisions
+         where alert_id = $1 and revision = 1`,
+        [alertId],
+      ),
+    ).rejects.toMatchObject({ code: '23514' });
+    await expect(
+      pool.query(
+        `insert into alert_revisions
+          (alert_id, revision, source_type, saved_scan_id, saved_scan_revision,
+           trigger_policy, repeat_policy, created_by)
+         values ($1, 2, 'saved_scan', $2, 1, 'newMatch', 'everyNewMatch', $3)`,
+        [alertId, randomUUID(), ownerUserId],
+      ),
+    ).rejects.toMatchObject({ code: '23503' });
+
+    const evaluationInsert = `insert into alert_evaluations
+      (alert_id, alert_revision, source_event_id, data_cutoff_at, status)
+      values ($1, 1, 'scan-run:1', '2026-07-15T16:00:00Z', 'matched')
+      returning id`;
+    const evaluation = await pool.query<{ id: number }>(evaluationInsert, [
+      alertId,
+    ]);
+    await expect(pool.query(evaluationInsert, [alertId])).rejects.toMatchObject(
+      { code: '23505' },
+    );
+
+    const triggerInsert = `insert into alert_triggers
+      (alert_id, alert_revision, evaluation_id, trigger_type, deduplication_key)
+      values ($1, 1, $2, 'newMatch', 'alert:1:revision:1:event:1')`;
+    await pool.query(triggerInsert, [alertId, evaluation.rows[0]!.id]);
+    await expect(
+      pool.query(triggerInsert, [alertId, evaluation.rows[0]!.id]),
+    ).rejects.toMatchObject({ code: '23505' });
+  });
+
+  it('enforces notification delivery and outbox idempotency with required indexes', async () => {
+    const userId = randomUUID();
+    const notification = await pool.query<{ id: string }>(
+      `insert into notifications
+        (user_id, type, title, body, occurred_at)
+       values ($1, 'systemAnnouncement', 'Maintenance', 'Planned', now())
+       returning id`,
+      [userId],
+    );
+    const notificationId = notification.rows[0]!.id;
+    const deliveryInsert = `insert into notification_deliveries
+      (notification_id, user_id, channel, idempotency_key, template_code,
+       template_version, locale)
+      values ($1, $2, 'email', 'notification:maintenance:email',
+              'system-announcement', 1, 'tr-TR')
+      returning id`;
+    const delivery = await pool.query<{ id: string }>(deliveryInsert, [
+      notificationId,
+      userId,
+    ]);
+    await expect(
+      pool.query(deliveryInsert, [notificationId, userId]),
+    ).rejects.toMatchObject({ code: '23505' });
+
+    const outboxInsert = `insert into notification_outbox (delivery_id)
+      values ($1)`;
+    await pool.query(outboxInsert, [delivery.rows[0]!.id]);
+    await expect(
+      pool.query(outboxInsert, [delivery.rows[0]!.id]),
+    ).rejects.toMatchObject({ code: '23505' });
+    await expect(
+      pool.query(
+        `insert into notification_deliveries
+          (notification_id, user_id, channel, idempotency_key, template_code,
+           template_version, locale)
+         values ($1, $2, 'email', 'notification:missing:email',
+                 'system-announcement', 1, 'tr-TR')`,
+        [notificationId, randomUUID()],
+      ),
+    ).rejects.toMatchObject({ code: '23503' });
+
+    const indexes = await pool.query<{ indexname: string }>(`
+      select indexname from pg_indexes
+      where schemaname = 'public'
+        and indexname in (
+          'alerts_owner_status_updated_idx',
+          'notifications_user_read_occurred_idx',
+          'notification_deliveries_channel_idempotency_unique',
+          'notification_outbox_status_available_idx'
+        )
+      order by indexname
+    `);
+    expect(indexes.rows.map(({ indexname }) => indexname)).toEqual([
+      'alerts_owner_status_updated_idx',
+      'notification_deliveries_channel_idempotency_unique',
+      'notification_outbox_status_available_idx',
+      'notifications_user_read_occurred_idx',
+    ]);
+  });
+
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const alertsRollbackSql = await readFile(
+      resolve(
+        migrationFolder(),
+        'rollback/0003_alerts_watchlists_notifications.down.sql',
+      ),
+      'utf8',
+    );
+    await pool.query(alertsRollbackSql);
+
+    const alertsRolledBack = await pool.query<{ table_name: string }>(
+      `
+      select table_name from information_schema.tables
+      where table_schema = 'public' and table_name = any($1::text[])
+    `,
+      [alertsWatchlistsNotificationTables],
+    );
+    expect(alertsRolledBack.rows).toEqual([]);
+
     const rollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0002_scanner_runtime.down.sql'),
       'utf8',
@@ -332,7 +571,11 @@ describe('PostgreSQL migrations', () => {
 
     await pool.query(`
       delete from drizzle.__drizzle_migrations
-      where created_at = (select max(created_at) from drizzle.__drizzle_migrations)
+      where created_at in (
+        select created_at from drizzle.__drizzle_migrations
+        order by created_at desc
+        limit 2
+      )
     `);
     await runMigrations(db);
 
@@ -346,6 +589,18 @@ describe('PostgreSQL migrations', () => {
     );
     expect(reapplied.rows.map(({ table_name }) => table_name)).toEqual(
       [...scannerTables].sort(),
+    );
+
+    const alertsReapplied = await pool.query<{ table_name: string }>(
+      `
+      select table_name from information_schema.tables
+      where table_schema = 'public' and table_name = any($1::text[])
+      order by table_name
+    `,
+      [alertsWatchlistsNotificationTables],
+    );
+    expect(alertsReapplied.rows.map(({ table_name }) => table_name)).toEqual(
+      [...alertsWatchlistsNotificationTables].sort(),
     );
   });
 });

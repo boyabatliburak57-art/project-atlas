@@ -53,3 +53,20 @@ Referanslar:
 - `guides/SCANNER_PERFORMANCE_BASELINE_GUIDE.md`
 
 TASK-030D sonucu GO olmadan sonraki pakete geçilmez.
+
+## v0.5 Alerts, Watchlists and Notifications
+
+Belgeler:
+
+- `docs/DOC-016-Alert-and-Notification-Requirements.md`
+- `docs/DOC-017-Watchlist-Requirements.md`
+- `docs/DOC-018-Notification-Center-and-Preferences.md`
+- `architecture/ARCH-006-Alert-Evaluation-Runtime.md`
+- `architecture/ARCH-007-Notification-Delivery-Runtime.md`
+- `database/DB-005-Alerts-Watchlists-Notifications.md`
+- `api/API-005-Alerts-Watchlists-Notifications.md`
+- `guides/ALERT_NOTIFICATION_TEST_MATRIX.md`
+
+Görev sırası: TASK-031 → TASK-040.
+
+TASK-040 sonucu GO olmadan sonraki pakete geçilmez.
