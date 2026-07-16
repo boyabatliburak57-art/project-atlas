@@ -1,20 +1,20 @@
 # PASS — Scanner Runtime Performance Baseline
 
-Generated: 2026-07-15T17:20:23.340Z
+Generated: 2026-07-16T12:27:43.849Z
 
 ## Environment
 
 ```json
 {
-  "commitSha": "6ff8dd16eefc09ce315b2092d562aba45bbf2518",
+  "commitSha": "ab5c29e8f8cd6b193fee6da50ae0aa2a20493044",
   "nodeVersion": "v22.14.0",
   "pnpmVersion": "9.15.4",
   "operatingSystem": "darwin 25.5.0",
-  "hostname": "Burak-MacBook-Air.local",
+  "hostname": "192.168.1.7",
   "cpu": "Apple M1",
   "cpuCount": 8,
   "totalMemoryBytes": 8589934592,
-  "freeMemoryBytes": 112640000,
+  "freeMemoryBytes": 135856128,
   "postgresql": "PostgreSQL 17.10 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "redis": "7.4.9",
   "workerConcurrency": 2,
@@ -32,14 +32,14 @@ Generated: 2026-07-15T17:20:23.340Z
 - Batch size: 100
 - Cache: 1 cold + 5 warm runs
 - Repetitions: 6
-- p50: 127.21 ms
-- p95: 218.73 ms
-- Maximum: 218.73 ms
+- p50: 98.77 ms
+- p95: 110.11 ms
+- Maximum: 110.11 ms
 - Errors: 0
 - Processed instruments: 25
 - Matched instruments: 25
 - Threshold: cold p95 ≤ 2000 ms; warm p95 ≤ 750 ms; errors = 0
-- cold p95: 140.09 ms
+- cold p95: 135.26 ms
 - execution mode: sync
 
 ### PERF-SCN-002 — PASS
@@ -50,9 +50,9 @@ Generated: 2026-07-15T17:20:23.340Z
 - Batch size: 100
 - Cache: warm after 1 warm-up run
 - Repetitions: 5
-- p50: 1999.33 ms
-- p95: 2448.5 ms
-- Maximum: 2448.5 ms
+- p50: 1975.53 ms
+- p95: 2319.26 ms
+- Maximum: 2319.26 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 600
@@ -69,14 +69,14 @@ Generated: 2026-07-15T17:20:23.340Z
 - Batch size: 100
 - Cache: warm after 1 warm-up run
 - Repetitions: 5
-- p50: 4087.49 ms
-- p95: 4419.98 ms
-- Maximum: 4419.98 ms
+- p50: 3409.13 ms
+- p95: 3954.08 ms
+- Maximum: 3954.08 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 0
 - Threshold: queue-to-terminal p95 ≤ 15000 ms; errors/crashes = 0; deterministic matches; heap growth ≤ 128 MiB
-- heap growth: 92.06 MiB
+- heap growth: 36.88 MiB
 - notEvaluable: 10
 - 6 unique indicators · 10 AST nodes · nested groups · cross operator
 
@@ -88,9 +88,9 @@ Generated: 2026-07-15T17:20:23.340Z
 - Batch size: 100
 - Cache: warm database
 - Repetitions: 13
-- p50: 0.74 ms
-- p95: 4.29 ms
-- Maximum: 4.29 ms
+- p50: 0.61 ms
+- p95: 2.37 ms
+- Maximum: 2.37 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 600
@@ -105,9 +105,9 @@ Generated: 2026-07-15T17:20:23.340Z
 - Batch size: 100
 - Cache: warm terminal polling
 - Repetitions: 10
-- p50: 0.76 ms
-- p95: 1.15 ms
-- Maximum: 1.15 ms
+- p50: 0.51 ms
+- p95: 1.71 ms
+- Maximum: 1.71 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 600
@@ -123,9 +123,9 @@ Generated: 2026-07-15T17:20:23.340Z
 - Batch size: 100
 - Cache: warm PostgreSQL idempotency lookup
 - Repetitions: 10
-- p50: 1.27 ms
-- p95: 8.33 ms
-- Maximum: 8.33 ms
+- p50: 0.86 ms
+- p95: 1.21 ms
+- Maximum: 1.21 ms
 - Errors: 0
 - Processed instruments: 0
 - Matched instruments: 0

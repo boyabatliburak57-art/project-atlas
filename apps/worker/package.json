@@ -8,6 +8,7 @@
     "dev": "tsx watch src/main.ts",
     "lint": "eslint src",
     "perf:scanner": "tsx src/performance/scanner-runtime-benchmark.ts",
+    "perf:alerts": "tsx src/performance/alerts-watchlists-benchmark.ts",
     "start": "node dist/main.js",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",

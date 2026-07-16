@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-16T12:22:59.364Z",
+  "status": "PASS",
+  "environment": {
+    "hostname": "192.168.1.7",
+    "platform": "darwin",
+    "release": "25.5.0",
+    "node": "v22.14.0"
+  },
+  "fixture": {
+    "activeAlerts": 1000,
+    "evaluationBatchSize": 500,
+    "notifications": 10000,
+    "watchlistInstruments": 500,
+    "externalProvider": false
+  },
+  "scenarios": [
+    {
+      "id": "PERF-AWN-001",
+      "name": "1000 active alert candidate filtering",
+      "fixtureSize": "1 event × 1000 active alerts",
+      "repetitions": 20,
+      "errorCount": 0,
+      "p50Ms": 9.66,
+      "p95Ms": 14.13,
+      "maxMs": 66.76,
+      "threshold": "p95 ≤ 250 ms; errors = 0; invariant = true",
+      "passed": true,
+      "notes": ["candidates: 1000"]
+    },
+    {
+      "id": "PERF-AWN-002",
+      "name": "500 alert evaluation batch",
+      "fixtureSize": "500 candidates × 3 batches",
+      "repetitions": 3,
+      "errorCount": 0,
+      "p50Ms": 2176.39,
+      "p95Ms": 2873.55,
+      "maxMs": 2873.55,
+      "threshold": "p95 ≤ 10000 ms; errors = 0; invariant = true",
+      "passed": true,
+      "notes": ["batch size: 500", "duplicates: 0"]
+    },
+    {
+      "id": "PERF-AWN-003",
+      "name": "Notification unread count",
+      "fixtureSize": "10000 notifications",
+      "repetitions": 30,
+      "errorCount": 0,
+      "p50Ms": 0.96,
+      "p95Ms": 2.44,
+      "maxMs": 2.7,
+      "threshold": "p95 ≤ 100 ms; errors = 0; invariant = true",
+      "passed": true,
+      "notes": ["unread: 5000"]
+    },
+    {
+      "id": "PERF-AWN-004",
+      "name": "Notification cursor pagination",
+      "fixtureSize": "10000 rows / page 100",
+      "repetitions": 100,
+      "errorCount": 0,
+      "p50Ms": 2.01,
+      "p95Ms": 3.07,
+      "maxMs": 5.08,
+      "threshold": "p95 ≤ 150 ms; errors = 0; invariant = true",
+      "passed": true,
+      "notes": ["unique rows: 10000"]
+    },
+    {
+      "id": "PERF-AWN-005",
+      "name": "Watchlist market summary",
+      "fixtureSize": "500 instruments / 2 bars",
+      "repetitions": 10,
+      "errorCount": 0,
+      "p50Ms": 399.13,
+      "p95Ms": 636.27,
+      "maxMs": 636.27,
+      "threshold": "p95 ≤ 750 ms; errors = 0; invariant = true",
+      "passed": true,
+      "notes": ["rows: 500"]
+    }
+  ]
+}

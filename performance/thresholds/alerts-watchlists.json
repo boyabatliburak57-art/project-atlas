@@ -1,0 +1,7 @@
+{
+  "PERF-AWN-001": { "p95Ms": 250, "maximumErrors": 0, "candidateCount": 1000 },
+  "PERF-AWN-002": { "p95Ms": 10000, "maximumErrors": 0, "batchSize": 500 },
+  "PERF-AWN-003": { "p95Ms": 100, "maximumErrors": 0 },
+  "PERF-AWN-004": { "p95Ms": 150, "maximumErrors": 0, "pageSize": 100 },
+  "PERF-AWN-005": { "p95Ms": 750, "maximumErrors": 0, "instrumentCount": 500 }
+}
