@@ -10,6 +10,7 @@ import { portfolioApi } from './api';
 
 const navigation = [
   { href: '/scanner', label: 'Scanner' },
+  { href: '/portfolios', label: 'Portföyler' },
   { href: '/watchlists', label: 'Listeler' },
   { href: '/alerts', label: 'Alarmlar' },
   { href: '/notifications', label: 'Bildirimler' },

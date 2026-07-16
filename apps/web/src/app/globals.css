@@ -1732,6 +1732,668 @@ dialog::backdrop {
   }
 }
 
+/* Portfolio ledger and analytics */
+.portfolio-list-main,
+.portfolio-overview-main,
+.transaction-main,
+.analytics-main,
+.import-main {
+  width: min(100%, 105rem);
+}
+
+.portfolio-create-form {
+  display: grid;
+  align-items: end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  background: rgb(16 34 56 / 50%);
+  gap: 0.85rem;
+  grid-template-columns:
+    minmax(12rem, 1fr) minmax(16rem, 1.5fr) minmax(9rem, 0.6fr)
+    auto;
+}
+
+.portfolio-create-form label,
+.transaction-form-grid label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.portfolio-create-form label > span,
+.transaction-form-grid label > span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.portfolio-create-form input,
+.portfolio-create-form select,
+.transaction-form-grid input,
+.transaction-form-grid select {
+  width: 100%;
+  min-height: 2.7rem;
+  border-color: var(--line);
+  background: #081523;
+}
+
+.portfolio-create-form .form-error {
+  grid-column: 1 / -1;
+}
+
+.portfolio-ledger-list,
+.transaction-history,
+.positions-section,
+.concentration-section,
+.import-preview {
+  border-top: 1px solid var(--line);
+}
+
+.portfolio-list-head,
+.portfolio-list-row {
+  display: grid;
+  align-items: center;
+  gap: 1rem;
+  grid-template-columns: minmax(15rem, 1.55fr) 1fr 0.8fr 1.15fr 0.6fr 0.6fr;
+}
+
+.portfolio-list-head {
+  padding: 0.8rem 1rem;
+  color: var(--muted);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.portfolio-list-row {
+  min-height: 6.5rem;
+  padding: 1.15rem 1rem;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.portfolio-list-row > *:not(:first-child) {
+  justify-self: end;
+  text-align: right;
+}
+
+.portfolio-list-identity {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.portfolio-list-identity a {
+  width: fit-content;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.35rem;
+}
+
+.portfolio-list-identity small,
+.section-heading-inline p,
+.portfolio-page-header p,
+.series-panel figcaption p,
+.methodology-note > p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.portfolio-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 2rem;
+}
+
+.portfolio-page-header h1 {
+  max-width: 20ch;
+  margin: 0.45rem 0 0.8rem;
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  line-height: 0.95;
+}
+
+.portfolio-page-header p {
+  max-width: 48rem;
+  margin-bottom: 0;
+}
+
+.compact-heading h1 {
+  font-size: clamp(2.4rem, 5vw, 4.5rem);
+}
+
+.portfolio-subnav {
+  display: flex;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+  border-block: 1px solid var(--line);
+}
+
+.portfolio-subnav a {
+  min-height: 3.25rem;
+  padding: 1rem 1.15rem;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.portfolio-subnav a:hover,
+.portfolio-subnav a.active {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.data-warning,
+.risk-disclaimer,
+.recalculate-status,
+.import-result {
+  margin: 1rem 0 2rem;
+  padding: 1rem 1.15rem;
+  border-left: 3px solid #f4b860;
+  background: rgb(244 184 96 / 8%);
+}
+
+.data-warning strong,
+.risk-disclaimer,
+.recalculate-status,
+.import-result strong {
+  color: #ffd08a;
+}
+
+.data-warning p,
+.import-result p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+.recalculate-status {
+  border-left-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.portfolio-metric-grid {
+  display: grid;
+  margin: 0 0 2rem;
+  border-block: 1px solid var(--line);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.portfolio-metric {
+  min-height: 8rem;
+  padding: 1.25rem;
+  border-right: 1px solid var(--line);
+}
+
+.portfolio-metric:nth-child(4n) {
+  border-right: 0;
+}
+
+.portfolio-metric:nth-child(n + 5) {
+  border-top: 1px solid var(--line);
+}
+
+.portfolio-metric dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.portfolio-metric dd {
+  margin: 1rem 0 0;
+  overflow-wrap: anywhere;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  font-weight: 700;
+}
+
+.portfolio-metric small {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.portfolio-data-times {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.section-heading-inline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1.5rem 0;
+}
+
+.section-heading-inline h2 {
+  margin: 0 0 0.45rem;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  font-weight: 550;
+  letter-spacing: -0.035em;
+}
+
+.section-heading-inline p {
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.position-sort {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+
+.position-sort label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.position-sort select {
+  min-width: 10rem;
+}
+
+.position-table,
+.transaction-table,
+.import-table {
+  min-width: 78rem;
+}
+
+.position-table tr.not-evaluable td {
+  color: var(--muted);
+}
+
+.positions-section .pagination-row {
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.transaction-composer {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.transaction-form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.transaction-note-field {
+  grid-column: span 2;
+}
+
+.transaction-error,
+.import-error {
+  margin-bottom: 2rem;
+}
+
+.immutable-action {
+  display: grid;
+  justify-items: end;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.analytics-series-grid {
+  display: grid;
+  margin: 2rem 0 3rem;
+  gap: 1px;
+  background: var(--line);
+  grid-template-columns: 1.35fr 1fr 1fr;
+}
+
+.series-panel {
+  min-width: 0;
+  margin: 0;
+  padding: 1.25rem;
+  background: var(--surface);
+}
+
+.series-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.series-panel figcaption p {
+  min-height: 4.5rem;
+  margin: 0;
+  font-size: 0.68rem;
+}
+
+.series-panel svg {
+  width: 100%;
+  height: 12rem;
+  margin-top: 1rem;
+  overflow: visible;
+  border-bottom: 1px solid var(--line);
+}
+
+.series-panel polyline {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.methodology-note {
+  display: grid;
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+  gap: 1.5rem;
+  grid-template-columns: minmax(14rem, 0.7fr) 1fr 1fr;
+}
+
+.methodology-note h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.methodology-note > p {
+  margin: 0;
+}
+
+.methodology-values {
+  margin: 0;
+}
+
+.methodology-values > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.72rem;
+}
+
+.methodology-values dt {
+  color: var(--muted);
+}
+
+.methodology-values dd {
+  margin: 0;
+  text-align: right;
+}
+
+.risk-metric-grid {
+  display: grid;
+  margin: 2rem 0 3rem;
+  border-block: 1px solid var(--line);
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.risk-metric-card {
+  min-height: 10rem;
+  padding: 1.25rem;
+  border-right: 1px solid var(--line);
+}
+
+.risk-metric-card:nth-child(4n) {
+  border-right: 0;
+}
+
+.risk-metric-card:nth-child(n + 5) {
+  border-top: 1px solid var(--line);
+}
+
+.risk-metric-card h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.risk-metric-card strong {
+  display: block;
+  margin-top: 1rem;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 1.45rem;
+}
+
+.risk-metric-card p,
+.risk-metric-card small {
+  display: block;
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.concentration-summary,
+.import-counts {
+  display: grid;
+  margin: 0 0 1.5rem;
+  gap: 1px;
+  background: var(--line);
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.concentration-summary > div,
+.import-counts > div {
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.concentration-summary dt,
+.import-counts dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.concentration-summary dd,
+.import-counts dd {
+  margin: 0.55rem 0 0;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 1.05rem;
+}
+
+.import-dropzone {
+  display: grid;
+  margin-bottom: 2rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px dashed rgb(85 227 173 / 48%);
+  background: var(--accent-soft);
+  gap: 0.75rem;
+}
+
+.import-dropzone > label {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.import-dropzone > p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.import-dropzone input[type='file'] {
+  width: 100%;
+  height: auto;
+  padding: 0.8rem;
+  border-style: solid;
+  background: var(--surface);
+}
+
+.import-file-action,
+.import-commit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.import-file-action span {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.import-preview {
+  padding-top: 0.5rem;
+}
+
+.import-commit-panel {
+  display: grid;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: rgb(16 34 56 / 50%);
+  gap: 1rem;
+}
+
+.import-commit-panel fieldset {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: 0.75rem;
+}
+
+.import-commit-panel legend {
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.import-commit-panel label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.import-commit-panel input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+}
+
+.import-commit-panel label strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--text);
+}
+
+.import-result {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.import-result strong {
+  color: var(--accent);
+}
+
+@media (max-width: 1100px) {
+  .portfolio-metric-grid,
+  .risk-metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .portfolio-metric:nth-child(2n),
+  .risk-metric-card:nth-child(2n) {
+    border-right: 0;
+  }
+  .portfolio-metric:nth-child(n + 3),
+  .risk-metric-card:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+  .transaction-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analytics-series-grid,
+  .methodology-note {
+    grid-template-columns: 1fr;
+  }
+  .series-panel figcaption p {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 850px) {
+  .portfolio-create-form,
+  .transaction-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .transaction-note-field {
+    grid-column: auto;
+  }
+  .portfolio-list-head {
+    display: none;
+  }
+  .portfolio-list-row {
+    align-items: start;
+    grid-template-columns: 1fr 1fr;
+  }
+  .portfolio-list-identity {
+    grid-column: 1 / -1;
+  }
+  .portfolio-list-row > *:not(:first-child) {
+    justify-self: start;
+    text-align: left;
+  }
+  .portfolio-page-header,
+  .section-heading-inline,
+  .import-file-action,
+  .import-commit-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .portfolio-page-header h1 {
+    font-size: clamp(2.5rem, 14vw, 4.5rem);
+  }
+  .portfolio-data-times {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .concentration-summary,
+  .import-counts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .position-sort {
+    width: 100%;
+  }
+  .position-sort label {
+    flex: 1;
+  }
+  .position-sort select {
+    width: 100%;
+  }
+  .immutable-action {
+    justify-items: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .portfolio-metric-grid,
+  .risk-metric-grid,
+  .concentration-summary,
+  .import-counts {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-metric,
+  .risk-metric-card,
+  .portfolio-metric:nth-child(2n),
+  .risk-metric-card:nth-child(2n) {
+    border-top: 1px solid var(--line);
+    border-right: 0;
+  }
+  .portfolio-list-row {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-list-identity {
+    grid-column: auto;
+  }
+}
+
 @keyframes enter {
   from {
     opacity: 0;
