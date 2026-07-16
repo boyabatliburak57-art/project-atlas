@@ -22,6 +22,15 @@ export default function HomePage() {
           <Link className="text-link" href="/scanner">
             Scanner
           </Link>{' '}
+          <Link className="text-link" href="/watchlists">
+            Watchlist’ler
+          </Link>{' '}
+          <Link className="text-link" href="/alerts">
+            Alarmlar
+          </Link>{' '}
+          <Link className="text-link" href="/notifications">
+            Bildirimler
+          </Link>{' '}
           <Link className="text-link" href="/health">
             Sistem durumu
           </Link>
