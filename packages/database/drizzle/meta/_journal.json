@@ -43,6 +43,13 @@
       "when": 1784210657747,
       "tag": "0005_serious_corsair",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784213740601,
+      "tag": "0006_brief_imperial_guard",
+      "breakpoints": true
     }
   ]
 }

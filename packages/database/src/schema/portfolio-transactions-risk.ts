@@ -683,10 +683,28 @@ export const portfolioImportJobs = pgTable(
       .default('atomic')
       .notNull(),
     sourceFilename: varchar('source_filename', { length: 255 }).notNull(),
+    contentType: varchar('content_type', { length: 128 })
+      .default('text/csv')
+      .notNull(),
+    fileSize: bigint('file_size', { mode: 'number' }).default(0).notNull(),
+    encoding: varchar('encoding', { length: 16 }).default('utf-8').notNull(),
+    delimiter: char('delimiter', { length: 1 }).default(',').notNull(),
     fileHash: varchar('file_hash', { length: 128 }).notNull(),
+    previewHash: varchar('preview_hash', { length: 128 })
+      .default('pending')
+      .notNull(),
     idempotencyKeyHash: varchar('idempotency_key_hash', {
       length: 128,
     }).notNull(),
+    previewRequestHash: varchar('preview_request_hash', {
+      length: 128,
+    })
+      .default('pending')
+      .notNull(),
+    commitIdempotencyKeyHash: varchar('commit_idempotency_key_hash', {
+      length: 128,
+    }),
+    commitRequestHash: varchar('commit_request_hash', { length: 128 }),
     totalRowCount: integer('total_row_count').default(0).notNull(),
     validRowCount: integer('valid_row_count').default(0).notNull(),
     invalidRowCount: integer('invalid_row_count').default(0).notNull(),
@@ -696,6 +714,10 @@ export const portfolioImportJobs = pgTable(
     committedAt: timestamp('committed_at', { withTimezone: true }),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
     errorCode: varchar('error_code', { length: 64 }),
+    errorSummary: jsonb('error_summary')
+      .$type<Record<string, number>>()
+      .default(emptyObject)
+      .notNull(),
     ...auditTimestamps,
   },
   (table) => [
@@ -731,6 +753,14 @@ export const portfolioImportJobs = pgTable(
     check(
       'portfolio_import_jobs_hashes_not_blank',
       sql`length(trim(${table.fileHash})) > 0 and length(trim(${table.idempotencyKeyHash})) > 0`,
+    ),
+    check(
+      'portfolio_import_jobs_file_metadata_check',
+      sql`${table.fileSize} >= 0 and ${table.encoding} = 'utf-8' and ${table.delimiter} in (',', ';') and length(trim(${table.previewHash})) > 0 and length(trim(${table.previewRequestHash})) > 0`,
+    ),
+    check(
+      'portfolio_import_jobs_commit_identity_check',
+      sql`(${table.commitIdempotencyKeyHash} is null) = (${table.commitRequestHash} is null)`,
     ),
     check(
       'portfolio_import_jobs_counts_check',

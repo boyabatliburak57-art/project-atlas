@@ -73,6 +73,28 @@ import {
   WATCHLIST_MARKET_SUMMARY_READER,
 } from './watchlists/watchlists.ports';
 import { WatchlistsService } from './watchlists/watchlists.service';
+import { PortfoliosController } from './portfolios/portfolios.controller';
+import {
+  createPortfolioApplication,
+  InMemoryPortfolioCommandGuard,
+  PostgresPortfolioReadModel,
+} from './portfolios/portfolios.infrastructure';
+import {
+  PORTFOLIO_APPLICATION,
+  PORTFOLIO_COMMAND_GUARD,
+  PORTFOLIO_READ_MODEL,
+} from './portfolios/portfolios.ports';
+import { PortfoliosService } from './portfolios/portfolios.service';
+import { PortfolioImportsController } from './portfolios/portfolio-imports.controller';
+import {
+  PostgresPortfolioImportCommitter,
+  PostgresPortfolioImportStore,
+} from './portfolios/portfolio-imports.infrastructure';
+import {
+  PORTFOLIO_IMPORT_COMMITTER,
+  PORTFOLIO_IMPORT_STORE,
+} from './portfolios/portfolio-imports.ports';
+import { PortfolioImportsService } from './portfolios/portfolio-imports.service';
 
 @Module({
   controllers: [
@@ -86,6 +108,8 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     AlertsController,
     NotificationsController,
     NotificationPreferencesController,
+    PortfoliosController,
+    PortfolioImportsController,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -111,6 +135,10 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     PostgresAlertStore,
     PostgresAlertDryRunEvaluator,
     PostgresNotificationCenterStore,
+    PostgresPortfolioReadModel,
+    InMemoryPortfolioCommandGuard,
+    PostgresPortfolioImportStore,
+    PostgresPortfolioImportCommitter,
     {
       provide: SCAN_RUN_APPLICATION,
       inject: [ApiDatabase],
@@ -138,6 +166,27 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     {
       provide: NOTIFICATION_CENTER_STORE,
       useExisting: PostgresNotificationCenterStore,
+    },
+    {
+      provide: PORTFOLIO_APPLICATION,
+      inject: [ApiDatabase],
+      useFactory: createPortfolioApplication,
+    },
+    {
+      provide: PORTFOLIO_READ_MODEL,
+      useExisting: PostgresPortfolioReadModel,
+    },
+    {
+      provide: PORTFOLIO_COMMAND_GUARD,
+      useExisting: InMemoryPortfolioCommandGuard,
+    },
+    {
+      provide: PORTFOLIO_IMPORT_STORE,
+      useExisting: PostgresPortfolioImportStore,
+    },
+    {
+      provide: PORTFOLIO_IMPORT_COMMITTER,
+      useExisting: PostgresPortfolioImportCommitter,
     },
     {
       provide: SCANNER_RUNTIME_READER,
@@ -168,6 +217,8 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     WatchlistsService,
     AlertsService,
     NotificationsService,
+    PortfoliosService,
+    PortfolioImportsService,
   ],
 })
 export class AppModule implements NestModule {

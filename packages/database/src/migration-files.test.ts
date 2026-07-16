@@ -105,6 +105,10 @@ describe('generated PostgreSQL migrations', () => {
     expect(sql).toContain('portfolio_risk_snapshots_identity_unique');
     expect(sql).toContain('portfolio_import_jobs_portfolio_owner_fk');
     expect(sql).toContain('portfolio_import_rows_job_owner_fk');
+    expect(sql).toContain('portfolio_import_jobs_file_metadata_check');
+    expect(sql).toContain('portfolio_import_jobs_commit_identity_check');
+    expect(sql).toContain('"preview_hash" varchar(128)');
+    expect(sql).toContain('"commit_request_hash" varchar(128)');
     expect(sql).toContain('prevent_finalized_portfolio_transaction_mutation');
   });
 });

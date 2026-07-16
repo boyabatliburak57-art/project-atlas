@@ -11,6 +11,8 @@ describe('parseEnvironment', () => {
       DATABASE_URL: 'postgresql://atlas:atlas@127.0.0.1:5432/atlas',
       LOG_LEVEL: 'log',
       NODE_ENV: 'development',
+      PORTFOLIO_RECALCULATE_RATE_LIMIT: 5,
+      PORTFOLIO_RECALCULATE_RATE_WINDOW_MS: 60_000,
       REDIS_URL: 'redis://127.0.0.1:6379',
       SCANNER_PROGRESS_POLL_AFTER_MS: 1_000,
       SCANNER_PROGRESS_STALE_AFTER_MS: 15_000,

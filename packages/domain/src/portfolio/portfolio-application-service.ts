@@ -106,6 +106,13 @@ export class PortfolioApplicationService {
     await this.requireOwned(userId, portfolioId, true);
     return this.dependencies.repository.listTransactions(portfolioId);
   }
+  async getTransaction(
+    userId: string,
+    portfolioId: string,
+    transactionId: string,
+  ): Promise<PortfolioTransaction> {
+    return this.requireTransaction(userId, portfolioId, transactionId);
+  }
   async createDraft(
     request: DraftTransactionRequest,
   ): Promise<{ transaction: PortfolioTransaction; replayed: boolean }> {
