@@ -1,7 +1,15 @@
 import { randomUUID } from 'node:crypto';
 
 import { Job, Queue, UnrecoverableError, Worker } from 'bullmq';
+import type {
+  AlertEvaluationQueuePayload,
+  NotificationDeliveryQueuePayload,
+} from '@atlas/types';
 
+import {
+  createDefaultAlertComposition,
+  type AlertComposition,
+} from '../alerts/alert-composition';
 import type { WorkerEnvironment } from '../config/environment';
 import { processHeartbeat } from '../heartbeat/heartbeat';
 import {
@@ -9,6 +17,10 @@ import {
   type MarketDataComposition,
 } from '../market-data/market-data-composition';
 import type { StructuredLogger } from '../observability/structured-logger';
+import {
+  createDefaultNotificationComposition,
+  type NotificationComposition,
+} from '../notifications/notification-composition';
 import {
   createHeartbeatJobId,
   DEFAULT_JOB_OPTIONS,
@@ -44,12 +56,18 @@ export class WorkerRuntime {
     private readonly systemQueue: Queue,
     private readonly marketDataQueue: Queue,
     private readonly scannerQueue: Queue<ScannerRunJobData>,
+    private readonly alertQueue: Queue<AlertEvaluationQueuePayload>,
+    private readonly notificationQueue: Queue<NotificationDeliveryQueuePayload>,
     private readonly deadLetterQueue: Queue<DeadLetterData>,
     private readonly systemWorker: Worker,
     private readonly marketDataWorker: Worker,
     private readonly scannerWorker: Worker<ScannerRunJobData>,
+    private readonly alertWorker: Worker<AlertEvaluationQueuePayload>,
+    private readonly notificationWorker: Worker<NotificationDeliveryQueuePayload>,
     private readonly marketDataComposition: MarketDataComposition,
     private readonly scannerComposition: ScannerComposition,
+    private readonly alertComposition: AlertComposition,
+    private readonly notificationComposition: NotificationComposition,
     private readonly workerId: string,
   ) {}
 
@@ -58,6 +76,8 @@ export class WorkerRuntime {
     logger: StructuredLogger,
     injectedComposition?: MarketDataComposition,
     injectedScannerComposition?: ScannerComposition,
+    injectedAlertComposition?: AlertComposition,
+    injectedNotificationComposition?: NotificationComposition,
   ): Promise<WorkerRuntime> {
     const connection = createRedisConnection(environment.REDIS_URL);
     const systemQueue = new Queue(QUEUE_NAMES.system, {
@@ -76,6 +96,20 @@ export class WorkerRuntime {
       connection,
       defaultJobOptions: DEFAULT_JOB_OPTIONS,
     });
+    const alertQueue = new Queue<AlertEvaluationQueuePayload>(
+      QUEUE_NAMES.alerts,
+      {
+        connection,
+        defaultJobOptions: DEFAULT_JOB_OPTIONS,
+      },
+    );
+    const notificationQueue = new Queue<NotificationDeliveryQueuePayload>(
+      QUEUE_NAMES.notifications,
+      {
+        connection,
+        defaultJobOptions: DEFAULT_JOB_OPTIONS,
+      },
+    );
     const systemWorker = new Worker(
       QUEUE_NAMES.system,
       (job) => {
@@ -112,18 +146,53 @@ export class WorkerRuntime {
         connection,
       },
     );
+    const notificationComposition =
+      injectedNotificationComposition ??
+      createDefaultNotificationComposition(
+        environment,
+        logger,
+        notificationQueue,
+      );
+    const alertComposition =
+      injectedAlertComposition ??
+      createDefaultAlertComposition(environment, logger, {
+        handle: (triggerIds) =>
+          notificationComposition.handleTriggerIds(triggerIds),
+      });
+    const alertWorker = new Worker<AlertEvaluationQueuePayload>(
+      QUEUE_NAMES.alerts,
+      (job) => alertComposition.process(job),
+      {
+        concurrency: environment.WORKER_CONCURRENCY,
+        connection,
+      },
+    );
+    const notificationWorker = new Worker<NotificationDeliveryQueuePayload>(
+      QUEUE_NAMES.notifications,
+      (job) => notificationComposition.process(job),
+      {
+        concurrency: environment.WORKER_CONCURRENCY,
+        connection,
+      },
+    );
     const runtime = new WorkerRuntime(
       environment,
       logger,
       systemQueue,
       marketDataQueue,
       scannerQueue,
+      alertQueue,
+      notificationQueue,
       deadLetterQueue,
       systemWorker,
       marketDataWorker,
       scannerWorker,
+      alertWorker,
+      notificationWorker,
       marketDataComposition,
       scannerComposition,
+      alertComposition,
+      notificationComposition,
       randomUUID(),
     );
 
@@ -131,6 +200,8 @@ export class WorkerRuntime {
 
     try {
       await runtime.waitUntilReady();
+      await notificationComposition.catchUp();
+      await alertComposition.catchUp(alertQueue);
       await runtime.enqueueHeartbeat();
       runtime.startHeartbeat();
       logger.info('worker.ready', {
@@ -139,13 +210,15 @@ export class WorkerRuntime {
           QUEUE_NAMES.system,
           QUEUE_NAMES.marketData,
           QUEUE_NAMES.scanner,
+          QUEUE_NAMES.alerts,
+          QUEUE_NAMES.notifications,
         ],
       });
       return runtime;
     } catch (error: unknown) {
       await runtime.closeConnections();
       throw new WorkerStartupError(
-        `Worker could not connect to Redis (${error instanceof Error ? error.constructor.name : 'UnknownError'})`,
+        `Worker could not start (${error instanceof Error ? error.constructor.name : 'UnknownError'})`,
       );
     }
   }
@@ -165,6 +238,8 @@ export class WorkerRuntime {
       this.systemWorker.pause(false),
       this.marketDataWorker.pause(false),
       this.scannerWorker.pause(false),
+      this.alertWorker.pause(false),
+      this.notificationWorker.pause(false),
     ]);
     await this.closeConnections();
     this.logger.info('worker.stopped', { reason });
@@ -185,10 +260,14 @@ export class WorkerRuntime {
           this.systemQueue.waitUntilReady(),
           this.marketDataQueue.waitUntilReady(),
           this.scannerQueue.waitUntilReady(),
+          this.alertQueue.waitUntilReady(),
+          this.notificationQueue.waitUntilReady(),
           this.deadLetterQueue.waitUntilReady(),
           this.systemWorker.waitUntilReady(),
           this.marketDataWorker.waitUntilReady(),
           this.scannerWorker.waitUntilReady(),
+          this.alertWorker.waitUntilReady(),
+          this.notificationWorker.waitUntilReady(),
         ]),
         timeoutPromise,
       ]);
@@ -227,10 +306,14 @@ export class WorkerRuntime {
     this.registerQueueError(this.systemQueue, QUEUE_NAMES.system);
     this.registerQueueError(this.marketDataQueue, QUEUE_NAMES.marketData);
     this.registerQueueError(this.scannerQueue, QUEUE_NAMES.scanner);
+    this.registerQueueError(this.alertQueue, QUEUE_NAMES.alerts);
+    this.registerQueueError(this.notificationQueue, QUEUE_NAMES.notifications);
     this.registerQueueError(this.deadLetterQueue, QUEUE_NAMES.deadLetter);
     this.registerJobEvents(this.systemWorker, QUEUE_NAMES.system);
     this.registerJobEvents(this.marketDataWorker, QUEUE_NAMES.marketData);
     this.registerJobEvents(this.scannerWorker, QUEUE_NAMES.scanner);
+    this.registerJobEvents(this.alertWorker, QUEUE_NAMES.alerts);
+    this.registerJobEvents(this.notificationWorker, QUEUE_NAMES.notifications);
   }
 
   private registerQueueError(queue: Queue, queueName: string): void {
@@ -315,12 +398,18 @@ export class WorkerRuntime {
       this.systemWorker.close(),
       this.marketDataWorker.close(),
       this.scannerWorker.close(),
+      this.alertWorker.close(),
+      this.notificationWorker.close(),
       this.systemQueue.close(),
       this.marketDataQueue.close(),
       this.scannerQueue.close(),
+      this.alertQueue.close(),
+      this.notificationQueue.close(),
       this.deadLetterQueue.close(),
       this.marketDataComposition.close(),
       this.scannerComposition.close(),
+      this.alertComposition.close(),
+      this.notificationComposition.close(),
     ]);
   }
 }

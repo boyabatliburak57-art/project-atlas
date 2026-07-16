@@ -86,6 +86,52 @@ describe('OpenAPI document', () => {
     expect(
       document.paths['/api/v1/watchlists/{id}/market-summary']?.get,
     ).toBeDefined();
+    expect(document.paths['/api/v1/alerts']?.get).toBeDefined();
+    expect(document.paths['/api/v1/alerts']?.post).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}']?.get).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}']?.patch).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}']?.delete).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}/pause']?.post).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}/resume']?.post).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}/revisions']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/alerts/{id}/evaluations']?.get,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}/triggers']?.get).toBeDefined();
+    expect(document.paths['/api/v1/alerts/{id}/test']?.post).toBeDefined();
+    expect(document.paths['/api/v1/notifications']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/notifications/unread-count']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/notifications/{id}/read']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/notifications/{id}/unread']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/notifications/mark-all-read']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/notification-preferences']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/notification-preferences']?.put,
+    ).toBeDefined();
+    expect(
+      JSON.stringify(document.paths['/api/v1/alerts']?.get?.parameters),
+    ).toContain('cursor');
+    expect(
+      JSON.stringify(document.paths['/api/v1/notifications']?.get?.parameters),
+    ).toContain('unread');
+    expect(
+      JSON.stringify(document.components?.schemas?.UpdateAlertDto),
+    ).toContain('expectedRevision');
+    expect(
+      JSON.stringify(
+        document.components?.schemas?.UpdateNotificationPreferencesDto,
+      ),
+    ).toContain('timezone');
     const listParameters =
       document.paths['/api/v1/indicators']?.get?.parameters;
     expect(JSON.stringify(listParameters)).toContain('category');

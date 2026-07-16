@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  createAlertEvaluationJobId,
   createHeartbeatJobId,
+  createNotificationDeliveryJobId,
   createScannerRunJobId,
   DEFAULT_JOB_OPTIONS,
   QUEUE_NAMES,
@@ -35,5 +37,29 @@ describe('queue contracts', () => {
     expect(createScannerRunJobId('run-1')).not.toBe(
       createScannerRunJobId('run-2'),
     );
+  });
+
+  it('creates stable alert event identities including the cutoff', () => {
+    const event = {
+      type: 'scan_completed' as const,
+      eventId: 'scan-run:1:completed',
+      scanRunId: '00000000-0000-4000-8000-000000000001',
+      dataCutoffAt: '2026-07-15T15:00:00.000Z',
+    };
+    expect(createAlertEvaluationJobId(event)).toBe(
+      createAlertEvaluationJobId({ ...event }),
+    );
+    expect(createAlertEvaluationJobId(event)).not.toBe(
+      createAlertEvaluationJobId({
+        ...event,
+        dataCutoffAt: '2026-07-16T15:00:00.000Z',
+      }),
+    );
+  });
+
+  it('uses a distinct delivery job identity for every retry attempt', () => {
+    expect(
+      createNotificationDeliveryJobId({ outboxId: 12, attempt: 1 }),
+    ).not.toBe(createNotificationDeliveryJobId({ outboxId: 12, attempt: 2 }));
   });
 });

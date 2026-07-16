@@ -1,8 +1,13 @@
 import type { JobsOptions } from 'bullmq';
 import { createHash } from 'node:crypto';
-import { ATLAS_JOB_NAMES, ATLAS_QUEUE_NAMES } from '@atlas/types';
+import {
+  ATLAS_JOB_NAMES,
+  ATLAS_QUEUE_NAMES,
+  type NotificationDeliveryQueuePayload,
+} from '@atlas/types';
 
 import type { BarIngestionJobData } from '../market-data/bars/bar-ingestion-job';
+import type { AlertEvaluationQueuePayload } from '@atlas/types';
 
 export const QUEUE_NAMES = ATLAS_QUEUE_NAMES;
 export const JOB_NAMES = ATLAS_JOB_NAMES;
@@ -52,4 +57,23 @@ export function createBarIngestionJobId(data: BarIngestionJobData): string {
 
 export function createScannerRunJobId(runId: string): string {
   return stableJobId('scanner-run', [runId]);
+}
+
+export function createAlertEvaluationJobId(
+  data: AlertEvaluationQueuePayload,
+): string {
+  return stableJobId('alert-evaluation', [
+    data.type,
+    data.eventId,
+    data.dataCutoffAt,
+  ]);
+}
+
+export function createNotificationDeliveryJobId(
+  data: NotificationDeliveryQueuePayload,
+): string {
+  return stableJobId('notification-delivery', [
+    String(data.outboxId),
+    String(data.attempt),
+  ]);
 }

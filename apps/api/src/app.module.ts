@@ -8,6 +8,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { createCoreIndicatorRegistry } from '@atlas/domain';
 
+import { AlertsController } from './alerts/alerts.controller';
+import {
+  PostgresAlertDryRunEvaluator,
+  PostgresAlertStore,
+} from './alerts/alerts.infrastructure';
+import { ALERT_DRY_RUN_EVALUATOR, ALERT_STORE } from './alerts/alerts.ports';
+import { AlertsService } from './alerts/alerts.service';
+
 import {
   AUTHENTICATED_USER_RESOLVER,
   trustedRequestUserResolver,
@@ -17,6 +25,13 @@ import { GlobalExceptionFilter } from './common/http/global-exception.filter';
 import { parseEnvironment } from './config/environment';
 import { HealthController } from './health/health.controller';
 import { IndicatorCatalogController } from './indicators/indicator-catalog.controller';
+import {
+  NotificationPreferencesController,
+  NotificationsController,
+} from './notifications/notifications.controller';
+import { PostgresNotificationCenterStore } from './notifications/notifications.infrastructure';
+import { NOTIFICATION_CENTER_STORE } from './notifications/notifications.ports';
+import { NotificationsService } from './notifications/notifications.service';
 import {
   INDICATOR_REGISTRY,
   IndicatorCatalogService,
@@ -68,6 +83,9 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     SavedScansController,
     PresetScansController,
     WatchlistsController,
+    AlertsController,
+    NotificationsController,
+    NotificationPreferencesController,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -90,6 +108,9 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     PostgresPresetScanReader,
     PostgresWatchlistRepository,
     PostgresWatchlistMarketSummaryReader,
+    PostgresAlertStore,
+    PostgresAlertDryRunEvaluator,
+    PostgresNotificationCenterStore,
     {
       provide: SCAN_RUN_APPLICATION,
       inject: [ApiDatabase],
@@ -108,6 +129,15 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     {
       provide: WATCHLIST_MARKET_SUMMARY_READER,
       useExisting: PostgresWatchlistMarketSummaryReader,
+    },
+    { provide: ALERT_STORE, useExisting: PostgresAlertStore },
+    {
+      provide: ALERT_DRY_RUN_EVALUATOR,
+      useExisting: PostgresAlertDryRunEvaluator,
+    },
+    {
+      provide: NOTIFICATION_CENTER_STORE,
+      useExisting: PostgresNotificationCenterStore,
     },
     {
       provide: SCANNER_RUNTIME_READER,
@@ -136,6 +166,8 @@ import { WatchlistsService } from './watchlists/watchlists.service';
     SavedScansService,
     PresetScansService,
     WatchlistsService,
+    AlertsService,
+    NotificationsService,
   ],
 })
 export class AppModule implements NestModule {
