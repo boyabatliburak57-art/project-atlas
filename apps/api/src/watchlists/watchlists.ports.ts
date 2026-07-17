@@ -35,12 +35,29 @@ export interface WatchlistMarketSummaryValue {
 }
 
 export interface WatchlistMarketSummaryReader {
+  readPage?(input: {
+    readonly userId: string;
+    readonly watchlistId: string;
+    readonly cursor: WatchlistItemCursor | undefined;
+    readonly limit: number;
+  }): Promise<WatchlistMarketSummaryPage>;
   read(input: {
     readonly userId: string;
     readonly watchlistId: string;
     readonly instrumentIds: readonly string[];
     readonly dataCutoffAt: Date;
   }): Promise<readonly WatchlistMarketSummaryValue[]>;
+}
+
+export interface WatchlistMarketSummaryPageItem {
+  readonly id: string;
+  readonly instrumentId: string;
+  readonly sortOrder: number;
+}
+
+export interface WatchlistMarketSummaryPage {
+  readonly items: readonly WatchlistMarketSummaryPageItem[];
+  readonly hasNext: boolean;
 }
 
 export interface WatchlistListCursor {

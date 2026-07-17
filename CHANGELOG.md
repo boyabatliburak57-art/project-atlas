@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.6.1-portfolio-risk-remediation — 2026-07-16
+
+### Eklendi
+
+- DOC-024 Pagination and Regression Performance Gates
+- Positions Cursor Pagination Contract
+- Watchlist Market Summary Performance Guide
+- Portfolio/Risk remediation plan
+- TASK-050A Positions Cursor Pagination Remediation
+- TASK-050B Watchlist Market Summary Performance Remediation
+- TASK-050C Portfolio/Risk Milestone Re-Audit
+
+### Değişti
+
+- TASK-050 NO-GO bulguları ve zorunlu TASK-050A → TASK-050B → TASK-050C geçiş sırası README ve ATLAS_INDEX içine eklendi.
+- Mevcut performans eşikleri korunarak gerçek application/API pagination yolu ve watchlist market summary regresyon kapıları belgelendi.
+
+### Değişmedi
+
+- Mevcut performans eşikleri değiştirilmedi.
+- Yeni ADR oluşturulmadı ve mevcut ADR kimlikleri değiştirilmedi.
+
 ## 0.5.0-alerts-watchlists — 2026-07-14
 
 ### Eklendi

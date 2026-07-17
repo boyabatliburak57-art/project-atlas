@@ -10,6 +10,7 @@ password="atlas-alerts-performance-local"
 
 pnpm --filter @atlas/domain build
 pnpm --filter @atlas/database build
+pnpm --filter @atlas/api build
 
 cleanup() {
   POSTGRES_DB=atlas_alerts_performance POSTGRES_USER="$user" POSTGRES_PASSWORD="$password" \
@@ -25,4 +26,5 @@ POSTGRES_DB=atlas_alerts_performance POSTGRES_USER="$user" POSTGRES_PASSWORD="$p
 docker exec "${project}-postgres-1" createdb -U "$user" "$database"
 
 TEST_DATABASE_URL="postgresql://${user}:${password}@127.0.0.1:${postgres_port}/${database}" \
+  REDIS_URL="redis://127.0.0.1:${redis_port}" \
   pnpm --filter @atlas/worker perf:alerts -- "$@"

@@ -100,3 +100,14 @@ TASK-030A, TASK-030B, TASK-030C ve TASK-030D tamamlanıp re-audit GO vermeden so
 TASK-031, TASK-030D GO sonucuna bağlıdır. TASK-031 tamamlanmadan TASK-032 başlatılmaz.
 
 TASK-040 Alerts and Watchlists milestone audit sonucu GO olmadan sonraki pakete geçilmez.
+
+## v0.6.1 Portfolio/Risk Remediation
+
+TASK-050 sonucu NO-GO:
+
+- PERF-PORT-006 gerçek application/API cursor pagination yolu eksik
+- Watchlist market summary p95, 750 ms eşiğini aşıyor
+
+Görev sırası: TASK-050A → TASK-050B → TASK-050C.
+
+TASK-050C GO olmadan sonraki pakete geçilmez.

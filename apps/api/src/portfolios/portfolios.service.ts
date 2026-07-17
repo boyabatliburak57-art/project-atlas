@@ -26,6 +26,7 @@ import type {
   CreatePortfolioTransactionDto,
   PerformanceQueryDto,
   PortfolioListQueryDto,
+  PortfolioPositionsQueryDto,
   TransactionListQueryDto,
   UpdatePortfolioDto,
   ValuationHistoryQueryDto,
@@ -37,6 +38,9 @@ import {
   type PortfolioCommandGuard,
   type PortfolioCommands,
   type PortfolioListPage,
+  type PositionPageItem,
+  type PositionSortDirection,
+  type PositionSortField,
   type TransactionListPage,
   type ValuationCursor,
 } from './portfolios.ports';
@@ -105,6 +109,30 @@ const performanceQuery = z.object({
   to: z.iso.date().optional(),
   benchmark: z.string().max(64).optional(),
 });
+const positionsQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  cursor: z.string().min(1).max(2_048).optional(),
+  sortField: z
+    .enum(['symbol', 'marketValue', 'weight', 'unrealizedPnl', 'dailyChange'])
+    .default('symbol'),
+  sortDirection: z.enum(['asc', 'desc']).default('asc'),
+  symbol: z
+    .string()
+    .trim()
+    .min(1)
+    .max(32)
+    .regex(/^[A-Za-z0-9._-]+$/)
+    .transform((value) => value.toUpperCase())
+    .optional(),
+});
+const positionCursor = z.object({
+  version: z.number().int(),
+  contextHash: z.string().length(64),
+  projectionLedgerVersion: z.number().int().min(0),
+  sortValue: z.string(),
+  instrumentId: z.uuid(),
+});
+const POSITION_CURSOR_VERSION = 1;
 
 @Injectable()
 export class PortfoliosService {
@@ -330,10 +358,56 @@ export class PortfoliosService {
     );
   }
 
-  async positions(userId: string, rawPortfolioId: string) {
+  async positions(
+    userId: string,
+    rawPortfolioId: string,
+    query: PortfolioPositionsQueryDto,
+  ) {
     const portfolioId = identifier(rawPortfolioId);
-    await this.owned(userId, portfolioId);
-    return (await this.readModel.projection(portfolioId)).positions;
+    const parsed = parse(positionsQuery, query);
+    const portfolio = await this.owned(userId, portfolioId);
+    if (portfolio.status === 'deleted')
+      throw new ConflictException({
+        code: 'PORTFOLIO_DELETED',
+        message: 'Deleted portfolio cannot be read as an active projection',
+      });
+    const contextHash = positionCursorContextHash({
+      userId,
+      portfolioId,
+      sortField: parsed.sortField,
+      sortDirection: parsed.sortDirection,
+      symbol: parsed.symbol ?? null,
+    });
+    const cursor = parsed.cursor
+      ? decodePositionCursor(
+          parsed.cursor,
+          contextHash,
+          portfolio.ledgerVersion,
+        )
+      : null;
+    const page = await this.readModel.positionsPage({
+      portfolioId,
+      projectionLedgerVersion: portfolio.ledgerVersion,
+      limit: parsed.limit,
+      sortField: parsed.sortField,
+      sortDirection: parsed.sortDirection,
+      symbol: parsed.symbol ?? null,
+      cursor,
+    });
+    return {
+      items: page.items,
+      limit: parsed.limit,
+      projectionLedgerVersion: page.projectionLedgerVersion,
+      dataCutoffAt: page.dataCutoffAt,
+      nextCursor: page.nextCursor
+        ? encodeCursor({
+            version: POSITION_CURSOR_VERSION,
+            contextHash,
+            projectionLedgerVersion: page.projectionLedgerVersion,
+            ...page.nextCursor,
+          })
+        : null,
+    };
   }
 
   async valuation(userId: string, rawPortfolioId: string) {
@@ -492,6 +566,10 @@ export function analyticsDto<
   return serialize(value);
 }
 
+export function positionDto(value: PositionPageItem): unknown {
+  return serialize(value);
+}
+
 function serialize(value: unknown): unknown {
   if (value instanceof Date) return value.toISOString();
   if (Array.isArray(value)) return value.map(serialize);
@@ -551,6 +629,60 @@ function decodeCursor<T>(value: string, schema: z.ZodType<T>): T {
       message: 'Invalid portfolio cursor',
     });
   }
+}
+
+function decodePositionCursor(
+  value: string,
+  expectedContextHash: string,
+  expectedProjectionLedgerVersion: number,
+) {
+  let cursor: z.infer<typeof positionCursor>;
+  try {
+    cursor = positionCursor.parse(
+      JSON.parse(Buffer.from(value, 'base64url').toString('utf8')),
+    );
+  } catch {
+    throw new BadRequestException({
+      code: 'PORTFOLIO_CURSOR_INVALID',
+      message: 'Invalid positions cursor',
+    });
+  }
+  if (cursor.version !== POSITION_CURSOR_VERSION)
+    throw new BadRequestException({
+      code: 'PORTFOLIO_CURSOR_VERSION_MISMATCH',
+      message: 'Unsupported positions cursor version',
+    });
+  if (cursor.contextHash !== expectedContextHash)
+    throw new BadRequestException({
+      code: 'PORTFOLIO_CURSOR_CONTEXT_MISMATCH',
+      message: 'Positions cursor does not match the request context',
+    });
+  if (cursor.projectionLedgerVersion !== expectedProjectionLedgerVersion)
+    throw new ConflictException({
+      code: 'PORTFOLIO_PROJECTION_CHANGED',
+      message: 'Portfolio projection changed; restart pagination',
+    });
+  return {
+    sortValue: cursor.sortValue,
+    instrumentId: cursor.instrumentId,
+  };
+}
+
+function positionCursorContextHash(input: {
+  readonly userId: string;
+  readonly portfolioId: string;
+  readonly sortField: PositionSortField;
+  readonly sortDirection: PositionSortDirection;
+  readonly symbol: string | null;
+}) {
+  return hash({
+    version: POSITION_CURSOR_VERSION,
+    userId: input.userId,
+    portfolioId: input.portfolioId,
+    sortField: input.sortField,
+    sortDirection: input.sortDirection,
+    filters: { symbol: input.symbol },
+  });
 }
 
 function comparePortfolios(left: Portfolio, right: Portfolio): number {

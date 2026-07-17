@@ -6,6 +6,7 @@ import {
   portfolioRiskExposures,
   portfolioRiskSnapshots,
   portfolioValuationSnapshots,
+  instruments,
   PostgresPortfolioRepository,
 } from '@atlas/database';
 import {
@@ -21,11 +22,25 @@ import {
 } from '@atlas/domain';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { and, asc, desc, eq, gt, lt, ne, or } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  ilike,
+  lt,
+  ne,
+  or,
+  sql,
+  type SQL,
+} from 'drizzle-orm';
 
 import { ApiDatabase } from '../scanner/scanner-runtime.infrastructure';
 import type {
   PortfolioCommandGuard,
+  PositionPageQuery,
+  PositionSortField,
   PortfolioReadModel,
   ValuationCursor,
 } from './portfolios.ports';
@@ -128,6 +143,20 @@ export class InMemoryPortfolioCommandGuard implements PortfolioCommandGuard {
 
 @Injectable()
 export class PostgresPortfolioReadModel implements PortfolioReadModel {
+  private readonly positionValuationCache = new Map<
+    string,
+    {
+      readonly expiresAt: number;
+      readonly value:
+        | {
+            readonly id: string;
+            readonly dataCutoffAt: Date;
+            readonly positionsMarketValue: string;
+          }
+        | undefined;
+    }
+  >();
+
   constructor(private readonly connection: ApiDatabase) {}
 
   async projection(portfolioId: string) {
@@ -166,6 +195,117 @@ export class PostgresPortfolioReadModel implements PortfolioReadModel {
         ledgerVersion: row.projectionLedgerVersion,
         calculatedAt: row.calculatedAt,
       })),
+    };
+  }
+
+  async positionsPage(input: PositionPageQuery) {
+    const valuation = await this.positionValuation(input);
+    const snapshotId = valuation?.id ?? '00000000-0000-0000-0000-000000000000';
+    const weightExpression =
+      valuation && valuation.positionsMarketValue !== '0'
+        ? sql<string>`(${portfolioPositionSnapshots.marketValue} / ${valuation.positionsMarketValue}::numeric)`
+        : sql<string>`null::numeric`;
+    const sortExpression = positionSortExpression(
+      input.sortField,
+      weightExpression,
+    );
+    const cursorCondition = input.cursor
+      ? positionCursorCondition(
+          sortExpression,
+          input.sortField,
+          input.sortDirection,
+          input.cursor,
+        )
+      : undefined;
+    const rows = await this.connection.database
+      .select({
+        portfolioId: portfolioPositions.portfolioId,
+        instrumentId: portfolioPositions.instrumentId,
+        symbol: instruments.symbol,
+        company: instruments.name,
+        quantity: portfolioPositions.quantity,
+        averageCost: portfolioPositions.averageCost,
+        costBasis: portfolioPositions.costBasis,
+        realizedPnl: portfolioPositions.realizedPnl,
+        dividendIncome: portfolioPositions.dividendIncome,
+        marketValue: portfolioPositionSnapshots.marketValue,
+        weight: weightExpression,
+        unrealizedPnl: portfolioPositionSnapshots.unrealizedPnl,
+        sectorId: instruments.sectorId,
+        dataTime: portfolioPositionSnapshots.priceAt,
+        ledgerVersion: portfolioPositions.projectionLedgerVersion,
+        calculatedAt: portfolioPositions.calculatedAt,
+        sortValue: sortExpression,
+      })
+      .from(portfolioPositions)
+      .innerJoin(
+        instruments,
+        eq(instruments.id, portfolioPositions.instrumentId),
+      )
+      .leftJoin(
+        portfolioPositionSnapshots,
+        and(
+          eq(portfolioPositionSnapshots.valuationSnapshotId, snapshotId),
+          eq(
+            portfolioPositionSnapshots.instrumentId,
+            portfolioPositions.instrumentId,
+          ),
+        ),
+      )
+      .where(
+        and(
+          eq(portfolioPositions.portfolioId, input.portfolioId),
+          eq(
+            portfolioPositions.projectionLedgerVersion,
+            input.projectionLedgerVersion,
+          ),
+          input.symbol
+            ? ilike(instruments.normalizedSymbol, `${input.symbol}%`)
+            : undefined,
+          cursorCondition,
+        ),
+      )
+      .orderBy(
+        input.sortDirection === 'asc'
+          ? asc(sortExpression)
+          : desc(sortExpression),
+        input.sortDirection === 'asc'
+          ? asc(portfolioPositions.instrumentId)
+          : desc(portfolioPositions.instrumentId),
+      )
+      .limit(input.limit + 1);
+    const hasNext = rows.length > input.limit;
+    const page = hasNext ? rows.slice(0, input.limit) : rows;
+    const last = page.at(-1);
+    return {
+      items: page.map((row) => ({
+        portfolioId: row.portfolioId,
+        instrumentId: row.instrumentId,
+        symbol: row.symbol,
+        company: row.company,
+        quantity: row.quantity,
+        averageCost: row.averageCost,
+        costBasis: row.costBasis,
+        realizedPnl: row.realizedPnl,
+        dividendIncome: row.dividendIncome,
+        marketValue: row.marketValue,
+        weight: row.weight ?? null,
+        unrealizedPnl: row.unrealizedPnl,
+        dailyChange: null,
+        sectorId: row.sectorId,
+        dataTime: row.dataTime,
+        ledgerVersion: row.ledgerVersion,
+        calculatedAt: row.calculatedAt,
+      })),
+      nextCursor:
+        hasNext && last
+          ? {
+              sortValue: String(last.sortValue),
+              instrumentId: last.instrumentId,
+            }
+          : null,
+      projectionLedgerVersion: input.projectionLedgerVersion,
+      dataCutoffAt: valuation?.dataCutoffAt ?? null,
     };
   }
 
@@ -344,6 +484,9 @@ export class PostgresPortfolioReadModel implements PortfolioReadModel {
   }
 
   async invalidate(portfolioId: string, ledgerVersion: number): Promise<void> {
+    for (const key of this.positionValuationCache.keys())
+      if (key.startsWith(`${portfolioId}:`))
+        this.positionValuationCache.delete(key);
     await Promise.all([
       this.connection.database
         .delete(portfolioValuationSnapshots)
@@ -370,6 +513,41 @@ export class PostgresPortfolioReadModel implements PortfolioReadModel {
           ),
         ),
     ]);
+  }
+
+  private async positionValuation(input: PositionPageQuery) {
+    const key = `${input.portfolioId}:${input.projectionLedgerVersion}`;
+    const cached = this.positionValuationCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
+    const value = (
+      await this.connection.database
+        .select({
+          id: portfolioValuationSnapshots.id,
+          dataCutoffAt: portfolioValuationSnapshots.dataCutoffAt,
+          positionsMarketValue:
+            portfolioValuationSnapshots.positionsMarketValue,
+        })
+        .from(portfolioValuationSnapshots)
+        .where(
+          and(
+            eq(portfolioValuationSnapshots.portfolioId, input.portfolioId),
+            eq(
+              portfolioValuationSnapshots.ledgerVersion,
+              input.projectionLedgerVersion,
+            ),
+          ),
+        )
+        .orderBy(
+          desc(portfolioValuationSnapshots.valuationAt),
+          desc(portfolioValuationSnapshots.id),
+        )
+        .limit(1)
+    )[0];
+    this.positionValuationCache.set(key, {
+      expiresAt: Date.now() + 1_000,
+      value,
+    });
+    return value;
   }
 
   private async mapValuation(
@@ -413,6 +591,37 @@ export class PostgresPortfolioReadModel implements PortfolioReadModel {
       cacheKey: `${row.portfolioId}:${row.ledgerVersion}:${row.valuationAt.toISOString()}:${row.dataCutoffAt.toISOString()}:${row.pricePolicyVersion}:official`,
     };
   }
+}
+
+const NULL_NUMERIC_SORT_VALUE = '-999999999999999999.9999999999';
+
+function positionSortExpression(
+  field: PositionSortField,
+  weightExpression: SQL<string>,
+): SQL<string> {
+  if (field === 'symbol') return sql<string>`${instruments.normalizedSymbol}`;
+  if (field === 'marketValue')
+    return sql<string>`coalesce(${portfolioPositionSnapshots.marketValue}, ${NULL_NUMERIC_SORT_VALUE}::numeric)`;
+  if (field === 'weight')
+    return sql<string>`coalesce(${weightExpression}, ${NULL_NUMERIC_SORT_VALUE}::numeric)`;
+  if (field === 'unrealizedPnl')
+    return sql<string>`coalesce(${portfolioPositionSnapshots.unrealizedPnl}, ${NULL_NUMERIC_SORT_VALUE}::numeric)`;
+  return sql<string>`0::numeric`;
+}
+
+function positionCursorCondition(
+  sortExpression: SQL<string>,
+  field: PositionSortField,
+  direction: 'asc' | 'desc',
+  cursor: { readonly sortValue: string; readonly instrumentId: string },
+) {
+  const cursorValue =
+    field === 'symbol'
+      ? sql`${cursor.sortValue}`
+      : sql`${cursor.sortValue}::numeric`;
+  return direction === 'asc'
+    ? sql`(${sortExpression} > ${cursorValue} or (${sortExpression} = ${cursorValue} and ${portfolioPositions.instrumentId} > ${cursor.instrumentId}::uuid))`
+    : sql`(${sortExpression} < ${cursorValue} or (${sortExpression} = ${cursorValue} and ${portfolioPositions.instrumentId} < ${cursor.instrumentId}::uuid))`;
 }
 
 function metric(value: string | null, reason: string): MetricResult {

@@ -11,6 +11,7 @@
     "openapi:check": "vitest run src/openapi/openapi.test.ts",
     "start": "node dist/main.js",
     "test": "pnpm --filter @atlas/domain build && vitest run",
+    "test:database": "pnpm --filter @atlas/domain build && vitest run --config vitest.database.config.ts",
     "test:portfolio-integration": "pnpm --filter @atlas/domain build && pnpm --filter @atlas/database build && vitest run --config vitest.database.config.ts",
     "typecheck": "tsc --noEmit"
   },

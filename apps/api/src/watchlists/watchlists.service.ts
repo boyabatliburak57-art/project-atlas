@@ -33,6 +33,7 @@ import {
   type WatchlistCommands,
   type WatchlistItemCursor,
   type WatchlistListCursor,
+  type WatchlistMarketSummaryPageItem,
   type WatchlistMarketSummaryReader,
 } from './watchlists.ports';
 
@@ -249,24 +250,40 @@ export class WatchlistsService {
     const parsed = summaryQuerySchema.safeParse(query);
     if (!parsed.success) throw invalidRequest(parsed.error);
     const watchlistId = id(rawId);
-    const watchlist = await this.execute(() =>
-      this.watchlists.get(userId, watchlistId),
-    );
-    if (watchlist.status === 'deleted') {
-      throw mapError(new WatchlistError('WATCHLIST_DELETED'));
-    }
     const cursor =
       parsed.data.cursor === undefined
         ? undefined
         : decodeCursor(parsed.data.cursor, itemCursorSchema);
-    const ordered = [...watchlist.items].sort(compareItems);
-    const remaining =
-      cursor === undefined
-        ? ordered
-        : ordered.filter((item) => afterItemCursor(item, cursor));
-    const selected = remaining.slice(0, parsed.data.limit + 1);
-    const hasNext = selected.length > parsed.data.limit;
-    const page = hasNext ? selected.slice(0, parsed.data.limit) : selected;
+    const optimizedPage = await this.execute(
+      () =>
+        this.marketSummaryReader.readPage?.({
+          userId,
+          watchlistId,
+          cursor,
+          limit: parsed.data.limit,
+        }) ?? Promise.resolve(undefined),
+    );
+    let page: readonly WatchlistMarketSummaryPageItem[];
+    let hasNext: boolean;
+    if (optimizedPage === undefined) {
+      const watchlist = await this.execute(() =>
+        this.watchlists.get(userId, watchlistId),
+      );
+      if (watchlist.status === 'deleted') {
+        throw mapError(new WatchlistError('WATCHLIST_DELETED'));
+      }
+      const ordered = [...watchlist.items].sort(compareItems);
+      const remaining =
+        cursor === undefined
+          ? ordered
+          : ordered.filter((item) => afterItemCursor(item, cursor));
+      const selected = remaining.slice(0, parsed.data.limit + 1);
+      hasNext = selected.length > parsed.data.limit;
+      page = hasNext ? selected.slice(0, parsed.data.limit) : selected;
+    } else {
+      page = optimizedPage.items;
+      hasNext = optimizedPage.hasNext;
+    }
     const dataCutoffAt = new Date();
     const values =
       page.length === 0

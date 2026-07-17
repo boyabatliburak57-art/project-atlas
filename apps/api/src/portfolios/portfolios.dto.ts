@@ -18,6 +18,25 @@ export class TransactionListQueryDto {
 
 export class ValuationHistoryQueryDto extends TransactionListQueryDto {}
 
+export class PortfolioPositionsQueryDto {
+  @ApiPropertyOptional({ minimum: 1, maximum: 100, default: 50 })
+  limit?: string;
+  @ApiPropertyOptional({ description: 'Versioned opaque keyset cursor' })
+  cursor?: string;
+  @ApiPropertyOptional({
+    enum: ['symbol', 'marketValue', 'weight', 'unrealizedPnl', 'dailyChange'],
+    default: 'symbol',
+  })
+  sortField?: string;
+  @ApiPropertyOptional({ enum: ['asc', 'desc'], default: 'asc' })
+  sortDirection?: string;
+  @ApiPropertyOptional({
+    maxLength: 32,
+    description: 'Normalized symbol prefix filter',
+  })
+  symbol?: string;
+}
+
 export class PerformanceQueryDto {
   @ApiPropertyOptional({ format: 'date', description: 'Inclusive range start' })
   from?: string;
@@ -161,4 +180,19 @@ export class TransactionListResponseDto {
 export class PortfolioAnalyticsResponseDto {
   @ApiProperty({ type: Object }) data!: Record<string, unknown>;
   @ApiProperty({ type: Object }) meta!: Record<string, unknown>;
+}
+
+export class PortfolioPositionsResponseDto {
+  @ApiProperty({ type: Object }) data!: { items: Record<string, unknown>[] };
+  @ApiProperty({
+    type: Object,
+    example: {
+      requestId: 'request-id',
+      nextCursor: null,
+      limit: 50,
+      projectionLedgerVersion: 42,
+      dataCutoffAt: '2026-07-16T18:00:00.000Z',
+    },
+  })
+  meta!: Record<string, unknown>;
 }

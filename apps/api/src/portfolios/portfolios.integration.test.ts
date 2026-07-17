@@ -30,6 +30,7 @@ import {
   type PortfolioCommandGuard,
   type PortfolioCommands,
   type PortfolioReadModel,
+  type PositionPageQuery,
 } from './portfolios.ports';
 import { PortfoliosService } from './portfolios.service';
 
@@ -218,6 +219,76 @@ class FixtureReadModel implements PortfolioReadModel {
   valuationStatus: PortfolioValuationSnapshot['status'] = 'partial';
   projection() {
     return Promise.resolve(fixtureProjection(1));
+  }
+  positionsPage(input: PositionPageQuery) {
+    const values = Array.from({ length: 7 }, (_, index) => ({
+      portfolioId: input.portfolioId,
+      instrumentId: `00000000-0000-4000-8000-${String(4_721 + index).padStart(12, '0')}`,
+      symbol: `P${String(index + 1).padStart(2, '0')}`,
+      company: `Position ${index + 1}`,
+      quantity: index === 0 ? '2.500000000000' : `${index + 1}.000000000000`,
+      averageCost: index === 0 ? '10.2500000000' : '10.0000000000',
+      costBasis:
+        index === 0 ? '25.6250000000' : `${(index + 1) * 10}.0000000000`,
+      realizedPnl: '0.0000000000',
+      dividendIncome: '0.0000000000',
+      marketValue: '100.0000000000',
+      weight: '0.142857142857',
+      unrealizedPnl: `${index}.0000000000`,
+      dailyChange: null,
+      sectorId: null,
+      dataTime: at,
+      ledgerVersion: input.projectionLedgerVersion,
+      calculatedAt: at,
+    }));
+    const filtered = input.symbol
+      ? values.filter(({ symbol }) => symbol.startsWith(input.symbol ?? ''))
+      : values;
+    const valueFor = (item: (typeof values)[number]) =>
+      input.sortField === 'symbol'
+        ? item.symbol
+        : input.sortField === 'marketValue'
+          ? (item.marketValue ?? '')
+          : input.sortField === 'weight'
+            ? (item.weight ?? '')
+            : input.sortField === 'unrealizedPnl'
+              ? (item.unrealizedPnl ?? '')
+              : '0';
+    const ordered = [...filtered].sort((left, right) => {
+      const primary = valueFor(left).localeCompare(valueFor(right), 'en', {
+        numeric: input.sortField !== 'symbol',
+      });
+      const tie = left.instrumentId.localeCompare(right.instrumentId);
+      return input.sortDirection === 'asc' ? primary || tie : -(primary || tie);
+    });
+    const remaining = input.cursor
+      ? ordered.filter((item) => {
+          const primary = valueFor(item).localeCompare(
+            input.cursor?.sortValue ?? '',
+            'en',
+            { numeric: input.sortField !== 'symbol' },
+          );
+          const tie = item.instrumentId.localeCompare(
+            input.cursor?.instrumentId ?? '',
+          );
+          return input.sortDirection === 'asc'
+            ? primary > 0 || (primary === 0 && tie > 0)
+            : primary < 0 || (primary === 0 && tie < 0);
+        })
+      : ordered;
+    const selected = remaining.slice(0, input.limit + 1);
+    const hasNext = selected.length > input.limit;
+    const items = hasNext ? selected.slice(0, input.limit) : selected;
+    const last = items.at(-1);
+    return Promise.resolve({
+      items,
+      nextCursor:
+        hasNext && last
+          ? { sortValue: valueFor(last), instrumentId: last.instrumentId }
+          : null,
+      projectionLedgerVersion: input.projectionLedgerVersion,
+      dataCutoffAt: at,
+    });
   }
   latestValuation() {
     return Promise.resolve(fixtureValuation(this.valuationStatus));
@@ -415,6 +486,145 @@ describe('Portfolio API', () => {
       averageCost: '10.2500000000',
       costBasis: '25.6250000000',
     });
+    expect(response.body.meta).toMatchObject({
+      limit: 50,
+      dataCutoffAt: at.toISOString(),
+    });
+    expect(response.body.meta.projectionLedgerVersion).toEqual(
+      expect.any(Number),
+    );
+  });
+
+  it('paginates the first, middle and last position pages without duplicates or missing rows', async () => {
+    const seen: string[] = [];
+    let cursor: string | null = null;
+    const pageSizes: number[] = [];
+    do {
+      const response = await api()
+        .get(`/api/v1/portfolios/${portfolioId}/positions`)
+        .query({ limit: 3, ...(cursor ? { cursor } : {}) })
+        .expect(200);
+      const items = response.body.data.items as { instrumentId: string }[];
+      pageSizes.push(items.length);
+      seen.push(...items.map(({ instrumentId: id }) => id));
+      cursor = response.body.meta.nextCursor as string | null;
+    } while (cursor);
+    expect(pageSizes).toEqual([3, 3, 1]);
+    expect(new Set(seen).size).toBe(7);
+    expect(seen).toHaveLength(7);
+  });
+
+  it('uses a stable unique tie-breaker for equal sort values in ASC and DESC order', async () => {
+    for (const sortDirection of ['asc', 'desc']) {
+      const seen: string[] = [];
+      let cursor: string | null = null;
+      do {
+        const response = await api()
+          .get(`/api/v1/portfolios/${portfolioId}/positions`)
+          .query({
+            limit: 2,
+            sortField: 'marketValue',
+            sortDirection,
+            ...(cursor ? { cursor } : {}),
+          })
+          .expect(200);
+        const items = response.body.data.items as { instrumentId: string }[];
+        seen.push(...items.map(({ instrumentId: id }) => id));
+        cursor = response.body.meta.nextCursor as string | null;
+      } while (cursor);
+      expect(new Set(seen).size).toBe(7);
+      expect(seen).toHaveLength(7);
+    }
+  });
+
+  it('rejects invalid, cross-context, sort and filter mismatched cursors', async () => {
+    const invalid = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions?cursor=not-a-cursor`)
+      .expect(400);
+    expect(invalid.body.error.code).toBe('PORTFOLIO_CURSOR_INVALID');
+
+    const first = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions?limit=2`)
+      .expect(200);
+    const cursor = String(first.body.meta.nextCursor);
+    const versionPayload = JSON.parse(
+      Buffer.from(cursor, 'base64url').toString('utf8'),
+    ) as Record<string, unknown>;
+    const versionMismatch = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions`)
+      .query({
+        cursor: Buffer.from(
+          JSON.stringify({ ...versionPayload, version: 999 }),
+          'utf8',
+        ).toString('base64url'),
+      })
+      .expect(400);
+    expect(versionMismatch.body.error.code).toBe(
+      'PORTFOLIO_CURSOR_VERSION_MISMATCH',
+    );
+    for (const query of [
+      { cursor, sortDirection: 'desc' },
+      { cursor, symbol: 'P0' },
+    ]) {
+      const mismatch = await api()
+        .get(`/api/v1/portfolios/${portfolioId}/positions`)
+        .query(query)
+        .expect(400);
+      expect(mismatch.body.error.code).toBe(
+        'PORTFOLIO_CURSOR_CONTEXT_MISMATCH',
+      );
+    }
+    const portfolioMismatch = await api()
+      .get(`/api/v1/portfolios/${otherPortfolioId}/positions`)
+      .set('x-user-id', other)
+      .query({ cursor })
+      .expect(400);
+    expect(portfolioMismatch.body.error.code).toBe(
+      'PORTFOLIO_CURSOR_CONTEXT_MISMATCH',
+    );
+    const userMismatch = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions`)
+      .set('x-user-id', other)
+      .query({ cursor })
+      .expect(403);
+    expect(userMismatch.body.error.code).toBe('PORTFOLIO_ACCESS_DENIED');
+  });
+
+  it('returns correct empty and exact-boundary position pages', async () => {
+    const empty = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions`)
+      .query({ symbol: 'ZZZ', limit: 1 })
+      .expect(200);
+    expect(empty.body.data.items).toEqual([]);
+    expect(empty.body.meta.nextCursor).toBeNull();
+
+    const exact = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions`)
+      .query({ symbol: 'P01', limit: 1 })
+      .expect(200);
+    expect(exact.body.data.items).toHaveLength(1);
+    expect(exact.body.meta.nextCursor).toBeNull();
+  });
+
+  it('detects projection version changes and enforces query bounds', async () => {
+    const first = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions?limit=2`)
+      .expect(200);
+    const current = commands.portfolios.get(portfolioId)!;
+    commands.portfolios.set(portfolioId, {
+      ...current,
+      ledgerVersion: current.ledgerVersion + 1,
+    });
+    const changed = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions`)
+      .query({ cursor: String(first.body.meta.nextCursor) })
+      .expect(409);
+    expect(changed.body.error.code).toBe('PORTFOLIO_PROJECTION_CHANGED');
+    commands.portfolios.set(portfolioId, current);
+
+    await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions?limit=101`)
+      .expect(400);
   });
 
   it('preserves partial valuation and stale/missing warnings', async () => {
@@ -493,6 +703,15 @@ describe('Portfolio API', () => {
     await api().post(`/api/v1/portfolios/${portfolioId}/restore`).expect(200);
   });
 
+  it('rejects position pagination on a deleted portfolio', async () => {
+    await api().delete(`/api/v1/portfolios/${portfolioId}`).expect(200);
+    const response = await api()
+      .get(`/api/v1/portfolios/${portfolioId}/positions`)
+      .expect(409);
+    expect(response.body.error.code).toBe('PORTFOLIO_DELETED');
+    await api().post(`/api/v1/portfolios/${portfolioId}/restore`).expect(200);
+  });
+
   it('does not leak stack traces in production-shaped error responses', async () => {
     const response = await api()
       .get('/api/v1/portfolios/not-a-uuid')
@@ -523,7 +742,7 @@ function makePortfolio(id: string, userId: string): Portfolio {
     reportingCurrency: 'TRY',
     defaultBenchmarkCode: 'XU100',
     status: 'active',
-    ledgerVersion: 0,
+    ledgerVersion: 1,
     createdAt: at,
     updatedAt: at,
     deletedAt: null,

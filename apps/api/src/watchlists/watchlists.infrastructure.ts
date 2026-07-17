@@ -9,6 +9,7 @@ import {
 } from '@atlas/database';
 import {
   WatchlistApplicationService,
+  WatchlistError,
   type AddWatchlistItemResult,
   type ChangeWatchlistResult,
   type NewWatchlist,
@@ -24,6 +25,7 @@ import { and, asc, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 
 import { ApiDatabase } from '../scanner/scanner-runtime.infrastructure';
 import type {
+  WatchlistMarketSummaryPage,
   WatchlistMarketSummaryReader,
   WatchlistMarketSummaryValue,
 } from './watchlists.ports';
@@ -353,6 +355,75 @@ export class PostgresWatchlistRepository implements WatchlistRepository {
 export class PostgresWatchlistMarketSummaryReader implements WatchlistMarketSummaryReader {
   constructor(private readonly connection: ApiDatabase) {}
 
+  async readPage(input: {
+    readonly userId: string;
+    readonly watchlistId: string;
+    readonly cursor:
+      | { readonly sortOrder: number; readonly itemId: string }
+      | undefined;
+    readonly limit: number;
+  }): Promise<WatchlistMarketSummaryPage> {
+    const result = await this.connection.database.execute<{
+      owner_user_id: string;
+      status: string;
+      item_id: string | null;
+      instrument_id: string | null;
+      sort_order: number | null;
+    }>(sql`
+      select
+        w.owner_user_id,
+        w.status,
+        wi.id as item_id,
+        wi.instrument_id,
+        wi.sort_order
+      from ${watchlists} w
+      left join ${watchlistItems} wi
+        on wi.watchlist_id = w.id
+        and (
+          ${input.cursor === undefined}
+          or wi.sort_order > ${input.cursor?.sortOrder ?? 0}
+          or (
+            wi.sort_order = ${input.cursor?.sortOrder ?? 0}
+            and wi.id > ${input.cursor?.itemId ?? '00000000-0000-0000-0000-000000000000'}::uuid
+          )
+        )
+      where w.id = ${input.watchlistId}
+      order by wi.sort_order asc, wi.id asc
+      limit ${input.limit + 1}
+    `);
+    const first = result.rows[0];
+    if (first === undefined) throw new WatchlistError('WATCHLIST_NOT_FOUND');
+    if (first.owner_user_id !== input.userId) {
+      throw new WatchlistError('WATCHLIST_ACCESS_DENIED');
+    }
+    if (first.status === 'deleted') {
+      throw new WatchlistError('WATCHLIST_DELETED');
+    }
+    const selected = result.rows.filter(
+      (
+        row,
+      ): row is typeof row & {
+        item_id: string;
+        instrument_id: string;
+        sort_order: number;
+      } =>
+        row.item_id !== null &&
+        row.instrument_id !== null &&
+        row.sort_order !== null,
+    );
+    const hasNext = selected.length > input.limit;
+    return {
+      items: (hasNext ? selected.slice(0, input.limit) : selected).map(
+        (row) => ({
+          id: row.item_id,
+          instrumentId: row.instrument_id,
+          sortOrder: row.sort_order,
+        }),
+      ),
+      hasNext,
+    };
+  }
+
   async read(input: {
     readonly userId: string;
     readonly watchlistId: string;
@@ -360,6 +431,10 @@ export class PostgresWatchlistMarketSummaryReader implements WatchlistMarketSumm
     readonly dataCutoffAt: Date;
   }): Promise<readonly WatchlistMarketSummaryValue[]> {
     if (input.instrumentIds.length === 0) return [];
+    const instrumentIdArray = sql`array[${sql.join(
+      input.instrumentIds.map((instrumentId) => sql`${instrumentId}`),
+      sql`, `,
+    )}]::uuid[]`;
     const result = await this.connection.database.execute<{
       instrument_id: string;
       symbol: string;
@@ -382,7 +457,7 @@ export class PostgresWatchlistMarketSummaryReader implements WatchlistMarketSumm
           pb.revision,
           pb.ingested_at
         from price_bars pb
-        where pb.instrument_id = any(${input.instrumentIds}::uuid[])
+        where pb.instrument_id = any(${instrumentIdArray})
           and pb.timeframe = '1d'
           and pb.is_closed = true
           and pb.quality_status in ('accepted', 'corrected')
@@ -406,6 +481,30 @@ export class PostgresWatchlistMarketSummaryReader implements WatchlistMarketSumm
         from ranked_bars
         where row_number <= 21
         group by instrument_id
+      ), current_active as (
+        select a.id, ar.instrument_id, ar.watchlist_id
+        from ${alerts} a
+        join ${alertRevisions} ar
+          on ar.alert_id = a.id and ar.revision = a.current_revision
+        where a.owner_user_id = ${input.userId}
+          and a.status = 'active'
+          and (
+            ar.instrument_id = any(${instrumentIdArray})
+            or ar.watchlist_id = ${input.watchlistId}
+          )
+      ), alert_targets as (
+        select ca.id as alert_id, ca.instrument_id
+        from current_active ca
+        where ca.instrument_id = any(${instrumentIdArray})
+        union all
+        select ca.id as alert_id, requested.instrument_id
+        from current_active ca
+        cross join unnest(${instrumentIdArray}) requested(instrument_id)
+        where ca.watchlist_id = ${input.watchlistId}
+      ), active_alert_counts as (
+        select instrument_id, count(distinct alert_id) as active_alert_count
+        from alert_targets
+        group by instrument_id
       )
       select
         i.id as instrument_id,
@@ -422,18 +521,11 @@ export class PostgresWatchlistMarketSummaryReader implements WatchlistMarketSumm
           else round(mv.volume / mv.average_volume, 6)::text
         end as relative_volume,
         mv.data_time,
-        (
-          select count(distinct a.id)::text
-          from ${alerts} a
-          join ${alertRevisions} ar
-            on ar.alert_id = a.id and ar.revision = a.current_revision
-          where a.owner_user_id = ${input.userId}
-            and a.status = 'active'
-            and (ar.instrument_id = i.id or ar.watchlist_id = ${input.watchlistId})
-        ) as active_alert_count
+        coalesce(aac.active_alert_count, 0)::text as active_alert_count
       from ${instruments} i
       left join market_values mv on mv.instrument_id = i.id
-      where i.id = any(${input.instrumentIds}::uuid[])
+      left join active_alert_counts aac on aac.instrument_id = i.id
+      where i.id = any(${instrumentIdArray})
     `);
     return result.rows.map((row) => ({
       instrumentId: row.instrument_id,

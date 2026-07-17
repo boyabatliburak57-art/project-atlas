@@ -1,4 +1,8 @@
-import { execFileSync } from 'node:child_process';
+import {
+  execFileSync,
+  spawn,
+  type ChildProcessWithoutNullStreams,
+} from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { hostname, platform, release } from 'node:os';
@@ -17,7 +21,7 @@ import {
   watchlistItems,
   watchlists,
 } from '@atlas/database';
-import { and, count, desc, eq, isNull, lt, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, isNull, lt, or } from 'drizzle-orm';
 
 import { PostgresAlertEvaluationRepository } from '../alerts/postgres-alert-evaluation-repository';
 import { summarizeDurations, type DurationSummary } from './statistics';
@@ -25,6 +29,7 @@ import { summarizeDurations, type DurationSummary } from './statistics';
 const ROOT = `${resolve(__dirname, '../../../..')}/`;
 const REPORT_DIRECTORY = `${ROOT}reports/performance`;
 const DATABASE_URL = requireTestDatabaseUrl();
+const REDIS_URL = process.env.REDIS_URL ?? '';
 const OWNER_ID = '60000000-0000-4000-8000-000000000001';
 const CUTOFF = new Date('2026-07-16T18:00:00.000Z');
 const ALERT_COUNT = 1_000;
@@ -292,44 +297,82 @@ async function notificationPagination(
 }
 
 async function marketSummary(
-  db: ReturnType<typeof createDatabase>['db'],
+  _db: ReturnType<typeof createDatabase>['db'],
   watchlistId: string,
   instrumentIds: readonly string[],
 ): Promise<Result> {
+  if (instrumentIds.length !== INSTRUMENT_COUNT) {
+    throw new Error(`Expected ${INSTRUMENT_COUNT} fixture instruments`);
+  }
   const durations: number[] = [];
   let errors = 0;
   let rowCount = 0;
+  let duplicateCount = 0;
   let lastError: string | null = null;
-  const instrumentIdArray = sql`array[${sql.join(
-    instrumentIds.map((instrumentId) => sql`${instrumentId}`),
-    sql`, `,
-  )}]::uuid[]`;
-  for (let index = 0; index < 13; index += 1) {
-    const started = performance.now();
-    try {
-      const response = await db.execute<{ instrument_id: string }>(sql`
-        with ranked as (
-          select pb.instrument_id, pb.close, pb.volume, pb.close_time,
-            row_number() over (partition by pb.instrument_id order by pb.close_time desc, pb.id desc) as rn
-          from price_bars pb
-          where pb.instrument_id = any(${instrumentIdArray}) and pb.timeframe = '1d'
-            and pb.is_closed = true and pb.close_time <= ${CUTOFF}
-        )
-        select i.id as instrument_id,
-          max(r.close) filter (where r.rn = 1) as last_price,
-          (select count(*) from alerts a join alert_revisions ar on ar.alert_id = a.id and ar.revision = a.current_revision
-            where a.owner_user_id = ${OWNER_ID} and a.status = 'active'
-              and (ar.instrument_id = i.id or ar.watchlist_id = ${watchlistId})) as active_alert_count
-        from instruments i left join ranked r on r.instrument_id = i.id and r.rn <= 21
-        where i.id = any(${instrumentIdArray})
-        group by i.id
-      `);
-      rowCount = response.rows.length;
-    } catch (error: unknown) {
-      errors += 1;
-      lastError = error instanceof Error ? error.message : String(error);
+  const api = await startApi();
+  try {
+    for (let index = 0; index < 13; index += 1) {
+      const started = performance.now();
+      try {
+        const seen = new Set<string>();
+        let cursor: string | null = null;
+        let traversed = 0;
+        do {
+          const url = new URL(
+            `/api/v1/watchlists/${watchlistId}/market-summary`,
+            api.baseUrl,
+          );
+          url.searchParams.set('limit', '100');
+          if (cursor !== null) url.searchParams.set('cursor', cursor);
+          const response = await fetch(url, {
+            headers: { 'x-performance-user-id': OWNER_ID },
+          });
+          if (!response.ok) {
+            throw new Error(
+              `Market summary API returned ${response.status}: ${await response.text()} ${api.diagnostics.join('')}`,
+            );
+          }
+          const body = (await response.json()) as {
+            readonly data: {
+              readonly items: readonly {
+                readonly instrumentId: string;
+                readonly activeAlertCount: number;
+                readonly stale: boolean;
+                readonly dataTime: string | null;
+              }[];
+            };
+            readonly meta: {
+              readonly nextCursor: string | null;
+              readonly dataCutoffAt: string;
+            };
+          };
+          for (const item of body.data.items) {
+            traversed += 1;
+            if (seen.has(item.instrumentId)) duplicateCount += 1;
+            seen.add(item.instrumentId);
+            if (typeof item.activeAlertCount !== 'number') {
+              throw new Error('Active alert count contract missing');
+            }
+          }
+          if (Number.isNaN(Date.parse(body.meta.dataCutoffAt))) {
+            throw new Error('Data cutoff contract missing');
+          }
+          cursor = body.meta.nextCursor;
+        } while (cursor !== null);
+        rowCount = seen.size;
+        if (traversed !== INSTRUMENT_COUNT) {
+          throw new Error(
+            `Expected ${INSTRUMENT_COUNT} rows, got ${traversed}`,
+          );
+        }
+      } catch (error: unknown) {
+        errors += 1;
+        lastError = error instanceof Error ? error.message : String(error);
+      }
+      if (index >= 3) durations.push(performance.now() - started);
     }
-    if (index >= 3) durations.push(performance.now() - started);
+  } finally {
+    await api.close();
   }
   const threshold = thresholds['PERF-AWN-005'];
   return result(
@@ -339,12 +382,96 @@ async function marketSummary(
     durations,
     errors,
     threshold.p95Ms,
-    rowCount === threshold.instrumentCount,
+    rowCount === threshold.instrumentCount && duplicateCount === 0,
     [
       `rows: ${rowCount}`,
+      `duplicate rows: ${duplicateCount}`,
+      'path: HTTP → auth/ownership → validation → application → PostgreSQL keyset page → enrichment → DTO/serialization',
+      'query count: 10 per 500-row traversal (5 ownership/item keyset pages + 5 batched enrichment queries)',
+      'enrichment plan: instrument lookup, market data lookup and active alert count are grouped inside 5 bounded queries; item-level queries 0',
+      'cache: disabled (hits 0; misses 0); 3 cold-start/warm-up traversals excluded, 10 measured',
       ...(lastError === null ? [] : [`last error: ${lastError}`]),
     ],
   );
+}
+
+async function startApi(): Promise<{
+  readonly baseUrl: string;
+  readonly diagnostics: readonly string[];
+  readonly close: () => Promise<void>;
+}> {
+  if (!REDIS_URL) throw new Error('REDIS_URL is required');
+  const port = Number(process.env.ALERTS_PERF_API_PORT ?? 43107);
+  const baseUrl = `http://127.0.0.1:${port}`;
+  const child = spawn(
+    'pnpm',
+    [
+      '--filter',
+      '@atlas/api',
+      'exec',
+      'tsx',
+      'dist/performance/portfolio-performance-server.js',
+    ],
+    {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        API_HOST: '127.0.0.1',
+        API_PORT: String(port),
+        DATABASE_URL,
+        REDIS_URL,
+        LOG_LEVEL: 'error',
+        NODE_ENV: 'test',
+      },
+    },
+  );
+  const diagnostics: string[] = [];
+  child.stderr.on('data', (chunk: Buffer) =>
+    diagnostics.push(chunk.toString()),
+  );
+  child.stdout.on('data', (chunk: Buffer) =>
+    diagnostics.push(chunk.toString()),
+  );
+  await waitForApi(child, `${baseUrl}/health/live`, diagnostics);
+  return { baseUrl, diagnostics, close: () => stopApi(child) };
+}
+
+async function waitForApi(
+  child: ChildProcessWithoutNullStreams,
+  healthUrl: string,
+  diagnostics: readonly string[],
+) {
+  for (let attempt = 0; attempt < 120; attempt += 1) {
+    if (child.exitCode !== null) {
+      throw new Error(
+        `Watchlist API exited during startup (${child.exitCode}): ${diagnostics.join('')}`,
+      );
+    }
+    try {
+      const response = await fetch(healthUrl);
+      if (response.ok) return;
+    } catch {
+      // The dedicated API process is still starting.
+    }
+    await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
+  }
+  child.kill('SIGTERM');
+  throw new Error(`Watchlist API startup timed out: ${diagnostics.join('')}`);
+}
+
+function stopApi(child: ChildProcessWithoutNullStreams): Promise<void> {
+  if (child.exitCode !== null) return Promise.resolve();
+  return new Promise((resolvePromise) => {
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL');
+      resolvePromise();
+    }, 5_000);
+    child.once('exit', () => {
+      clearTimeout(timeout);
+      resolvePromise();
+    });
+    child.kill('SIGTERM');
+  });
 }
 
 async function seedFixture(db: ReturnType<typeof createDatabase>['db']) {

@@ -70,3 +70,25 @@ Belgeler:
 Görev sırası: TASK-031 → TASK-040.
 
 TASK-040 sonucu GO olmadan sonraki pakete geçilmez.
+
+## v0.6.1 Portfolio/Risk Remediation
+
+TASK-050 sonucu NO-GO:
+
+- PERF-PORT-006 gerçek application/API cursor pagination yolu eksik
+- Watchlist market summary p95, 750 ms eşiğini aşıyor
+
+Belgeler:
+
+- `docs/DOC-024-Pagination-and-Regression-Performance-Gates.md`
+- `guides/POSITIONS_CURSOR_PAGINATION_CONTRACT.md`
+- `guides/WATCHLIST_MARKET_SUMMARY_PERFORMANCE_GUIDE.md`
+- `reports/REMEDIATION_PLAN-v0.6.1.md`
+
+Görev sırası:
+
+1. `tasks/TASK-050A-Positions-Cursor-Pagination-Remediation.md`
+2. `tasks/TASK-050B-Watchlist-Market-Summary-Performance-Remediation.md`
+3. `tasks/TASK-050C-Portfolio-Risk-Milestone-Reaudit.md`
+
+TASK-050C sonucu GO olmadan sonraki pakete geçilmez.

@@ -1,0 +1,8 @@
+{
+  "PERF-PORT-001": { "p95Ms": 5000, "maximumErrors": 0 },
+  "PERF-PORT-002": { "p95Ms": 3000, "maximumErrors": 0 },
+  "PERF-PORT-003": { "p95Ms": 1500, "maximumErrors": 0 },
+  "PERF-PORT-004": { "p95Ms": 3000, "maximumErrors": 0 },
+  "PERF-PORT-005": { "p95Ms": 8000, "maximumErrors": 0 },
+  "PERF-PORT-006": { "p95Ms": 500, "maximumErrors": 0, "pageSize": 50 }
+}

@@ -9,6 +9,7 @@
     "lint": "eslint src",
     "perf:scanner": "tsx src/performance/scanner-runtime-benchmark.ts",
     "perf:alerts": "tsx src/performance/alerts-watchlists-benchmark.ts",
+    "perf:portfolio": "tsx src/performance/portfolio-risk-benchmark.ts",
     "start": "node dist/main.js",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",

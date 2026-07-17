@@ -41,6 +41,8 @@ import {
   PortfolioAnalyticsResponseDto,
   PortfolioListQueryDto,
   PortfolioListResponseDto,
+  PortfolioPositionsQueryDto,
+  PortfolioPositionsResponseDto,
   PortfolioResponseDto,
   TransactionListQueryDto,
   TransactionListResponseDto,
@@ -51,6 +53,7 @@ import {
 import {
   analyticsDto,
   portfolioDto,
+  positionDto,
   PortfoliosService,
   transactionDto,
 } from './portfolios.service';
@@ -246,11 +249,26 @@ export class PortfoliosController {
   }
 
   @Get(':id/positions')
-  @ApiOkResponse({ type: PortfolioAnalyticsResponseDto })
-  async positions(@Req() request: Request, @Param('id') id: string) {
-    return this.response(request, {
-      items: await this.service.positions(this.user(request), id),
-    });
+  @ApiOperation({ summary: 'List owned positions with keyset pagination' })
+  @ApiOkResponse({ type: PortfolioPositionsResponseDto })
+  @ApiForbiddenResponse({ description: 'Portfolio belongs to another user' })
+  @ApiConflictResponse({ description: 'Projection changed during pagination' })
+  async positions(
+    @Req() request: Request,
+    @Param('id') id: string,
+    @Query() query: PortfolioPositionsQueryDto,
+  ) {
+    const result = await this.service.positions(this.user(request), id, query);
+    return {
+      data: { items: result.items.map(positionDto) },
+      meta: {
+        requestId: getRequestId(request),
+        nextCursor: result.nextCursor,
+        limit: result.limit,
+        projectionLedgerVersion: result.projectionLedgerVersion,
+        dataCutoffAt: result.dataCutoffAt?.toISOString() ?? null,
+      },
+    };
   }
 
   @Get(':id/valuation')

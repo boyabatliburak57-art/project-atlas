@@ -153,6 +153,12 @@ describe('OpenAPI document', () => {
     expect(
       document.paths['/api/v1/portfolios/{id}/positions']?.get,
     ).toBeDefined();
+    const positionParameters =
+      document.paths['/api/v1/portfolios/{id}/positions']?.get?.parameters;
+    expect(JSON.stringify(positionParameters)).toContain('cursor');
+    expect(JSON.stringify(positionParameters)).toContain('sortField');
+    expect(JSON.stringify(positionParameters)).toContain('sortDirection');
+    expect(JSON.stringify(positionParameters)).toContain('symbol');
     expect(
       document.paths['/api/v1/portfolios/{id}/valuation']?.get,
     ).toBeDefined();

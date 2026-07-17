@@ -30,6 +30,7 @@ export type PortfolioCommands = Pick<
 
 export interface PortfolioReadModel {
   projection(portfolioId: string): Promise<PortfolioProjection>;
+  positionsPage(input: PositionPageQuery): Promise<PositionPage>;
   latestValuation(
     portfolioId: string,
   ): Promise<PortfolioValuationSnapshot | null>;
@@ -46,6 +47,57 @@ export interface PortfolioReadModel {
   ): Promise<PortfolioPerformanceSnapshot | null>;
   latestRisk(portfolioId: string): Promise<PortfolioRiskSnapshot | null>;
   invalidate(portfolioId: string, ledgerVersion: number): Promise<void>;
+}
+
+export type PositionSortField =
+  | 'symbol'
+  | 'marketValue'
+  | 'weight'
+  | 'unrealizedPnl'
+  | 'dailyChange';
+
+export type PositionSortDirection = 'asc' | 'desc';
+
+export interface PositionKeysetCursor {
+  readonly sortValue: string;
+  readonly instrumentId: string;
+}
+
+export interface PositionPageQuery {
+  readonly portfolioId: string;
+  readonly projectionLedgerVersion: number;
+  readonly limit: number;
+  readonly sortField: PositionSortField;
+  readonly sortDirection: PositionSortDirection;
+  readonly symbol: string | null;
+  readonly cursor: PositionKeysetCursor | null;
+}
+
+export interface PositionPageItem {
+  readonly portfolioId: string;
+  readonly instrumentId: string;
+  readonly symbol: string;
+  readonly company: string;
+  readonly quantity: string;
+  readonly averageCost: string;
+  readonly costBasis: string;
+  readonly realizedPnl: string;
+  readonly dividendIncome: string;
+  readonly marketValue: string | null;
+  readonly weight: string | null;
+  readonly unrealizedPnl: string | null;
+  readonly dailyChange: string | null;
+  readonly sectorId: string | null;
+  readonly dataTime: Date | null;
+  readonly ledgerVersion: number;
+  readonly calculatedAt: Date;
+}
+
+export interface PositionPage {
+  readonly items: readonly PositionPageItem[];
+  readonly nextCursor: PositionKeysetCursor | null;
+  readonly projectionLedgerVersion: number;
+  readonly dataCutoffAt: Date | null;
 }
 
 export interface ValuationCursor {

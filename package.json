@@ -19,6 +19,7 @@
     "lint": "turbo run lint",
     "perf:scanner": "bash scripts/run-scanner-performance.sh",
     "perf:alerts": "bash scripts/run-alerts-watchlists-performance.sh",
+    "perf:portfolio": "bash scripts/run-portfolio-performance.sh",
     "preinstall": "node scripts/check-toolchain-versions.mjs --node-only",
     "secret:scan": "bash scripts/secret-scan.sh --all",
     "secret:scan:test": "bash scripts/test-secret-scan.sh",

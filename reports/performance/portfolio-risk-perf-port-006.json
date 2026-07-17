@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-16T17:08:31.733Z",
+  "commitSha": "2055727399ad13326e34fcf9c44172ab1592a910",
+  "status": "PASS",
+  "environment": {
+    "hostname": "192.168.1.7",
+    "platform": "darwin",
+    "release": "25.5.0",
+    "cpu": "Apple M1",
+    "memoryBytes": 8589934592,
+    "node": "v22.14.0",
+    "pnpm": "9.15.4",
+    "redis": "7.4.9",
+    "databaseUrl": "test PostgreSQL (credential redacted)",
+    "externalProvider": false
+  },
+  "fixture": {
+    "ledgerTransactions": 10000,
+    "ledgerInstruments": 100,
+    "positions": 1000,
+    "seriesDays": 1826,
+    "csvRows": 10000
+  },
+  "scenarios": [
+    {
+      "id": "PERF-PORT-006",
+      "name": "Owned 50-row position page through the real API process",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "1000 positions / page 50",
+      "repetitions": 100,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 6.01,
+      "p95Ms": 10.38,
+      "maxMs": 18.32,
+      "errorCount": 0,
+      "threshold": "p95 <= 500 ms; errors <= 0",
+      "passed": true,
+      "notes": [
+        "unique rows: 1000",
+        "duplicate rows: 0",
+        "missing rows: 0",
+        "cursor invariant failures: 0",
+        "full traversal p50/p95/max: 132.75/160.68/160.68 ms",
+        "adapter-only traversal: 34.22 ms (diagnostic only)",
+        "path: HTTP → authentication → ownership → validation → application → cursor → PostgreSQL keyset → DTO/meta → serialization"
+      ]
+    }
+  ]
+}

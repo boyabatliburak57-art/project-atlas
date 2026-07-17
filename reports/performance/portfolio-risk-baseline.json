@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-16T23:53:34.580Z",
+  "commitSha": "2055727399ad13326e34fcf9c44172ab1592a910",
+  "status": "PASS",
+  "environment": {
+    "hostname": "192.168.1.7",
+    "platform": "darwin",
+    "release": "25.5.0",
+    "cpu": "Apple M1",
+    "memoryBytes": 8589934592,
+    "node": "v22.14.0",
+    "pnpm": "9.15.4",
+    "redis": "7.4.9",
+    "databaseUrl": "test PostgreSQL (credential redacted)",
+    "externalProvider": false
+  },
+  "fixture": {
+    "ledgerTransactions": 10000,
+    "ledgerInstruments": 100,
+    "positions": 1000,
+    "seriesDays": 1826,
+    "csvRows": 10000
+  },
+  "scenarios": [
+    {
+      "id": "PERF-PORT-001",
+      "name": "Ledger replay and projection rebuild",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "10000 posted transactions / 100 instruments",
+      "repetitions": 5,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 504.84,
+      "p95Ms": 721.66,
+      "maxMs": 721.66,
+      "errorCount": 0,
+      "threshold": "p95 <= 5000 ms; errors <= 0",
+      "passed": true,
+      "notes": [
+        "deterministic hashes: 1",
+        "position rows: 100",
+        "duplicate projection rows: 0"
+      ]
+    },
+    {
+      "id": "PERF-PORT-002",
+      "name": "Position valuation, price load and snapshot write",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "1000 positions / 1000 closed daily prices",
+      "repetitions": 5,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 401.97,
+      "p95Ms": 470.82,
+      "maxMs": 470.82,
+      "errorCount": 0,
+      "threshold": "p95 <= 3000 ms; errors <= 0",
+      "passed": true,
+      "notes": ["snapshot rows: 1000", "status: complete", "cutoffs: 1"]
+    },
+    {
+      "id": "PERF-PORT-003",
+      "name": "Five-year TWR and XIRR performance series",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "1826 daily valuations / 3 irregular cash flows",
+      "repetitions": 20,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 134.06,
+      "p95Ms": 160.54,
+      "maxMs": 174.36,
+      "errorCount": 0,
+      "threshold": "p95 <= 1500 ms; errors <= 0",
+      "passed": true,
+      "notes": [
+        "TWR status: complete",
+        "XIRR status: complete",
+        "NaN/Infinity: 0"
+      ]
+    },
+    {
+      "id": "PERF-PORT-004",
+      "name": "Five-year portfolio risk analytics",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "1826 portfolio + benchmark days / 1000 exposures",
+      "repetitions": 20,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 19.52,
+      "p95Ms": 32.35,
+      "maxMs": 32.74,
+      "errorCount": 0,
+      "threshold": "p95 <= 3000 ms; errors <= 0",
+      "passed": true,
+      "notes": ["status: complete", "observations: 1825", "NaN/Infinity: 0"]
+    },
+    {
+      "id": "PERF-PORT-005",
+      "name": "CSV preview validation and duplicate summary",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "10000 mixed valid/invalid/duplicate rows / 669203 bytes",
+      "repetitions": 5,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 762.94,
+      "p95Ms": 1169.22,
+      "maxMs": 1169.22,
+      "errorCount": 0,
+      "threshold": "p95 <= 8000 ms; errors <= 0",
+      "passed": true,
+      "notes": [
+        "rows: 10000",
+        "invalid or duplicate: 104",
+        "transactions before/after: 0/0",
+        "observed heap delta bytes: 103614400"
+      ]
+    },
+    {
+      "id": "PERF-PORT-006",
+      "name": "Owned 50-row position page through the real API process",
+      "environment": "deterministic fixture; test PostgreSQL and Redis; no external provider",
+      "fixtureSize": "1000 positions / page 50",
+      "repetitions": 100,
+      "cacheState": "1 cold warm-up excluded; measured repetitions warm",
+      "p50Ms": 21.21,
+      "p95Ms": 44.42,
+      "maxMs": 109.32,
+      "errorCount": 0,
+      "threshold": "p95 <= 500 ms; errors <= 0",
+      "passed": true,
+      "notes": [
+        "unique rows: 1000",
+        "duplicate rows: 0",
+        "missing rows: 0",
+        "cursor invariant failures: 0",
+        "full traversal p50/p95/max: 466.11/716.95/716.95 ms",
+        "adapter-only traversal: 152.53 ms (diagnostic only)",
+        "path: HTTP → authentication → ownership → validation → application → cursor → PostgreSQL keyset → DTO/meta → serialization"
+      ]
+    }
+  ]
+}
