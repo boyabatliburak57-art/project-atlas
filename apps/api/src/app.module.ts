@@ -113,6 +113,14 @@ import {
 } from './symbols/symbol-detail.infrastructure';
 import { SYMBOL_DETAIL_READER } from './symbols/symbol-detail.ports';
 import { SymbolDetailService } from './symbols/symbol-detail.service';
+import { FundamentalsController } from './fundamentals/fundamentals.controller';
+import { PostgresFundamentalsReader } from './fundamentals/fundamentals.infrastructure';
+import { FUNDAMENTALS_READER } from './fundamentals/fundamentals.ports';
+import { FundamentalsService } from './fundamentals/fundamentals.service';
+import { PatternsController } from './patterns/patterns.controller';
+import { PostgresPatternReadModel } from './patterns/patterns.infrastructure';
+import { PATTERN_READ_MODEL } from './patterns/patterns.ports';
+import { PatternsService } from './patterns/patterns.service';
 
 @Module({
   controllers: [
@@ -130,6 +138,8 @@ import { SymbolDetailService } from './symbols/symbol-detail.service';
     PortfolioImportsController,
     MarketOverviewController,
     SymbolDetailController,
+    FundamentalsController,
+    PatternsController,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -164,6 +174,8 @@ import { SymbolDetailService } from './symbols/symbol-detail.service';
     MarketResponseCache,
     PostgresSymbolDetailReader,
     SymbolResponseCache,
+    PostgresFundamentalsReader,
+    PostgresPatternReadModel,
     {
       provide: SCAN_RUN_APPLICATION,
       inject: [ApiDatabase],
@@ -226,6 +238,11 @@ import { SymbolDetailService } from './symbols/symbol-detail.service';
       useExisting: PostgresSymbolDetailReader,
     },
     {
+      provide: FUNDAMENTALS_READER,
+      useExisting: PostgresFundamentalsReader,
+    },
+    { provide: PATTERN_READ_MODEL, useExisting: PostgresPatternReadModel },
+    {
       provide: SCANNER_RUNTIME_READER,
       inject: [
         PostgresScannerRuntimeReader,
@@ -258,6 +275,8 @@ import { SymbolDetailService } from './symbols/symbol-detail.service';
     PortfolioImportsService,
     MarketOverviewService,
     SymbolDetailService,
+    FundamentalsService,
+    PatternsService,
   ],
 })
 export class AppModule implements NestModule {

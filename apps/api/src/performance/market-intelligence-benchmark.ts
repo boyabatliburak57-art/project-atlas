@@ -17,6 +17,8 @@ import {
   marketRankSnapshots,
   patternDefinitions,
   patternInstances,
+  fundamentalStatementSnapshots,
+  fundamentalMetricSnapshots,
   portfolios,
   portfolioTransactions,
   priceBars,
@@ -54,6 +56,10 @@ import {
 } from '../symbols/symbol-detail.infrastructure';
 import { SYMBOL_DETAIL_READER } from '../symbols/symbol-detail.ports';
 import { SymbolDetailService } from '../symbols/symbol-detail.service';
+import { FundamentalsController } from '../fundamentals/fundamentals.controller';
+import { PostgresFundamentalsReader } from '../fundamentals/fundamentals.infrastructure';
+import { FUNDAMENTALS_READER } from '../fundamentals/fundamentals.ports';
+import { FundamentalsService } from '../fundamentals/fundamentals.service';
 
 const ROOT = `${resolve(__dirname, '../../../..')}/`;
 const REPORT_DIRECTORY = `${ROOT}reports/performance`;
@@ -64,6 +70,7 @@ const INSTRUMENT_COUNT = 650;
 const SYMBOL_BAR_COUNT = 730;
 const SYMBOL_ID = '71000000-0000-4000-8000-000000000001';
 const PROVIDER_ID = '72000000-0000-4000-8000-000000000001';
+const FUNDAMENTAL_PERIOD_COUNT = 20;
 
 interface Thresholds {
   readonly 'PERF-MKT-001': {
@@ -88,6 +95,11 @@ interface Thresholds {
     readonly dailyBars: number;
     readonly indicatorOverlays: number;
   };
+  readonly 'PERF-MKT-005': {
+    readonly p95Ms: number;
+    readonly maximumErrors: number;
+    readonly financialPeriods: number;
+  };
 }
 
 interface Summary {
@@ -109,7 +121,11 @@ process.env.MARKET_RESPONSE_CACHE_TTL_MS = '300000';
 process.env.NODE_ENV = 'test';
 
 @Module({
-  controllers: [MarketOverviewController, SymbolDetailController],
+  controllers: [
+    MarketOverviewController,
+    SymbolDetailController,
+    FundamentalsController,
+  ],
   imports: [
     ConfigModule.forRoot({
       cache: true,
@@ -127,6 +143,8 @@ process.env.NODE_ENV = 'test';
     PostgresSymbolDetailReader,
     SymbolResponseCache,
     SymbolDetailService,
+    PostgresFundamentalsReader,
+    FundamentalsService,
     { provide: INDICATOR_REGISTRY, useFactory: createCoreIndicatorRegistry },
     {
       provide: AUTHENTICATED_USER_RESOLVER,
@@ -138,6 +156,7 @@ process.env.NODE_ENV = 'test';
     },
     { provide: MARKET_RATE_LIMITER, useExisting: InMemoryMarketRateLimiter },
     { provide: SYMBOL_DETAIL_READER, useExisting: PostgresSymbolDetailReader },
+    { provide: FUNDAMENTALS_READER, useExisting: PostgresFundamentalsReader },
   ],
 })
 class MarketBenchmarkModule {}
@@ -188,7 +207,8 @@ async function main() {
     const ranking = await benchmarkRanking(baseUrl, cache);
     const symbolAggregate = await benchmarkSymbolAggregate(baseUrl);
     const chart = await benchmarkChart(baseUrl, symbolCache);
-    const scenarios = [overview, ranking, symbolAggregate, chart];
+    const fundamentals = await benchmarkFundamentals(baseUrl);
+    const scenarios = [overview, ranking, symbolAggregate, chart, fundamentals];
     const report = {
       schemaVersion: 1,
       generatedAt: new Date().toISOString(),
@@ -219,6 +239,7 @@ async function main() {
         dataCutoffAt: CUTOFF.toISOString(),
         symbolDailyBars: SYMBOL_BAR_COUNT,
         chartOverlays: 6,
+        fundamentalPeriods: FUNDAMENTAL_PERIOD_COUNT,
       },
       scenarios,
     } as const;
@@ -234,6 +255,36 @@ async function main() {
     if (application) await application.close();
     await pool.end();
   }
+}
+
+async function benchmarkFundamentals(baseUrl: string) {
+  const durations: number[] = [];
+  let errors = 0;
+  const target = `${baseUrl}/api/v1/symbols/B0001/ratios?periodType=quarterly`;
+  for (let repetition = 0; repetition < 20; repetition += 1) {
+    const measured = await timedJsonRequest(new URL(target));
+    durations.push(measured.duration);
+    if (!measured.ok || !measured.body) errors += 1;
+    else if ((measured.body['data'] as readonly unknown[]).length !== 14)
+      errors += 1;
+  }
+  const summary = summarize(durations);
+  const threshold = thresholds['PERF-MKT-005'];
+  return {
+    id: 'PERF-MKT-005',
+    name: 'Twenty financial periods and versioned derived ratio set',
+    fixtureSize: `${FUNDAMENTAL_PERIOD_COUNT} periods / 14 derived ratios`,
+    cacheState: 'database read and ratio calculation path; 20 repetitions',
+    repetitions: 20,
+    ...summary,
+    errorCount: errors,
+    queryCount: '4 logical PostgreSQL queries per HTTP request',
+    cacheHits: 0,
+    cacheMisses: 0,
+    threshold: `p95 <= ${threshold.p95Ms} ms`,
+    passed:
+      errors <= threshold.maximumErrors && summary.p95Ms <= threshold.p95Ms,
+  };
 }
 
 async function benchmarkOverview(baseUrl: string, cache: MarketResponseCache) {
@@ -561,6 +612,62 @@ async function seedFixture(db: ReturnType<typeof createDatabase>['db']) {
     evidence: { schemaVersion: 1 },
     deduplicationKey: 'task055-double-bottom',
   });
+  for (let index = 0; index < FUNDAMENTAL_PERIOD_COUNT; index += 1) {
+    const year = 2021 + Math.floor(index / 4);
+    const quarter = (index % 4) + 1;
+    const periodEnd = new Date(Date.UTC(year, quarter * 3, 0));
+    const generationId = `74000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`;
+    const statementId = `75000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`;
+    await db.insert(fundamentalStatementSnapshots).values({
+      id: statementId,
+      instrumentId: SYMBOL_ID,
+      providerId: PROVIDER_ID,
+      statementType: 'consolidated',
+      fiscalYear: year,
+      fiscalPeriod: `Q${quarter}`,
+      periodStart: new Date(Date.UTC(year, (quarter - 1) * 3, 1)),
+      periodEnd,
+      currencyCode: 'TRY',
+      unitScale: '1',
+      providerRevision: `task056-q-${index + 1}`,
+      generationId,
+      policyVersion: 'fundamentals-normalization-v1',
+      dataCutoffAt: new Date(periodEnd.getTime() + 86_400_000),
+      publishedAt: new Date(periodEnd.getTime() + 86_400_000),
+      sourceTimestamp: new Date(periodEnd.getTime() + 86_400_000),
+      normalizedPayload: { periodType: 'quarterly' },
+      qualityStatus: 'complete',
+    });
+    const values = {
+      revenue: String(1_000_000 + index * 10_000),
+      grossProfit: '400000',
+      operatingProfit: '250000',
+      ebitda: '300000',
+      netIncome: String(200_000 + index * 1_000),
+      totalAssets: '2000000',
+      totalLiabilities: '900000',
+      equity: '1100000',
+      cashAndEquivalents: '100000',
+      financialDebt: '300000',
+      operatingCashFlow: '240000',
+      capitalExpenditure: '40000',
+      freeCashFlow: '200000',
+      sharesOutstanding: '100000',
+      currentAssets: '600000',
+      currentLiabilities: '300000',
+    } as const;
+    await db.insert(fundamentalMetricSnapshots).values(
+      Object.entries(values).map(([metricCode, value]) => ({
+        statementSnapshotId: statementId,
+        generationId,
+        policyVersion: 'fundamentals-normalization-v1',
+        dataCutoffAt: new Date(periodEnd.getTime() + 86_400_000),
+        metricCode,
+        value,
+        status: 'complete',
+      })),
+    );
+  }
 }
 
 function instrumentId(index: number) {
@@ -647,7 +754,8 @@ function assertFixtureContract() {
     thresholds['PERF-MKT-001'].fixtureInstruments !== INSTRUMENT_COUNT ||
     thresholds['PERF-MKT-002'].fixtureInstruments !== INSTRUMENT_COUNT ||
     thresholds['PERF-MKT-004'].dailyBars !== SYMBOL_BAR_COUNT ||
-    thresholds['PERF-MKT-004'].indicatorOverlays !== 6
+    thresholds['PERF-MKT-004'].indicatorOverlays !== 6 ||
+    thresholds['PERF-MKT-005'].financialPeriods !== FUNDAMENTAL_PERIOD_COUNT
   )
     throw new Error('Market performance fixture size must remain 650');
 }
@@ -664,6 +772,7 @@ async function writeReports(report: Record<string, unknown>) {
     (item) => item['id'] === 'PERF-MKT-003',
   );
   const chart = scenarios.find((item) => item['id'] === 'PERF-MKT-004');
+  const fundamentals = scenarios.find((item) => item['id'] === 'PERF-MKT-005');
   const cold = overview?.['cold'] as Record<string, unknown> | undefined;
   const rows = scenarios.map((item) =>
     [
@@ -696,6 +805,8 @@ async function writeReports(report: Record<string, unknown>) {
       `PERF-MKT-003 queries: ${String(symbolAggregate?.['queryCount'])}; cache hits ${String(symbolAggregate?.['cacheHits'])}, misses ${String(symbolAggregate?.['cacheMisses'])}.`,
       '',
       `PERF-MKT-004 queries: ${String(chart?.['queryCount'])}; cache hits ${String(chart?.['cacheHits'])}, misses ${String(chart?.['cacheMisses'])}; alignment failures ${String(chart?.['alignmentFailures'])}.`,
+      '',
+      `PERF-MKT-005 queries: ${String(fundamentals?.['queryCount'])}; cache hits ${String(fundamentals?.['cacheHits'])}, misses ${String(fundamentals?.['cacheMisses'])}.`,
       '',
       'The benchmark uses the real Nest HTTP controller, application service, PostgreSQL read model, cursor codec, DTO mapping, serialization, and a deterministic local fixture. No external provider is called.',
       '',

@@ -10,6 +10,7 @@
     "perf:scanner": "tsx src/performance/scanner-runtime-benchmark.ts",
     "perf:alerts": "tsx src/performance/alerts-watchlists-benchmark.ts",
     "perf:portfolio": "tsx src/performance/portfolio-risk-benchmark.ts",
+    "perf:patterns": "tsx src/performance/market-pattern-benchmark.ts",
     "start": "node dist/main.js",
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
@@ -28,6 +29,7 @@
     "bullmq": "5.80.1",
     "dotenv": "17.4.2",
     "drizzle-orm": "0.45.2",
+    "ioredis": "5.10.1",
     "zod": "4.4.3"
   }
 }

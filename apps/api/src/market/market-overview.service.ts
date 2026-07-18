@@ -6,6 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { MarketIntelligenceCacheKeyFactory } from '@atlas/domain';
 import { z } from 'zod';
 
 import { MarketResponseCache } from './market-overview.infrastructure';
@@ -45,6 +46,8 @@ interface MarketServiceResult {
   readonly data: unknown;
   readonly meta: Record<string, unknown>;
 }
+
+const marketCacheKeys = new MarketIntelligenceCacheKeyFactory();
 
 @Injectable()
 export class MarketOverviewService {
@@ -126,7 +129,11 @@ export class MarketOverviewService {
     const cursor = parsed.cursor
       ? decodeCursor(parsed.cursor, contextHash)
       : null;
-    const key = `${cacheKey(`ranking:${type}`, snapshot)}:${parsed.limit}:${parsed.cursor ?? 'first'}`;
+    const key = cacheKey('ranking', snapshot, {
+      filters: { rankingType: type, limit: parsed.limit },
+      sort: 'rank:asc,instrumentId:asc',
+      cursor: parsed.cursor ?? null,
+    });
     const cached = this.cache.get<MarketServiceResult>(key);
     if (cached) return cached;
     const page = await this.reader.rankingPage({
@@ -221,17 +228,25 @@ function publicStatus(status: string) {
   return status === 'not_evaluable' ? 'notEvaluable' : status;
 }
 
-function cacheKey(operation: string, snapshot: MarketSnapshotView) {
-  return [
-    'market',
-    operation,
-    snapshot.marketCode,
-    snapshot.timeframe,
-    snapshot.universeVersion,
-    snapshot.dataCutoffAt.toISOString(),
-    snapshot.policyVersion,
-    snapshot.generationId,
-  ].join(':');
+function cacheKey(
+  operation: string,
+  snapshot: MarketSnapshotView,
+  context: {
+    readonly filters?: Readonly<Record<string, unknown>>;
+    readonly sort?: string;
+    readonly cursor?: string | null;
+  } = {},
+) {
+  return marketCacheKeys.market({
+    market: snapshot.marketCode,
+    universeVersion: snapshot.universeVersion,
+    generationId: snapshot.generationId,
+    dataCutoffAt: snapshot.dataCutoffAt,
+    policyVersion: snapshot.policyVersion,
+    filters: { operation, ...context.filters },
+    ...(context.sort ? { sort: context.sort } : {}),
+    ...(context.cursor !== undefined ? { cursor: context.cursor } : {}),
+  });
 }
 
 function rankingType(value: string): (typeof MARKET_RANKING_TYPES)[number] {

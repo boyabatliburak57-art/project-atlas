@@ -10,6 +10,7 @@ import {
 import {
   Decimal,
   IndicatorBatchExecutor,
+  MarketIntelligenceCacheKeyFactory,
   type IndicatorCalculationResult,
   type IndicatorRegistry,
 } from '@atlas/domain';
@@ -60,6 +61,7 @@ const symbolSchema = z
 const MAX_OVERLAYS = 6;
 const MAX_PATTERN_MARKERS = 100;
 const ADJUSTMENT_POLICY_VERSION = 'chart-adjustment-v1';
+const chartCacheKeys = new MarketIntelligenceCacheKeyFactory();
 const PANEL_CODES = new Set([
   'RSI',
   'MACD',
@@ -189,36 +191,40 @@ export class SymbolDetailService {
           limit: MAX_PATTERN_MARKERS,
         })
       : [];
-    const cacheKey = hash({
+    const cacheKey = chartCacheKeys.chart({
       instrumentId: profile.id,
       timeframe: query.timeframe,
-      from: from.toISOString(),
-      to: to.toISOString(),
-      limit: query.limit,
+      from,
+      to,
       adjustmentMode: query.adjustmentMode,
-      adjustmentPolicyVersion: ADJUSTMENT_POLICY_VERSION,
-      dataCutoffAt: cutoff.toISOString(),
-      overlays: overlaySpecs,
-      includePatterns: query.includePatterns,
-      includeCorporateActions: query.includeCorporateActions,
-      corporateActionVersion: hash(
-        actions.map((action) => ({
+      dataCutoffAt: cutoff,
+      indicatorVersions: Object.fromEntries(
+        overlaySpecs.map((spec) => [spec.code, String(spec.version)]),
+      ),
+      parametersHash: hash({
+        limit: query.limit,
+        overlays: overlaySpecs,
+        adjustmentPolicyVersion: ADJUSTMENT_POLICY_VERSION,
+        corporateActionVersion: actions.map((action) => ({
           eventKey: action.eventKey,
           type: action.type,
           effectiveAt: action.effectiveAt.toISOString(),
           factor: action.factor,
           cashAmount: action.cashAmount,
         })),
-      ),
-      patternVersion: hash(
-        patterns.map((pattern) => ({
+        patternVersion: patterns.map((pattern) => ({
           id: pattern.id,
           version: pattern.version,
           algorithmVersion: pattern.algorithmVersion,
           state: pattern.state,
           dataCutoffAt: pattern.dataCutoffAt.toISOString(),
         })),
-      ),
+      }),
+      markerOptions: {
+        includePatterns: query.includePatterns,
+        includeCorporateActions: query.includeCorporateActions,
+        includeUserMarkers: query.includeUserMarkers,
+      },
       markerUserId: query.includeUserMarkers ? userId : null,
     });
     const cached = this.cache.get<{

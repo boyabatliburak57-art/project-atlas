@@ -11,6 +11,7 @@ password="atlas-market-performance-local"
 pnpm --filter @atlas/domain build
 pnpm --filter @atlas/database build
 pnpm --filter @atlas/api build
+pnpm --filter @atlas/worker build
 
 cleanup() {
   POSTGRES_DB=atlas_market_performance POSTGRES_USER="$user" POSTGRES_PASSWORD="$password" \
@@ -41,6 +42,12 @@ TEST_DATABASE_URL="postgresql://${user}:${password}@127.0.0.1:${postgres_port}/$
 REDIS_URL="redis://127.0.0.1:${redis_port}" \
   pnpm --filter @atlas/api perf:market "$@"
 benchmark_status=$?
+if [[ "$benchmark_status" -eq 0 ]]; then
+  TEST_DATABASE_URL="postgresql://${user}:${password}@127.0.0.1:${postgres_port}/${database}" \
+  REDIS_URL="redis://127.0.0.1:${redis_port}" \
+    pnpm --filter @atlas/worker perf:patterns "$@"
+  benchmark_status=$?
+fi
 set -e
 
 if [[ -f reports/performance/market-intelligence-baseline.json ]]; then

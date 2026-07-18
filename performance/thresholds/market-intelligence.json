@@ -20,5 +20,16 @@
     "maximumErrors": 0,
     "dailyBars": 730,
     "indicatorOverlays": 6
+  },
+  "PERF-MKT-005": {
+    "p95Ms": 500,
+    "maximumErrors": 0,
+    "financialPeriods": 20
+  },
+  "PERF-MKT-006": {
+    "p95Ms": 12000,
+    "maximumErrors": 0,
+    "instrumentCount": 650,
+    "dailyBarsPerInstrument": 201
   }
 }

@@ -4,6 +4,7 @@ import {
   createAlertEvaluationJobId,
   createHeartbeatJobId,
   createNotificationDeliveryJobId,
+  createMarketIntelligenceReconciliationJobId,
   createScannerRunJobId,
   DEFAULT_JOB_OPTIONS,
   QUEUE_NAMES,
@@ -61,5 +62,30 @@ describe('queue contracts', () => {
     expect(
       createNotificationDeliveryJobId({ outboxId: 12, attempt: 1 }),
     ).not.toBe(createNotificationDeliveryJobId({ outboxId: 12, attempt: 2 }));
+  });
+
+  it('deduplicates reconciliation jobs while preserving revision context', () => {
+    const input = {
+      market: 'BIST',
+      timeframe: '1d',
+      staleAfterMs: 86_400_000,
+      invalidations: [
+        {
+          eventId: 'closed-bar-1',
+          type: 'new_closed_bar' as const,
+          version: 'r1',
+          occurredAt: '2026-07-18T15:00:00.000Z',
+        },
+      ],
+    };
+    expect(createMarketIntelligenceReconciliationJobId(input)).toBe(
+      createMarketIntelligenceReconciliationJobId({ ...input }),
+    );
+    expect(createMarketIntelligenceReconciliationJobId(input)).not.toBe(
+      createMarketIntelligenceReconciliationJobId({
+        ...input,
+        invalidations: [{ ...input.invalidations[0]!, version: 'r2' }],
+      }),
+    );
   });
 });

@@ -14,8 +14,46 @@ export const ATLAS_JOB_NAMES = {
   deadLetter: 'system.dead-letter.v1',
   heartbeat: 'system.heartbeat.v1',
   instrumentSync: 'market-data.instrument-sync.v1',
+  fundamentalsIngest: 'market-data.fundamentals-ingest.v1',
+  patternsDetect: 'market-data.patterns-detect.v1',
+  marketIntelligenceReconcile: 'market-data.intelligence-reconcile.v1',
   scannerRun: 'scanner.run.v1',
 } as const;
+
+export type MarketIntelligenceInvalidationType =
+  | 'new_closed_bar'
+  | 'corrected_price_bar'
+  | 'corporate_action_revision'
+  | 'financial_restatement'
+  | 'ratio_formula_version'
+  | 'indicator_version'
+  | 'pattern_algorithm_version'
+  | 'instrument_classification_change'
+  | 'user_marker_ownership_change';
+
+export interface MarketIntelligenceInvalidationPayload {
+  readonly eventId: string;
+  readonly type: MarketIntelligenceInvalidationType;
+  readonly instrumentId?: string;
+  readonly market?: string;
+  readonly userId?: string;
+  readonly version: string;
+  readonly occurredAt: string;
+}
+
+export interface MarketIntelligenceReconciliationQueuePayload {
+  readonly market: string;
+  readonly timeframe: string;
+  readonly staleAfterMs: number;
+  readonly invalidations: readonly MarketIntelligenceInvalidationPayload[];
+  readonly correlationId?: string;
+}
+
+export interface FundamentalsIngestionQueuePayload {
+  readonly providerCode: string;
+  readonly providerSymbol: string;
+  readonly correlationId?: string;
+}
 
 export interface ScannerRunQueuePayload {
   readonly runId: string;

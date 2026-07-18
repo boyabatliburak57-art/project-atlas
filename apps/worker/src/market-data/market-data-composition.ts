@@ -1,5 +1,7 @@
 import { createDatabase, type Database } from '@atlas/database';
+import type { CacheBackend } from '@atlas/domain';
 import { type Job, UnrecoverableError } from 'bullmq';
+import Redis from 'ioredis';
 import { ZodError } from 'zod';
 
 import type { StructuredLogger } from '../observability/structured-logger';
@@ -20,6 +22,28 @@ import {
   type RawMarketDataProviderAdapter,
 } from './providers';
 import { FakeMarketDataProviderAdapter } from './providers/testing/fake-market-data-provider';
+import {
+  DatabaseFundamentalsStore,
+  FakeFundamentalsProvider,
+  FundamentalsIngestionService,
+  FundamentalsIngestionError,
+  FundamentalsProviderError,
+  processFundamentalsIngestionJob,
+  type FundamentalsProvider,
+} from './fundamentals';
+import {
+  DatabasePatternDetectionStore,
+  PatternDetectionService,
+  processPatternDetectionJob,
+} from './patterns';
+import {
+  DatabaseSnapshotReconciliationStore,
+  NoopMarketIntelligenceCacheBackend,
+  processSnapshotReconciliationJob,
+  ReconciliationRefreshCollector,
+  RedisMarketIntelligenceCacheBackend,
+  SnapshotReconciliationService,
+} from './quality';
 
 export interface MarketDataComposition {
   readonly process: (job: Job) => Promise<unknown>;
@@ -30,7 +54,9 @@ interface CompositionOptions {
   readonly database: Database;
   readonly logger: StructuredLogger;
   readonly providerAdapters: readonly RawMarketDataProviderAdapter[];
+  readonly fundamentalsProviders?: readonly FundamentalsProvider[];
   readonly close?: (() => Promise<void>) | undefined;
+  readonly qualityCache?: CacheBackend;
 }
 
 export function createMarketDataComposition(
@@ -53,6 +79,20 @@ export function createMarketDataComposition(
     fetchBars: (providerCode, request) =>
       registry.resolve(providerCode).fetchBars(request),
   });
+  const fundamentalsProviders = new Map(
+    (options.fundamentalsProviders ?? []).map((provider) => [
+      provider.code,
+      provider,
+    ]),
+  );
+  const patternService = new PatternDetectionService(
+    new DatabasePatternDetectionStore(options.database),
+  );
+  const qualityService = new SnapshotReconciliationService(
+    new DatabaseSnapshotReconciliationStore(options.database),
+    options.qualityCache ?? new NoopMarketIntelligenceCacheBackend(),
+    new ReconciliationRefreshCollector(),
+  );
 
   return {
     async process(job) {
@@ -69,7 +109,20 @@ export function createMarketDataComposition(
             ? await processInstrumentImportJob(job, instrumentService)
             : job.name === JOB_NAMES.barIngestion
               ? await processBarIngestionJob(job, barService)
-              : rejectUnknownJob(job.name);
+              : job.name === JOB_NAMES.fundamentalsIngest
+                ? await processFundamentalsJob(
+                    job,
+                    fundamentalsProviders,
+                    options.database,
+                  )
+                : job.name === JOB_NAMES.patternsDetect
+                  ? await processPatternDetectionJob(job, patternService)
+                  : job.name === JOB_NAMES.marketIntelligenceReconcile
+                    ? await processSnapshotReconciliationJob(
+                        job,
+                        qualityService,
+                      )
+                    : rejectUnknownJob(job.name);
         options.logger.info('worker.market-data.job.completed', {
           correlationId,
           jobId: job.id,
@@ -97,9 +150,11 @@ export function createMarketDataComposition(
 
 export function createDefaultMarketDataComposition(
   databaseUrl: string,
+  redisUrl: string,
   logger: StructuredLogger,
 ): MarketDataComposition {
   const { db, pool } = createDatabase(databaseUrl);
+  const redis = new Redis(redisUrl, { maxRetriesPerRequest: null });
   return createMarketDataComposition({
     database: db,
     logger,
@@ -118,7 +173,23 @@ export function createDefaultMarketDataComposition(
         barBatch: { bars: [] },
       }),
     ],
-    close: () => pool.end(),
+    fundamentalsProviders: [
+      new FakeFundamentalsProvider(
+        'fake-provider',
+        {
+          supportsAnnual: true,
+          supportsQuarterly: true,
+          supportedCurrencies: ['TRY'],
+          supportedMetrics: [],
+          revisionMode: 'immutable',
+        },
+        [],
+      ),
+    ],
+    qualityCache: new RedisMarketIntelligenceCacheBackend(redis),
+    close: async () => {
+      await Promise.all([pool.end(), redis.quit()]);
+    },
   });
 }
 
@@ -130,6 +201,8 @@ function readCorrelationId(job: Job): string {
 }
 
 function isRetryable(error: unknown): boolean {
+  if (error instanceof FundamentalsProviderError) return error.retryable;
+  if (error instanceof FundamentalsIngestionError) return false;
   if (error instanceof ProviderError) {
     return error.retryable;
   }
@@ -141,7 +214,33 @@ function isRetryable(error: unknown): boolean {
   );
 }
 
+async function processFundamentalsJob(
+  job: Job,
+  providers: ReadonlyMap<string, FundamentalsProvider>,
+  database: Database,
+) {
+  const data = job.data as { providerCode?: unknown };
+  const provider =
+    typeof data.providerCode === 'string'
+      ? providers.get(data.providerCode)
+      : undefined;
+  if (!provider)
+    throw new FundamentalsProviderError('FUNDAMENTALS_INVALID_SYMBOL');
+  return processFundamentalsIngestionJob(
+    job,
+    new FundamentalsIngestionService(
+      provider,
+      new DatabaseFundamentalsStore(database),
+    ),
+  );
+}
+
 function readErrorCode(error: unknown): string {
+  if (
+    error instanceof FundamentalsProviderError ||
+    error instanceof FundamentalsIngestionError
+  )
+    return error.code;
   if (error instanceof ProviderError) return error.code;
   if (
     error instanceof InstrumentImportError ||

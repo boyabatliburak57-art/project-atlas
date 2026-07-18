@@ -126,7 +126,11 @@ export class WorkerRuntime {
     );
     const marketDataComposition =
       injectedComposition ??
-      createDefaultMarketDataComposition(environment.DATABASE_URL, logger);
+      createDefaultMarketDataComposition(
+        environment.DATABASE_URL,
+        environment.REDIS_URL,
+        logger,
+      );
     const marketDataWorker = new Worker(
       QUEUE_NAMES.marketData,
       (job) => marketDataComposition.process(job),

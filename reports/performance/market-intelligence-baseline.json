@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-18T01:19:24.842Z",
-  "commitSha": "a5e623146268103b29f52770769c5d8cd0843c4f",
+  "generatedAt": "2026-07-18T02:17:03.261Z",
+  "commitSha": "455414dc260a683798f4aeb57fc3979eb984efdc",
   "status": "PASS",
   "environment": {
     "hostname": "192.168.1.3",
@@ -12,7 +12,15 @@
     "node": "v22.14.0",
     "pnpm": "9.15.4",
     "route": "real Nest HTTP -> controller -> application service -> PostgreSQL read model -> DTO serialization",
-    "externalProvider": false
+    "externalProvider": false,
+    "patternWorker": {
+      "hostname": "192.168.1.3",
+      "platform": "darwin",
+      "release": "25.5.0",
+      "node": "v22.14.0",
+      "redis": true,
+      "route": "BullMQ queue -> closed-bar worker -> pure Pattern Executor -> PostgreSQL persistence"
+    }
   },
   "fixture": {
     "market": "BIST",
@@ -21,7 +29,11 @@
     "generationId": "70000000-0000-4000-8000-000000000001",
     "dataCutoffAt": "2026-07-17T15:10:00.000Z",
     "symbolDailyBars": 730,
-    "chartOverlays": 6
+    "chartOverlays": 6,
+    "fundamentalPeriods": 20,
+    "patternSymbols": 650,
+    "patternBarsPerSymbol": 201,
+    "patternDefinitions": 16
   },
   "scenarios": [
     {
@@ -33,18 +45,18 @@
         "cold": 7,
         "warm": 25
       },
-      "p50Ms": 1.81,
-      "p95Ms": 3.48,
-      "maxMs": 4.82,
+      "p50Ms": 1.43,
+      "p95Ms": 4.59,
+      "maxMs": 5.47,
       "warm": {
-        "p50Ms": 1.81,
-        "p95Ms": 3.48,
-        "maxMs": 4.82
+        "p50Ms": 1.43,
+        "p95Ms": 4.59,
+        "maxMs": 5.47
       },
       "cold": {
-        "p50Ms": 2.57,
-        "p95Ms": 23.89,
-        "maxMs": 23.89
+        "p50Ms": 2.29,
+        "p95Ms": 22.2,
+        "maxMs": 22.2
       },
       "errorCount": 0,
       "threshold": "warm p95 <= 500 ms; cold p95 <= 1200 ms",
@@ -56,9 +68,9 @@
       "fixtureSize": "650 ranking rows; page size 50",
       "cacheState": "cold first page and warm subsequent traversal pages per repetition",
       "repetitions": 7,
-      "p50Ms": 3.71,
-      "p95Ms": 7.54,
-      "maxMs": 24.39,
+      "p50Ms": 3.1,
+      "p95Ms": 9.28,
+      "maxMs": 16.64,
       "errorCount": 0,
       "duplicateCount": 0,
       "missingCount": 0,
@@ -71,9 +83,9 @@
       "fixtureSize": "1 symbol / latest quote / latest pattern signal",
       "cacheState": "database read path; 12 repetitions",
       "repetitions": 12,
-      "p50Ms": 4.38,
-      "p95Ms": 23.25,
-      "maxMs": 23.25,
+      "p50Ms": 3.97,
+      "p95Ms": 23.29,
+      "maxMs": 23.29,
       "errorCount": 0,
       "queryCount": "7 logical read-model queries per aggregate repetition",
       "cacheHits": 0,
@@ -90,18 +102,18 @@
         "cold": 7,
         "warm": 20
       },
-      "p50Ms": 49.79,
-      "p95Ms": 67.37,
-      "maxMs": 67.37,
+      "p50Ms": 54.61,
+      "p95Ms": 78.33,
+      "maxMs": 78.33,
       "cold": {
-        "p50Ms": 49.79,
-        "p95Ms": 67.37,
-        "maxMs": 67.37
+        "p50Ms": 54.61,
+        "p95Ms": 78.33,
+        "maxMs": 78.33
       },
       "warm": {
-        "p50Ms": 11.1,
-        "p95Ms": 15.24,
-        "maxMs": 15.64
+        "p50Ms": 11.87,
+        "p95Ms": 16.41,
+        "maxMs": 18.66
       },
       "errorCount": 0,
       "queryCount": "3 logical read-model queries per HTTP request",
@@ -109,6 +121,41 @@
       "cacheMisses": 1,
       "alignmentFailures": 0,
       "threshold": "cold p95 <= 900 ms; alignment failure = 0",
+      "passed": true
+    },
+    {
+      "id": "PERF-MKT-005",
+      "name": "Twenty financial periods and versioned derived ratio set",
+      "fixtureSize": "20 periods / 14 derived ratios",
+      "cacheState": "database read and ratio calculation path; 20 repetitions",
+      "repetitions": 20,
+      "p50Ms": 4.1,
+      "p95Ms": 5.79,
+      "maxMs": 8.52,
+      "errorCount": 0,
+      "queryCount": "4 logical PostgreSQL queries per HTTP request",
+      "cacheHits": 0,
+      "cacheMisses": 0,
+      "threshold": "p95 <= 500 ms",
+      "passed": true
+    },
+    {
+      "id": "PERF-MKT-006",
+      "name": "650-symbol mandatory daily pattern batch over BullMQ worker and PostgreSQL persistence",
+      "fixtureSize": "650 symbols × 201 daily closed bars × 16 definitions",
+      "cacheState": "cold initial queue run and two idempotent replay runs",
+      "repetitions": 3,
+      "p50Ms": 2127.09,
+      "p95Ms": 3380.54,
+      "maxMs": 3380.54,
+      "errorCount": 0,
+      "queryCount": "1 bulk bar load + definition seed + chunked persistence per run",
+      "cacheHits": 0,
+      "cacheMisses": 0,
+      "persistedPatternCount": 4550,
+      "duplicatePatternCount": 0,
+      "lookAheadFailures": 0,
+      "threshold": "queue-to-terminal p95 <= 12000 ms; duplicate pattern = 0; look-ahead failure = 0",
       "passed": true
     }
   ]

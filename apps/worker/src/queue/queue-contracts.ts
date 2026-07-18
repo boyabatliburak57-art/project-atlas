@@ -4,9 +4,12 @@ import {
   ATLAS_JOB_NAMES,
   ATLAS_QUEUE_NAMES,
   type NotificationDeliveryQueuePayload,
+  type MarketIntelligenceReconciliationQueuePayload,
 } from '@atlas/types';
 
 import type { BarIngestionJobData } from '../market-data/bars/bar-ingestion-job';
+import type { FundamentalsIngestionJobData } from '../market-data/fundamentals/fundamentals-ingestion-job';
+import type { PatternDetectionJobData } from '../market-data/patterns/pattern-detection-job';
 import type { AlertEvaluationQueuePayload } from '@atlas/types';
 
 export const QUEUE_NAMES = ATLAS_QUEUE_NAMES;
@@ -52,6 +55,39 @@ export function createBarIngestionJobId(data: BarIngestionJobData): string {
     data.timeframe,
     data.from,
     data.to,
+  ]);
+}
+
+export function createFundamentalsIngestionJobId(
+  data: FundamentalsIngestionJobData,
+): string {
+  return stableJobId('fundamentals-ingestion', [
+    data.providerCode,
+    data.providerSymbol,
+  ]);
+}
+
+export function createPatternDetectionJobId(
+  data: PatternDetectionJobData,
+): string {
+  return stableJobId('pattern-detection', [
+    [...data.instrumentIds].sort().join(','),
+    data.timeframe,
+    data.adjustmentMode,
+    data.dataCutoffAt,
+  ]);
+}
+
+export function createMarketIntelligenceReconciliationJobId(
+  data: MarketIntelligenceReconciliationQueuePayload,
+): string {
+  return stableJobId('market-intelligence-reconcile', [
+    data.market,
+    data.timeframe,
+    [...data.invalidations]
+      .map((event) => `${event.type}:${event.eventId}:${event.version}`)
+      .sort()
+      .join(','),
   ]);
 }
 

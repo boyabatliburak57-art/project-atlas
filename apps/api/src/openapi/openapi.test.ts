@@ -241,6 +241,20 @@ describe('OpenAPI document', () => {
     expect(
       document.paths['/api/v1/symbols/{symbol}/corporate-actions']?.get,
     ).toBeDefined();
+    expect(
+      document.paths['/api/v1/symbols/{symbol}/financials']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/symbols/{symbol}/ratios']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/symbols/{symbol}/financial-trends']?.get,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/patterns/catalog']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/symbols/{symbol}/patterns']?.get,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/market/patterns']?.get).toBeDefined();
     const chartParameters =
       document.paths['/api/v1/symbols/{symbol}/chart']?.get?.parameters;
     for (const parameter of [
