@@ -319,6 +319,10 @@ async function benchmarkOverview(baseUrl: string, cache: MarketResponseCache) {
     warm,
     cold,
     errorCount: errors,
+    queryCount:
+      '1 logical PostgreSQL read-model query per cold request; 0 per warm cache hit',
+    cacheHits: 25,
+    cacheMisses: 7,
     threshold: `warm p95 <= ${threshold.warmP95Ms} ms; cold p95 <= ${threshold.coldP95Ms} ms`,
     passed:
       errors <= threshold.maximumErrors &&
@@ -374,10 +378,14 @@ async function benchmarkRanking(baseUrl: string, cache: MarketResponseCache) {
     name: '650-instrument ranking cursor pagination',
     fixtureSize: `${INSTRUMENT_COUNT} ranking rows; page size ${threshold.pageSize}`,
     cacheState:
-      'cold first page and warm subsequent traversal pages per repetition',
+      'cold cache per traversal; each opaque cursor page is a distinct cache miss',
     repetitions: 7,
     ...summary,
     errorCount: errors,
+    queryCount:
+      '1 keyset PostgreSQL query per cursor page; 13 pages per traversal',
+    cacheHits: 0,
+    cacheMisses: 91,
     duplicateCount,
     missingCount,
     threshold: `p95 <= ${threshold.p95Ms} ms; duplicate = 0; missing = 0`,

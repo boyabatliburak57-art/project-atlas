@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { portfolioApi } from './api';
 
 const navigation = [
+  { href: '/market', label: 'Piyasa' },
   { href: '/scanner', label: 'Scanner' },
   { href: '/portfolios', label: 'Portföyler' },
   { href: '/watchlists', label: 'Listeler' },
