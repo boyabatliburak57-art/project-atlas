@@ -255,6 +255,54 @@ describe('OpenAPI document', () => {
       document.paths['/api/v1/symbols/{symbol}/patterns']?.get,
     ).toBeDefined();
     expect(document.paths['/api/v1/market/patterns']?.get).toBeDefined();
+    expect(document.paths['/api/v1/strategies']?.get).toBeDefined();
+    expect(document.paths['/api/v1/strategies']?.post).toBeDefined();
+    expect(document.paths['/api/v1/strategies/{id}']?.get).toBeDefined();
+    expect(document.paths['/api/v1/strategies/{id}']?.patch).toBeDefined();
+    expect(document.paths['/api/v1/strategies/{id}']?.delete).toBeDefined();
+    expect(
+      document.paths['/api/v1/strategies/{id}/restore']?.post,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/strategies/{id}/clone']?.post).toBeDefined();
+    expect(
+      document.paths['/api/v1/strategies/{id}/revisions']?.get,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/strategies/validate']?.post).toBeDefined();
+    expect(document.paths['/api/v1/backtests']?.post).toBeDefined();
+    expect(document.paths['/api/v1/backtests']?.get).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}']?.get).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}/cancel']?.post).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}/summary']?.get).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}/series']?.get).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}/trades']?.get).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}/orders']?.get).toBeDefined();
+    expect(document.paths['/api/v1/backtests/{id}/fills']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/backtests/{id}/methodology']?.get,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/experiments']?.get).toBeDefined();
+    expect(document.paths['/api/v1/experiments']?.post).toBeDefined();
+    expect(document.paths['/api/v1/experiments/{id}']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/experiments/{id}/cancel']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/experiments/{id}/results']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/experiments/{id}/matrix']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/experiments/{id}/export']?.post,
+    ).toBeDefined();
+    expect(
+      JSON.stringify(document.paths['/api/v1/backtests']?.post?.parameters),
+    ).toContain('Idempotency-Key');
+    expect(
+      JSON.stringify(
+        document.paths['/api/v1/backtests/{id}/trades']?.get?.parameters,
+      ),
+    ).toContain('cursor');
     const chartParameters =
       document.paths['/api/v1/symbols/{symbol}/chart']?.get?.parameters;
     for (const parameter of [

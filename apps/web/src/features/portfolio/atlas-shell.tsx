@@ -11,6 +11,7 @@ import { portfolioApi } from './api';
 const navigation = [
   { href: '/market', label: 'Piyasa' },
   { href: '/scanner', label: 'Scanner' },
+  { href: '/strategies', label: 'Strategy Lab' },
   { href: '/portfolios', label: 'Portföyler' },
   { href: '/watchlists', label: 'Listeler' },
   { href: '/alerts', label: 'Alarmlar' },

@@ -121,6 +121,34 @@ import { PatternsController } from './patterns/patterns.controller';
 import { PostgresPatternReadModel } from './patterns/patterns.infrastructure';
 import { PATTERN_READ_MODEL } from './patterns/patterns.ports';
 import { PatternsService } from './patterns/patterns.service';
+import {
+  BacktestsController,
+  ExperimentsController,
+  StrategiesController,
+} from './backtests/backtests.controller';
+import {
+  BullMqBacktestApiDispatcher,
+  createBacktestApplication,
+  createStrategyApplication,
+  InMemoryBacktestCommandGuard,
+  PostgresBacktestApiStore,
+  PostgresExperimentStore,
+  PostgresStrategyApiRepository,
+} from './backtests/backtests.infrastructure';
+import {
+  BACKTEST_ANALYTICS_STORE,
+  BACKTEST_COMMAND_GUARD,
+  BACKTEST_RUN_REPOSITORY,
+  EXPERIMENT_STORE,
+  STRATEGY_REPOSITORY,
+} from './backtests/backtests.ports';
+import {
+  BACKTEST_APPLICATION,
+  BacktestsService,
+  ExperimentsService,
+  STRATEGY_APPLICATION,
+  StrategiesService,
+} from './backtests/backtests.service';
 
 @Module({
   controllers: [
@@ -140,6 +168,9 @@ import { PatternsService } from './patterns/patterns.service';
     SymbolDetailController,
     FundamentalsController,
     PatternsController,
+    StrategiesController,
+    BacktestsController,
+    ExperimentsController,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -176,6 +207,11 @@ import { PatternsService } from './patterns/patterns.service';
     SymbolResponseCache,
     PostgresFundamentalsReader,
     PostgresPatternReadModel,
+    PostgresStrategyApiRepository,
+    PostgresBacktestApiStore,
+    PostgresExperimentStore,
+    BullMqBacktestApiDispatcher,
+    InMemoryBacktestCommandGuard,
     {
       provide: SCAN_RUN_APPLICATION,
       inject: [ApiDatabase],
@@ -243,6 +279,40 @@ import { PatternsService } from './patterns/patterns.service';
     },
     { provide: PATTERN_READ_MODEL, useExisting: PostgresPatternReadModel },
     {
+      provide: STRATEGY_REPOSITORY,
+      useExisting: PostgresStrategyApiRepository,
+    },
+    {
+      provide: STRATEGY_APPLICATION,
+      inject: [PostgresStrategyApiRepository],
+      useFactory: createStrategyApplication,
+    },
+    {
+      provide: BACKTEST_RUN_REPOSITORY,
+      useExisting: PostgresBacktestApiStore,
+    },
+    {
+      provide: BACKTEST_ANALYTICS_STORE,
+      useExisting: PostgresBacktestApiStore,
+    },
+    {
+      provide: EXPERIMENT_STORE,
+      useExisting: PostgresExperimentStore,
+    },
+    {
+      provide: BACKTEST_COMMAND_GUARD,
+      useExisting: InMemoryBacktestCommandGuard,
+    },
+    {
+      provide: BACKTEST_APPLICATION,
+      inject: [
+        ApiDatabase,
+        PostgresBacktestApiStore,
+        BullMqBacktestApiDispatcher,
+      ],
+      useFactory: createBacktestApplication,
+    },
+    {
       provide: SCANNER_RUNTIME_READER,
       inject: [
         PostgresScannerRuntimeReader,
@@ -277,6 +347,9 @@ import { PatternsService } from './patterns/patterns.service';
     SymbolDetailService,
     FundamentalsService,
     PatternsService,
+    StrategiesService,
+    BacktestsService,
+    ExperimentsService,
   ],
 })
 export class AppModule implements NestModule {
