@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createAlertEvaluationJobId,
+  createBacktestRunJobId,
   createHeartbeatJobId,
   createNotificationDeliveryJobId,
   createMarketIntelligenceReconciliationJobId,
@@ -37,6 +38,15 @@ describe('queue contracts', () => {
     expect(createScannerRunJobId('run-1')).toBe(createScannerRunJobId('run-1'));
     expect(createScannerRunJobId('run-1')).not.toBe(
       createScannerRunJobId('run-2'),
+    );
+  });
+
+  it('creates stable backtest run job identities', () => {
+    expect(createBacktestRunJobId('run-1')).toBe(
+      createBacktestRunJobId('run-1'),
+    );
+    expect(createBacktestRunJobId('run-1')).not.toBe(
+      createBacktestRunJobId('run-2'),
     );
   });
 

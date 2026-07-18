@@ -3,8 +3,14 @@ import { randomUUID } from 'node:crypto';
 import { Job, Queue, UnrecoverableError, Worker } from 'bullmq';
 import type {
   AlertEvaluationQueuePayload,
+  BacktestRunQueuePayload,
   NotificationDeliveryQueuePayload,
 } from '@atlas/types';
+
+import {
+  createDefaultBacktestComposition,
+  type BacktestComposition,
+} from '../backtesting/backtest-composition';
 
 import {
   createDefaultAlertComposition,
@@ -58,16 +64,19 @@ export class WorkerRuntime {
     private readonly scannerQueue: Queue<ScannerRunJobData>,
     private readonly alertQueue: Queue<AlertEvaluationQueuePayload>,
     private readonly notificationQueue: Queue<NotificationDeliveryQueuePayload>,
+    private readonly backtestQueue: Queue<BacktestRunQueuePayload>,
     private readonly deadLetterQueue: Queue<DeadLetterData>,
     private readonly systemWorker: Worker,
     private readonly marketDataWorker: Worker,
     private readonly scannerWorker: Worker<ScannerRunJobData>,
     private readonly alertWorker: Worker<AlertEvaluationQueuePayload>,
     private readonly notificationWorker: Worker<NotificationDeliveryQueuePayload>,
+    private readonly backtestWorker: Worker<BacktestRunQueuePayload>,
     private readonly marketDataComposition: MarketDataComposition,
     private readonly scannerComposition: ScannerComposition,
     private readonly alertComposition: AlertComposition,
     private readonly notificationComposition: NotificationComposition,
+    private readonly backtestComposition: BacktestComposition,
     private readonly workerId: string,
   ) {}
 
@@ -78,6 +87,7 @@ export class WorkerRuntime {
     injectedScannerComposition?: ScannerComposition,
     injectedAlertComposition?: AlertComposition,
     injectedNotificationComposition?: NotificationComposition,
+    injectedBacktestComposition?: BacktestComposition,
   ): Promise<WorkerRuntime> {
     const connection = createRedisConnection(environment.REDIS_URL);
     const systemQueue = new Queue(QUEUE_NAMES.system, {
@@ -109,6 +119,10 @@ export class WorkerRuntime {
         connection,
         defaultJobOptions: DEFAULT_JOB_OPTIONS,
       },
+    );
+    const backtestQueue = new Queue<BacktestRunQueuePayload>(
+      QUEUE_NAMES.backtests,
+      { connection, defaultJobOptions: DEFAULT_JOB_OPTIONS },
     );
     const systemWorker = new Worker(
       QUEUE_NAMES.system,
@@ -179,6 +193,14 @@ export class WorkerRuntime {
         connection,
       },
     );
+    const backtestComposition =
+      injectedBacktestComposition ??
+      createDefaultBacktestComposition(environment, logger);
+    const backtestWorker = new Worker<BacktestRunQueuePayload>(
+      QUEUE_NAMES.backtests,
+      (job) => backtestComposition.process(job),
+      { concurrency: environment.WORKER_CONCURRENCY, connection },
+    );
     const runtime = new WorkerRuntime(
       environment,
       logger,
@@ -187,16 +209,19 @@ export class WorkerRuntime {
       scannerQueue,
       alertQueue,
       notificationQueue,
+      backtestQueue,
       deadLetterQueue,
       systemWorker,
       marketDataWorker,
       scannerWorker,
       alertWorker,
       notificationWorker,
+      backtestWorker,
       marketDataComposition,
       scannerComposition,
       alertComposition,
       notificationComposition,
+      backtestComposition,
       randomUUID(),
     );
 
@@ -216,6 +241,7 @@ export class WorkerRuntime {
           QUEUE_NAMES.scanner,
           QUEUE_NAMES.alerts,
           QUEUE_NAMES.notifications,
+          QUEUE_NAMES.backtests,
         ],
       });
       return runtime;
@@ -244,6 +270,7 @@ export class WorkerRuntime {
       this.scannerWorker.pause(false),
       this.alertWorker.pause(false),
       this.notificationWorker.pause(false),
+      this.backtestWorker.pause(false),
     ]);
     await this.closeConnections();
     this.logger.info('worker.stopped', { reason });
@@ -266,12 +293,14 @@ export class WorkerRuntime {
           this.scannerQueue.waitUntilReady(),
           this.alertQueue.waitUntilReady(),
           this.notificationQueue.waitUntilReady(),
+          this.backtestQueue.waitUntilReady(),
           this.deadLetterQueue.waitUntilReady(),
           this.systemWorker.waitUntilReady(),
           this.marketDataWorker.waitUntilReady(),
           this.scannerWorker.waitUntilReady(),
           this.alertWorker.waitUntilReady(),
           this.notificationWorker.waitUntilReady(),
+          this.backtestWorker.waitUntilReady(),
         ]),
         timeoutPromise,
       ]);
@@ -312,12 +341,14 @@ export class WorkerRuntime {
     this.registerQueueError(this.scannerQueue, QUEUE_NAMES.scanner);
     this.registerQueueError(this.alertQueue, QUEUE_NAMES.alerts);
     this.registerQueueError(this.notificationQueue, QUEUE_NAMES.notifications);
+    this.registerQueueError(this.backtestQueue, QUEUE_NAMES.backtests);
     this.registerQueueError(this.deadLetterQueue, QUEUE_NAMES.deadLetter);
     this.registerJobEvents(this.systemWorker, QUEUE_NAMES.system);
     this.registerJobEvents(this.marketDataWorker, QUEUE_NAMES.marketData);
     this.registerJobEvents(this.scannerWorker, QUEUE_NAMES.scanner);
     this.registerJobEvents(this.alertWorker, QUEUE_NAMES.alerts);
     this.registerJobEvents(this.notificationWorker, QUEUE_NAMES.notifications);
+    this.registerJobEvents(this.backtestWorker, QUEUE_NAMES.backtests);
   }
 
   private registerQueueError(queue: Queue, queueName: string): void {
@@ -404,16 +435,19 @@ export class WorkerRuntime {
       this.scannerWorker.close(),
       this.alertWorker.close(),
       this.notificationWorker.close(),
+      this.backtestWorker.close(),
       this.systemQueue.close(),
       this.marketDataQueue.close(),
       this.scannerQueue.close(),
       this.alertQueue.close(),
       this.notificationQueue.close(),
+      this.backtestQueue.close(),
       this.deadLetterQueue.close(),
       this.marketDataComposition.close(),
       this.scannerComposition.close(),
       this.alertComposition.close(),
       this.notificationComposition.close(),
+      this.backtestComposition.close(),
     ]);
   }
 }

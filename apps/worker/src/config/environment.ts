@@ -37,6 +37,18 @@ const environmentSchema = z.object({
     .min(1_000)
     .max(3_600_000)
     .default(300_000),
+  BACKTEST_EVENT_BATCH_SIZE: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(10_000)
+    .default(250),
+  BACKTEST_RUN_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(3_600_000)
+    .default(600_000),
   WORKER_STARTUP_TIMEOUT_MS: z.coerce
     .number()
     .int()

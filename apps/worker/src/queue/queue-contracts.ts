@@ -95,6 +95,10 @@ export function createScannerRunJobId(runId: string): string {
   return stableJobId('scanner-run', [runId]);
 }
 
+export function createBacktestRunJobId(runId: string): string {
+  return stableJobId('backtest-run', [runId]);
+}
+
 export function createAlertEvaluationJobId(
   data: AlertEvaluationQueuePayload,
 ): string {
