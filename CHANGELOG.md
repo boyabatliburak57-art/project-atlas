@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.9.0-production-readiness — 2026-07-20
+
+### Eklendi
+
+- DOC-036–DOC-040 production readiness, security hardening, observability/SLO, backup/DR ve feature flag/operational control gereksinimleri
+- ARCH-016–ARCH-018 production deployment, observability/incident ve feature flag runtime mimarileri
+- Production Readiness Policies karar önerisi
+- DB-009 Operations, Audit, Feature Flags and Incidents persistence tasarımı
+- API-009 Operations, Admin and Health API sözleşmesi
+- Production Security Test Matrix, Load/Chaos/Resilience Baseline ve Production Release Runbook rehberleri
+- TASK-071–TASK-080 baseline, architecture, deployment, operations, security, recovery, resilience, release candidate ve milestone audit görevleri
+
+### Değişti
+
+- v0.9 Production Readiness, Security Hardening and Operations kapsamı ile TASK-071 → TASK-080 sırası README ve ATLAS_INDEX'e eklendi.
+- TASK-080 GO sonucu v1.0 release candidate için zorunlu geçiş kapısı olarak kaydedildi.
+- Gerçek production deployment'ın yalnız kullanıcı onaylı süreçlerle başlatılacağı açıkça belgelendi.
+
+### Değişmedi
+
+- Yeni ADR oluşturulmadı; mevcut ADR dosyaları ve kimlikleri değiştirilmedi veya yeniden numaralandırılmadı.
+- TASK-072 için sabit ADR numarası üretilmedi; sonraki boş ve benzersiz kimliklerin repository taramasıyla seçilmesi korundu.
+- Mevcut milestone performans threshold'ları ve baseline fixture'ları değiştirilmedi.
+- Gerçek staging veya production deployment başlatılmadı.
+
 ## 0.8.1-strategy-lab-remediation — 2026-07-19
 
 ### Eklendi

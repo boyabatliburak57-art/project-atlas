@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlas-api
+  labels: &labels
+    app.kubernetes.io/name: atlas-api
+    app.kubernetes.io/part-of: project-atlas
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: api
+          image: ghcr.io/project-atlas/api@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: atlas-runtime-config
+            - secretRef:
+                name: atlas-runtime-secrets
+          ports:
+            - containerPort: 3001
+              name: http
+          startupProbe:
+            httpGet:
+              path: /health/startup
+              port: http
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            failureThreshold: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            failureThreshold: 3
+            periodSeconds: 15
+          lifecycle:
+            preStop:
+              exec:
+                command: ['/bin/sh', '-c', 'kill -TERM 1; sleep 5']
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+      serviceAccountName: atlas-runtime
+      terminationGracePeriodSeconds: 45
+      volumes:
+        - emptyDir:
+            sizeLimit: 64Mi
+          name: tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atlas-api
+spec:
+  selector:
+    app.kubernetes.io/name: atlas-api
+    app.kubernetes.io/part-of: project-atlas
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

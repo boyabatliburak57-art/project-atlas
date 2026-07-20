@@ -157,3 +157,25 @@ TASK-070 NO-GO bulguları:
 Görev sırası: TASK-070A → TASK-070E.
 
 TASK-070E GO olmadan sonraki pakete geçilmez.
+
+## v0.9 Production Readiness, Security Hardening and Operations
+
+Belgeler:
+
+- DOC-036–DOC-040 production readiness, security hardening, observability/SLO, backup/DR ve operational control gereksinimleri
+- ARCH-016–ARCH-018 production deployment, observability/incident ve feature flag runtime mimarileri
+- Production Readiness Policies karar önerisi
+- DB-009 operations, audit, feature flags, releases, incidents ve recovery persistence tasarımı
+- API-009 güvenli health ve admin operations API sözleşmesi
+- Production Security Test Matrix, Load/Chaos/Resilience Baseline ve Production Release Runbook rehberleri
+
+Görev sırası: TASK-071 → TASK-080.
+
+TASK-072 sırasında sabit ADR numarası kullanılmaz; repository'deki mevcut ADR kayıtları taranarak
+sonraki boş ve benzersiz kimlikler seçilir.
+
+Mevcut milestone performans threshold'ları ve baseline fixture'ları korunur. Gerçek production
+deploy kullanıcı onayı olmadan başlatılmaz; yalnız deployment manifestleri, IaC, CI/CD workflow'ları
+ve kullanıcı onaylı deployment süreçleri hazırlanır.
+
+TASK-080 Production Readiness milestone audit sonucu GO olmadan v1.0 release candidate oluşturulmaz.

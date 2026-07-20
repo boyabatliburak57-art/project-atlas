@@ -1,0 +1,164 @@
+name: Production Release or Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Controlled action
+        options: [deploy, rollback]
+        required: true
+        type: choice
+      confirmation:
+        description: Type APPROVE_PRODUCTION_RELEASE
+        required: true
+        type: string
+      migration_phase:
+        description: Migration phase; rollback permits none/expand only
+        options: [none, expand, contract]
+        required: true
+        type: choice
+      restore_drill_id:
+        description: Successful backup/PITR restore drill reference
+        required: true
+        type: string
+      current_api_digest:
+        description: Currently deployed API sha256 digest used by rollback rehearsal
+        required: true
+        type: string
+      web_image:
+        description: Immutable web image including @sha256 digest
+        required: true
+        type: string
+      api_image:
+        description: Immutable API image including @sha256 digest
+        required: true
+        type: string
+      worker_image:
+        description: Immutable worker image including @sha256 digest
+        required: true
+        type: string
+      migration_image:
+        description: Immutable migration image including @sha256 digest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: atlas-production
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: inputs.confirmation == 'APPROVE_PRODUCTION_RELEASE'
+    environment: production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify immutable artifacts and recovery gate
+        env:
+          API_IMAGE: ${{ inputs.api_image }}
+          CURRENT_API_DIGEST: ${{ inputs.current_api_digest }}
+          MIGRATION_IMAGE: ${{ inputs.migration_image }}
+          RESTORE_DRILL_ID: ${{ inputs.restore_drill_id }}
+          WEB_IMAGE: ${{ inputs.web_image }}
+          WORKER_IMAGE: ${{ inputs.worker_image }}
+        run: |
+          test -n "$RESTORE_DRILL_ID"
+          echo "$CURRENT_API_DIGEST" | grep -Eq '^sha256:[a-f0-9]{64}$'
+          for image in "$WEB_IMAGE" "$API_IMAGE" "$WORKER_IMAGE" "$MIGRATION_IMAGE"; do
+            echo "$image" | grep -Eq '@sha256:[a-f0-9]{64}$'
+          done
+          if [ "${{ inputs.action }}" = rollback ]; then
+            node scripts/production/rollback-rehearsal.mjs \
+              --previous-digest="$CURRENT_API_DIGEST" \
+              --candidate-digest="${API_IMAGE##*@}" \
+              --migration-phase="${{ inputs.migration_phase }}"
+          fi
+
+      - name: Authenticate to immutable image registry
+        uses: docker/login-action@v3
+        with:
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+
+      - name: Vulnerability gate for API image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+          ignore-unfixed: true
+          image-ref: ${{ inputs.api_image }}
+          severity: CRITICAL,HIGH
+
+      - name: Vulnerability gate for worker image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+          ignore-unfixed: true
+          image-ref: ${{ inputs.worker_image }}
+          severity: CRITICAL,HIGH
+
+      - name: Configure production Kubernetes adapter
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
+        run: |
+          test -n "$KUBE_CONFIG"
+          mkdir -p "$HOME/.kube"
+          printf '%s' "$KUBE_CONFIG" | base64 --decode > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Migration compatibility and apply
+        if: inputs.action == 'deploy' && inputs.migration_phase != 'none'
+        env:
+          MIGRATION_IMAGE: ${{ inputs.migration_image }}
+        run: |
+          test "${{ inputs.migration_phase }}" != contract || test -n "${{ inputs.restore_drill_id }}"
+          node scripts/production/render-migration-job.mjs "$MIGRATION_IMAGE" "${GITHUB_RUN_ID}" /tmp/migration.yaml
+          kubectl apply -f /tmp/migration.yaml
+          kubectl wait --for=condition=complete --timeout=15m "job/atlas-migration-${GITHUB_RUN_ID}" -n atlas
+
+      - name: Controlled rolling release or rollback
+        env:
+          API_IMAGE: ${{ inputs.api_image }}
+          MIGRATION_IMAGE: ${{ inputs.migration_image }}
+          WEB_IMAGE: ${{ inputs.web_image }}
+          WORKER_IMAGE: ${{ inputs.worker_image }}
+        run: |
+          node scripts/production/render-release-manifest.mjs production "$WEB_IMAGE" "$API_IMAGE" "$WORKER_IMAGE" "$MIGRATION_IMAGE" /tmp/release.yaml
+          kubectl apply -f /tmp/release.yaml
+          kubectl rollout status deployment/atlas-api -n atlas --timeout=10m
+          kubectl rollout status deployment/atlas-web -n atlas --timeout=10m
+          kubectl rollout status deployment/atlas-backtest-worker -n atlas --timeout=15m
+
+      - name: Production health and synthetic validation
+        env:
+          API_URL: ${{ vars.PRODUCTION_API_URL }}
+          WEB_URL: ${{ vars.PRODUCTION_WEB_URL }}
+        run: |
+          curl --fail --silent --show-error "$API_URL/health/live"
+          curl --fail --silent --show-error "$API_URL/health/startup"
+          curl --fail --silent --show-error "$API_URL/health/ready"
+          curl --fail --silent --show-error "$WEB_URL/health"
+
+      - name: Persist release action record
+        run: |
+          mkdir -p reports/releases
+          jq -n \
+            --arg action "${{ inputs.action }}" \
+            --arg commit "$GITHUB_SHA" \
+            --arg drill "${{ inputs.restore_drill_id }}" \
+            --arg operator "$GITHUB_ACTOR" \
+            --arg phase "${{ inputs.migration_phase }}" \
+            '{environment:"production",status:"completed",action:$action,commit:$commit,operator:$operator,restoreDrillId:$drill,migrationPhase:$phase}' \
+            > reports/releases/production-release.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-release-record-${{ github.run_id }}
+          path: reports/releases/production-release.json
+          retention-days: 365

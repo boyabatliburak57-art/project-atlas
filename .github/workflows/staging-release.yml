@@ -1,0 +1,131 @@
+name: Staging Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: atlas-staging
+  cancel-in-progress: false
+
+jobs:
+  release:
+    environment: staging
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+
+      - name: Build and push immutable images
+        id: images
+        env:
+          REGISTRY: ghcr.io/${{ github.repository_owner }}/project-atlas
+        run: |
+          for target in web api worker migration; do
+            image="${REGISTRY}-${target}:${GITHUB_SHA}"
+            docker buildx build \
+              --target "$target" \
+              --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              --build-arg COMMIT_SHA="$GITHUB_SHA" \
+              --build-arg SOURCE_REPOSITORY="${{ github.server_url }}/${{ github.repository }}" \
+              --build-arg VERSION="staging-${GITHUB_SHA}" \
+              --push --provenance=true --sbom=true -t "$image" .
+            digest="$(docker buildx imagetools inspect "$image" --format '{{json .Manifest.Digest}}' | tr -d '"')"
+            echo "${target}=${image%@*}@${digest}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Scan immutable API image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+          ignore-unfixed: true
+          image-ref: ${{ steps.images.outputs.api }}
+          severity: CRITICAL,HIGH
+
+      - name: Scan immutable worker image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+          ignore-unfixed: true
+          image-ref: ${{ steps.images.outputs.worker }}
+          severity: CRITICAL,HIGH
+
+      - name: Validate config and migrations
+        run: |
+          node scripts/production/check-config-drift.mjs
+          node scripts/production/validate-artifacts.mjs
+
+      - name: Configure staging Kubernetes adapter
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_STAGING }}
+        run: |
+          test -n "$KUBE_CONFIG"
+          mkdir -p "$HOME/.kube"
+          printf '%s' "$KUBE_CONFIG" | base64 --decode > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Run isolated migration job
+        env:
+          MIGRATION_IMAGE: ${{ steps.images.outputs.migration }}
+        run: |
+          node scripts/production/render-migration-job.mjs "$MIGRATION_IMAGE" "${GITHUB_SHA::12}" /tmp/migration.yaml
+          kubectl apply -f /tmp/migration.yaml
+          kubectl wait --for=condition=complete --timeout=15m "job/atlas-migration-${GITHUB_SHA::12}" -n atlas
+
+      - name: Render and deploy staging release
+        env:
+          API_IMAGE: ${{ steps.images.outputs.api }}
+          MIGRATION_IMAGE: ${{ steps.images.outputs.migration }}
+          WEB_IMAGE: ${{ steps.images.outputs.web }}
+          WORKER_IMAGE: ${{ steps.images.outputs.worker }}
+        run: |
+          node scripts/production/render-release-manifest.mjs staging "$WEB_IMAGE" "$API_IMAGE" "$WORKER_IMAGE" "$MIGRATION_IMAGE" /tmp/release.yaml
+          kubectl apply -f /tmp/release.yaml
+          kubectl rollout status deployment/atlas-api -n atlas --timeout=10m
+          kubectl rollout status deployment/atlas-web -n atlas --timeout=10m
+
+      - name: Health and synthetic smoke
+        env:
+          API_URL: ${{ vars.STAGING_API_URL }}
+          WEB_URL: ${{ vars.STAGING_WEB_URL }}
+        run: |
+          curl --fail --silent --show-error "$API_URL/health/live"
+          curl --fail --silent --show-error "$API_URL/health/startup"
+          curl --fail --silent --show-error "$API_URL/health/ready"
+          curl --fail --silent --show-error "$WEB_URL/health"
+
+      - name: Write release record
+        env:
+          API_IMAGE: ${{ steps.images.outputs.api }}
+          MIGRATION_IMAGE: ${{ steps.images.outputs.migration }}
+          WEB_IMAGE: ${{ steps.images.outputs.web }}
+          WORKER_IMAGE: ${{ steps.images.outputs.worker }}
+        run: |
+          mkdir -p reports/releases
+          jq -n \
+            --arg commit "$GITHUB_SHA" \
+            --arg api "$API_IMAGE" \
+            --arg web "$WEB_IMAGE" \
+            --arg worker "$WORKER_IMAGE" \
+            --arg migration "$MIGRATION_IMAGE" \
+            '{environment:"staging",status:"completed",commit:$commit,images:{api:$api,web:$web,worker:$worker,migration:$migration}}' \
+            > reports/releases/staging-release.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staging-release-record
+          path: reports/releases/staging-release.json
+          retention-days: 90

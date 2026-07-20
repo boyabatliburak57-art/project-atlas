@@ -46,3 +46,8 @@ Repository'de bu indeks dışındaki başka bir kabul edilmiş belge `ADR-004` k
 | ADR-018 | Deterministik Event Ordering ve Reproducibility | Accepted |
 | ADR-019 | Varsayılan Commission ve Slippage Modeli | Accepted |
 | ADR-020 | Bounded Grid Experiments ve Holdout Politikası | Accepted |
+| ADR-021 | Provider-Neutral Production Deployment ve Rolling Release | Accepted |
+| ADR-022 | SLO, Error Budget ve Telemetry Standardı | Accepted |
+| ADR-023 | Backup, PITR ve Restore Rehearsal Politikası | Accepted |
+| ADR-024 | Authoritative Feature Flags ve Auditli Kill Switch'ler | Accepted |
+| ADR-025 | Expand/Contract Migration ve Rollback Politikası | Accepted |

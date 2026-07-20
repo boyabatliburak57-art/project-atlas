@@ -4,8 +4,8 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "tsx watch src/main.ts",
+    "build": "pnpm --filter @atlas/types build && tsc -p tsconfig.build.json",
+    "dev": "pnpm --filter @atlas/types build && tsx watch src/main.ts",
     "lint": "eslint src",
     "perf:scanner": "tsx src/performance/scanner-runtime-benchmark.ts",
     "perf:alerts": "tsx src/performance/alerts-watchlists-benchmark.ts",
@@ -13,8 +13,8 @@
     "perf:portfolio": "tsx src/performance/portfolio-risk-benchmark.ts",
     "perf:patterns": "tsx src/performance/market-pattern-benchmark.ts",
     "start": "node dist/main.js",
-    "test": "vitest run",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test": "pnpm --filter @atlas/types build && vitest run",
+    "test:integration": "pnpm --filter @atlas/types build && vitest run --config vitest.integration.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -35,6 +35,7 @@ export function configureApplication(application: INestApplication): void {
     exclude: [
       { method: RequestMethod.GET, path: 'health/live' },
       { method: RequestMethod.GET, path: 'health/ready' },
+      { method: RequestMethod.GET, path: 'health/startup' },
     ],
   });
   application.enableShutdownHooks();

@@ -52,6 +52,10 @@ export class ApiDatabase implements OnApplicationShutdown {
   async onApplicationShutdown(): Promise<void> {
     await this.pool.end();
   }
+
+  async ping(): Promise<void> {
+    await this.pool.query('select 1');
+  }
 }
 
 @Injectable()

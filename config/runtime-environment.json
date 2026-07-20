@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1",
+  "environments": ["local", "test", "staging", "production"],
+  "roles": {
+    "api": {
+      "required": [
+        "API_CORS_ORIGIN",
+        "ATLAS_ENV",
+        "CONFIG_SCHEMA_VERSION",
+        "DATABASE_URL",
+        "HEALTH_CHECK_DATABASE",
+        "NODE_ENV",
+        "OBJECT_STORAGE_ACCESS_KEY_ID",
+        "OBJECT_STORAGE_BUCKET",
+        "OBJECT_STORAGE_ENDPOINT",
+        "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+        "REDIS_URL",
+        "RELEASE_COMMIT_SHA",
+        "RELEASE_VERSION"
+      ],
+      "secrets": [
+        "DATABASE_URL",
+        "OBJECT_STORAGE_ACCESS_KEY_ID",
+        "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+        "REDIS_URL"
+      ]
+    },
+    "web": {
+      "required": ["ATLAS_ENV", "NEXT_PUBLIC_API_URL", "NODE_ENV"],
+      "secrets": []
+    },
+    "worker": {
+      "required": [
+        "ATLAS_ENV",
+        "CONFIG_SCHEMA_VERSION",
+        "DATABASE_URL",
+        "NODE_ENV",
+        "OBJECT_STORAGE_ACCESS_KEY_ID",
+        "OBJECT_STORAGE_BUCKET",
+        "OBJECT_STORAGE_ENDPOINT",
+        "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+        "REDIS_URL",
+        "RELEASE_COMMIT_SHA",
+        "RELEASE_VERSION",
+        "WORKER_HEALTH_FILE",
+        "WORKER_ROLE"
+      ],
+      "secrets": [
+        "DATABASE_URL",
+        "OBJECT_STORAGE_ACCESS_KEY_ID",
+        "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+        "REDIS_URL"
+      ]
+    }
+  }
+}

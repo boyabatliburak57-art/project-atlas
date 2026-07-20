@@ -19,7 +19,10 @@ if [[ ! -x "$gitleaks_binary" ]]; then
 fi
 
 scan_working_tree() {
-  "$gitleaks_binary" dir "$repository_root" "${common_arguments[@]}"
+  (
+    cd "$repository_root"
+    "$gitleaks_binary" dir . "${common_arguments[@]}"
+  )
 }
 
 scan_git_history() {
@@ -27,7 +30,10 @@ scan_git_history() {
     echo 'Git history scan requires a Git worktree.' >&2
     exit 1
   fi
-  "$gitleaks_binary" git "$repository_root" "${common_arguments[@]}"
+  (
+    cd "$repository_root"
+    "$gitleaks_binary" git . "${common_arguments[@]}"
+  )
 }
 
 case "$mode" in

@@ -170,3 +170,34 @@ Görev sırası:
 5. `tasks/TASK-070E-Strategy-Lab-Milestone-Reaudit.md`
 
 TASK-070E GO olmadan sonraki pakete geçilmez.
+
+## v0.9 Production Readiness, Security Hardening and Operations
+
+Belgeler:
+
+- `docs/DOC-036-Production-Readiness-Requirements.md`
+- `docs/DOC-037-Security-Hardening-and-Abuse-Prevention.md`
+- `docs/DOC-038-Observability-SLO-and-Incident-Response.md`
+- `docs/DOC-039-Backup-Disaster-Recovery-and-Retention.md`
+- `docs/DOC-040-Feature-Flags-and-Operational-Controls.md`
+- `architecture/ARCH-016-Production-Deployment-Topology.md`
+- `architecture/ARCH-017-Observability-and-Incident-Runtime.md`
+- `architecture/ARCH-018-Feature-Flag-and-Operational-Control-Runtime.md`
+- `architecture/DECISION-PROPOSAL-Production-Readiness-Policies.md`
+- `database/DB-009-Operations-Audit-Feature-Flags-Incidents.md`
+- `api/API-009-Operations-Admin-and-Health.md`
+- `guides/PRODUCTION_SECURITY_TEST_MATRIX.md`
+- `guides/LOAD-CHAOS-RESILIENCE-BASELINE.md`
+- `guides/PRODUCTION_RELEASE_RUNBOOK.md`
+
+Görev sırası: TASK-071 → TASK-080.
+
+TASK-072 sırasında sabit ADR numarası varsayılmaz veya mevcut ADR'ler yeniden numaralandırılmaz;
+`architecture/ADR_INDEX.md` ve bütün ADR dosyaları taranarak sonraki boş ve benzersiz kimlikler
+kullanılır.
+
+Mevcut milestone performans threshold'ları ve baseline fixture'ları değiştirilmez. Gerçek production
+deploy kullanıcı onayı olmadan başlatılmaz; deployment manifestleri, IaC ve CI/CD workflow'ları
+yalnız kullanıcı onaylı deployment süreçleri olarak hazırlanır.
+
+TASK-080 sonucu GO olmadan v1.0 release candidate oluşturulmaz.

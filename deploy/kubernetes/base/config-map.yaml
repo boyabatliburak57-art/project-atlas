@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atlas-runtime-config
+data:
+  API_CORS_ORIGIN: https://staging.atlas.example
+  API_DEBUG: 'false'
+  ATLAS_ENV: staging
+  CONFIG_SCHEMA_VERSION: '1'
+  HEALTH_CHECK_DATABASE: 'true'
+  LOG_LEVEL: log
+  NEXT_PUBLIC_API_URL: https://api.staging.atlas.example/api/v1
+  NODE_ENV: production
+  OBJECT_STORAGE_BUCKET: atlas-staging
+  OBJECT_STORAGE_ENDPOINT: https://object-storage.staging.example
+  RELEASE_COMMIT_SHA: required-at-deploy
+  RELEASE_VERSION: required-at-deploy
+  WORKER_DEBUG: 'false'
+  WORKER_HEALTH_FILE: /tmp/atlas-worker-ready
+  WORKER_LOG_LEVEL: info

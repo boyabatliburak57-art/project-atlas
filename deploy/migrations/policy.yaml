@@ -1,0 +1,19 @@
+apiVersion: atlas.project/v1
+kind: MigrationPolicy
+metadata:
+  name: production-expand-contract
+spec:
+  compatibilityWindow: N-1
+  contractPhaseRequiresSeparateRelease: true
+  destructiveMigrationRequires:
+    - approved-change
+    - successful-restore-drill
+    - forward-fix-plan
+    - staging-dry-run
+  largeTable:
+    backfillBatchRequired: true
+    onlineIndexPreferred: true
+    resumable: true
+  lockTimeoutMs: 5000
+  startupAutoMigration: false
+  statementTimeoutMs: 120000

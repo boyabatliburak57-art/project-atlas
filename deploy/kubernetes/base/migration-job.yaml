@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: atlas-migration-template
+  labels:
+    app.kubernetes.io/name: atlas-migration
+    app.kubernetes.io/part-of: project-atlas
+spec:
+  activeDeadlineSeconds: 900
+  backoffLimit: 0
+  suspend: true
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: atlas-migration
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: migration
+          image: ghcr.io/project-atlas/migration@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          env:
+            - name: PGOPTIONS
+              value: -c lock_timeout=5000 -c statement_timeout=120000
+          envFrom:
+            - secretRef:
+                name: atlas-runtime-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: '1'
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+      restartPolicy: Never
+      serviceAccountName: atlas-migration
+      terminationGracePeriodSeconds: 30

@@ -11,8 +11,7 @@ import { configureApplication } from './bootstrap/configure-application';
 
 const healthResponseSchema = z.object({
   data: z.object({
-    checks: z.object({ application: z.literal('ready') }).optional(),
-    status: z.enum(['live', 'ready']),
+    status: z.enum(['live', 'not_ready', 'ready', 'started']),
   }),
   meta: z.object({ requestId: z.string() }),
 });
@@ -48,6 +47,7 @@ describe('API scaffold', () => {
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'production';
+    process.env.ATLAS_ENV = 'test';
 
     const moduleReference = await Test.createTestingModule({
       controllers: [TestErrorController],
@@ -74,10 +74,14 @@ describe('API scaffold', () => {
     const readyBody = healthResponseSchema.parse(readyResponse.body);
 
     expect(liveBody.data.status).toBe('live');
-    expect(readyBody.data).toEqual({
-      checks: { application: 'ready' },
-      status: 'ready',
-    });
+    expect(readyBody.data).toEqual({ status: 'ready' });
+
+    const startupResponse = await request(getHttpServer(application))
+      .get('/health/startup')
+      .expect(200);
+    expect(healthResponseSchema.parse(startupResponse.body).data.status).toBe(
+      'started',
+    );
   });
 
   it('propagates a safe request and correlation id', async () => {

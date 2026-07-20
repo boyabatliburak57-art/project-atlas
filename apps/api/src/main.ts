@@ -11,6 +11,7 @@ async function bootstrap(): Promise<void> {
   const configService = application.get(ConfigService);
 
   configureApplication(application);
+  application.enableShutdownHooks(['SIGTERM', 'SIGINT']);
 
   await application.listen(
     configService.getOrThrow<number>('API_PORT'),

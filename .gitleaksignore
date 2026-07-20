@@ -1,2 +1,4 @@
 # Central suppression file. Every fingerprint added below must include a review reason
 # in the same pull request and must never contain the detected secret value.
+# False positive: prose describing production stack-trace suppression in the GO re-audit.
+reports/strategy-lab-milestone-reaudit.md:generic-api-key:138

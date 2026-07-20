@@ -24,6 +24,7 @@ import { CorrelationIdMiddleware } from './common/http/correlation-id.middleware
 import { GlobalExceptionFilter } from './common/http/global-exception.filter';
 import { parseEnvironment } from './config/environment';
 import { HealthController } from './health/health.controller';
+import { HealthService } from './health/health.service';
 import { IndicatorCatalogController } from './indicators/indicator-catalog.controller';
 import {
   NotificationPreferencesController,
@@ -182,6 +183,7 @@ import {
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
+    HealthService,
     { provide: INDICATOR_REGISTRY, useFactory: createCoreIndicatorRegistry },
     {
       provide: AUTHENTICATED_USER_RESOLVER,

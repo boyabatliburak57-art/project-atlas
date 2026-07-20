@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { rm, writeFile } from 'node:fs/promises';
 
 import { Job, Queue, UnrecoverableError, Worker } from 'bullmq';
 import type {
@@ -22,6 +23,7 @@ import {
   type AlertComposition,
 } from '../alerts/alert-composition';
 import type { WorkerEnvironment } from '../config/environment';
+import type { workerRoles } from '../config/environment';
 import { processHeartbeat } from '../heartbeat/heartbeat';
 import {
   createDefaultMarketDataComposition,
@@ -51,6 +53,15 @@ interface DeadLetterData {
   readonly jobId: string;
   readonly jobName: string;
   readonly queueName: string;
+}
+
+export type WorkerRole = (typeof workerRoles)[number];
+
+export function roleConsumesQueue(
+  role: WorkerRole,
+  queueRole: Exclude<WorkerRole, 'all'>,
+): boolean {
+  return role === 'all' || role === queueRole;
 }
 
 export class WorkerStartupError extends Error {
@@ -98,6 +109,7 @@ export class WorkerRuntime {
     injectedBacktestComposition?: BacktestComposition,
     injectedExperimentComposition?: ExperimentComposition,
   ): Promise<WorkerRuntime> {
+    const role = environment.WORKER_ROLE ?? 'all';
     const connection = createRedisConnection(environment.REDIS_URL);
     const systemQueue = new Queue(QUEUE_NAMES.system, {
       connection,
@@ -147,6 +159,7 @@ export class WorkerRuntime {
         return Promise.resolve(processHeartbeat(job));
       },
       {
+        autorun: roleConsumesQueue(role, 'scheduled'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
       },
@@ -162,6 +175,7 @@ export class WorkerRuntime {
       QUEUE_NAMES.marketData,
       (job) => marketDataComposition.process(job),
       {
+        autorun: roleConsumesQueue(role, 'market-data'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
       },
@@ -173,6 +187,7 @@ export class WorkerRuntime {
       QUEUE_NAMES.scanner,
       (job) => scannerComposition.process(job),
       {
+        autorun: roleConsumesQueue(role, 'scanner'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
       },
@@ -194,6 +209,7 @@ export class WorkerRuntime {
       QUEUE_NAMES.alerts,
       (job) => alertComposition.process(job),
       {
+        autorun: roleConsumesQueue(role, 'alert'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
       },
@@ -202,6 +218,7 @@ export class WorkerRuntime {
       QUEUE_NAMES.notifications,
       (job) => notificationComposition.process(job),
       {
+        autorun: roleConsumesQueue(role, 'notification'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
       },
@@ -213,6 +230,7 @@ export class WorkerRuntime {
       QUEUE_NAMES.backtests,
       (job) => backtestComposition.process(job),
       {
+        autorun: roleConsumesQueue(role, 'backtest'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
         lockDuration: environment.BACKTEST_RUN_TIMEOUT_MS,
@@ -225,6 +243,7 @@ export class WorkerRuntime {
       QUEUE_NAMES.experiments,
       (job) => experimentComposition.process(job),
       {
+        autorun: roleConsumesQueue(role, 'experiment'),
         concurrency: environment.WORKER_CONCURRENCY,
         connection,
         lockDuration: environment.BACKTEST_RUN_TIMEOUT_MS,
@@ -261,22 +280,18 @@ export class WorkerRuntime {
 
     try {
       await runtime.waitUntilReady();
-      await notificationComposition.catchUp();
-      await alertComposition.catchUp(alertQueue);
-      await experimentComposition.reconcile(experimentQueue);
-      await runtime.enqueueHeartbeat();
-      runtime.startHeartbeat();
+      if (roleConsumesQueue(role, 'scheduled')) {
+        await notificationComposition.catchUp();
+        await alertComposition.catchUp(alertQueue);
+        await experimentComposition.reconcile(experimentQueue);
+        await runtime.enqueueHeartbeat();
+        runtime.startHeartbeat();
+      }
+      await runtime.markReady();
       logger.info('worker.ready', {
         concurrency: environment.WORKER_CONCURRENCY,
-        queues: [
-          QUEUE_NAMES.system,
-          QUEUE_NAMES.marketData,
-          QUEUE_NAMES.scanner,
-          QUEUE_NAMES.alerts,
-          QUEUE_NAMES.notifications,
-          QUEUE_NAMES.backtests,
-          QUEUE_NAMES.experiments,
-        ],
+        role,
+        queues: enabledQueues(role),
       });
       return runtime;
     } catch (error: unknown) {
@@ -293,6 +308,7 @@ export class WorkerRuntime {
     }
 
     this.stopping = true;
+    await this.removeReadyMarker();
     if (this.heartbeatTimer !== undefined) {
       clearInterval(this.heartbeatTimer);
     }
@@ -500,4 +516,38 @@ export class WorkerRuntime {
       this.experimentComposition.close(),
     ]);
   }
+
+  private async markReady(): Promise<void> {
+    const healthFile = this.environment.WORKER_HEALTH_FILE;
+    if (healthFile === undefined || healthFile === '') return;
+    await writeFile(
+      healthFile,
+      JSON.stringify({
+        readyAt: new Date().toISOString(),
+        role: this.environment.WORKER_ROLE ?? 'all',
+      }),
+      { mode: 0o600 },
+    );
+  }
+
+  private async removeReadyMarker(): Promise<void> {
+    const healthFile = this.environment.WORKER_HEALTH_FILE;
+    if (healthFile === undefined || healthFile === '') return;
+    await rm(healthFile, { force: true });
+  }
+}
+
+function enabledQueues(role: WorkerRole): readonly string[] {
+  const roles: ReadonlyArray<readonly [Exclude<WorkerRole, 'all'>, string]> = [
+    ['scheduled', QUEUE_NAMES.system],
+    ['market-data', QUEUE_NAMES.marketData],
+    ['scanner', QUEUE_NAMES.scanner],
+    ['alert', QUEUE_NAMES.alerts],
+    ['notification', QUEUE_NAMES.notifications],
+    ['backtest', QUEUE_NAMES.backtests],
+    ['experiment', QUEUE_NAMES.experiments],
+  ];
+  return roles
+    .filter(([queueRole]) => roleConsumesQueue(role, queueRole))
+    .map(([, queue]) => queue);
 }

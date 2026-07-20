@@ -1,0 +1,157 @@
+name: Production Readiness PR
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: production-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: postgresql://atlas:ci-only@127.0.0.1:5432/atlas_ci_test
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:3001/api/v1
+      REDIS_URL: redis://127.0.0.1:6379
+      TEST_DATABASE_URL: postgresql://atlas:ci-only@127.0.0.1:5432/atlas_ci_test
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: atlas_ci_test
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_USER: atlas
+        options: >-
+          --health-cmd "pg_isready -U atlas -d atlas_ci_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Activate pinned pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.4 --activate
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Toolchain, format and ADR
+        run: |
+          pnpm version:check
+          pnpm format:check
+          pnpm validate:adr
+
+      - name: Lint, typecheck and unit tests
+        run: |
+          pnpm exec turbo run lint --force
+          pnpm exec turbo run typecheck --force
+          pnpm exec turbo run test --force
+
+      - name: Configuration and deployment drift
+        run: |
+          pnpm config:check
+          pnpm deploy:validate
+
+      - name: OpenAPI and migration validation
+        run: |
+          pnpm --filter @atlas/api openapi:check
+          sh scripts/production/migration-dry-run.sh
+
+      - name: PostgreSQL and Redis integration
+        run: |
+          pnpm --filter @atlas/api test:database
+          pnpm --filter @atlas/worker test:integration
+
+      - name: Security scans
+        run: |
+          pnpm secret:scan:test
+          pnpm secret:scan
+          pnpm audit --prod --audit-level high
+
+      - name: Production build
+        run: pnpm exec turbo run build --force
+
+      - name: Build immutable container targets
+        env:
+          BUILD_DATE: ${{ github.event.repository.updated_at }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          for target in web api worker migration; do
+            docker build \
+              --target "$target" \
+              --build-arg BUILD_DATE="$BUILD_DATE" \
+              --build-arg COMMIT_SHA="$COMMIT_SHA" \
+              --build-arg SOURCE_REPOSITORY="${{ github.server_url }}/${{ github.repository }}" \
+              --build-arg VERSION="pr-${{ github.event.pull_request.number || 'manual' }}" \
+              -t "atlas-${target}:pr" .
+          done
+
+      - name: Container startup, probes and graceful shutdown
+        run: >-
+          sh scripts/production/container-smoke.sh
+          atlas-api:pr atlas-worker:pr atlas-migration:pr atlas-web:pr
+
+      - name: Generate API image SBOM
+        uses: anchore/sbom-action@v0.17.8
+        with:
+          format: spdx-json
+          image: atlas-api:pr
+          output-file: reports/security/atlas-api.spdx.json
+
+      - name: Scan API image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+          ignore-unfixed: true
+          image-ref: atlas-api:pr
+          severity: CRITICAL,HIGH
+
+      - name: Scan worker image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          exit-code: '1'
+          ignore-unfixed: true
+          image-ref: atlas-worker:pr
+          severity: CRITICAL,HIGH
+
+      - name: Rollback rehearsal
+        run: >-
+          node scripts/production/rollback-rehearsal.mjs
+          --previous-digest=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          --candidate-digest=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          --migration-phase=expand
+
+      - name: Workflow lint
+        run: sh scripts/production/lint-workflows.sh
+
+      - name: Upload security artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-readiness-security
+          path: reports/security
+          retention-days: 14
