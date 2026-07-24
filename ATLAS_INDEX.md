@@ -201,3 +201,47 @@ deploy kullanıcı onayı olmadan başlatılmaz; deployment manifestleri, IaC ve
 yalnız kullanıcı onaylı deployment süreçleri olarak hazırlanır.
 
 TASK-080 sonucu GO olmadan v1.0 release candidate oluşturulmaz.
+
+## v0.10 Product Completion and Pre-Staging Release Candidate
+
+Durum:
+
+```text
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Product Development: CONTINUE
+```
+
+Zorunlu okuma:
+
+- `README-v0.10.md`
+- `docs/DOC-042-Staging-Gate-Deferral-Policy.md`
+- `docs/DOC-043-V1-Product-Scope-Freeze.md`
+- `docs/DOC-044-Onboarding-Preferences-and-User-Settings.md`
+- `docs/DOC-045-Navigation-Search-and-Activity-Center.md`
+- `docs/DOC-046-Reports-Exports-and-Data-Transparency.md`
+- `docs/DOC-047-Accessibility-Localization-and-Responsive-Polish.md`
+- `architecture/ARCH-019-Pre-Staging-Product-Completion.md`
+- `database/DB-010-Preferences-Activity-and-Reports.md`
+- `api/API-010-Preferences-Search-Activity-Reports.md`
+
+Görev sırası:
+
+1. `tasks/TASK-081-Register-Staging-Gate-Deferral.md`
+2. `tasks/TASK-082-V1-Scope-Freeze-and-Backlog-Triage.md`
+3. `tasks/TASK-083-Onboarding-and-Preferences.md`
+4. `tasks/TASK-084-Global-Navigation-Search-and-Activity.md`
+5. `tasks/TASK-085-Unified-Report-Center.md`
+6. `tasks/TASK-086-Accessibility-Localization-Responsive-Polish.md`
+7. `tasks/TASK-087-Trust-Methodology-and-Disclosure-Surfaces.md`
+8. `tasks/TASK-088-Local-Performance-and-Resilience-Polish.md`
+9. `tasks/TASK-089-Local-V1-Release-Candidate.md`
+10. `tasks/TASK-090-Pre-Staging-Product-Completion-Audit.md`
+
+Geçiş kuralı:
+
+- TASK-080 Production Readiness kararı NO-GO olarak kalır.
+- Yerel test, local container/load ve tarihsel DAST sonuçları staging kanıtı değildir.
+- TASK-090 production GO veremez; yalnız gerçek staging doğrulamasına geçiş uygunluğunu denetler.
+- Production launch, ertelenen gerçek staging kapıları TASK-080S/TASK-080P kapsamında tamamlanmadan
+  bloklanır.

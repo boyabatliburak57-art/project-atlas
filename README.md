@@ -179,3 +179,48 @@ deploy kullanıcı onayı olmadan başlatılmaz; yalnız deployment manifestleri
 ve kullanıcı onaylı deployment süreçleri hazırlanır.
 
 TASK-080 Production Readiness milestone audit sonucu GO olmadan v1.0 release candidate oluşturulmaz.
+
+## v0.10 Product Completion and Pre-Staging Release Candidate
+
+Durum:
+
+```text
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Product Development: CONTINUE
+```
+
+v0.10, gerçek staging erişimine bağlı Production Readiness kapısını erteleyerek staging dışı ürün
+tamamlama çalışmalarını sürdürür. Bu paket production launch yapmaz, TASK-080 kararını GO olarak
+değiştirmez ve yerel testleri, local container/load sonuçlarını veya eski DAST artifact'lerini staging
+kanıtı olarak kabul etmez.
+
+Belgeler:
+
+- `README-v0.10.md`
+- `docs/DOC-042-Staging-Gate-Deferral-Policy.md`
+- `docs/DOC-043-V1-Product-Scope-Freeze.md`
+- `docs/DOC-044-Onboarding-Preferences-and-User-Settings.md`
+- `docs/DOC-045-Navigation-Search-and-Activity-Center.md`
+- `docs/DOC-046-Reports-Exports-and-Data-Transparency.md`
+- `docs/DOC-047-Accessibility-Localization-and-Responsive-Polish.md`
+- `architecture/ARCH-019-Pre-Staging-Product-Completion.md`
+- `database/DB-010-Preferences-Activity-and-Reports.md`
+- `api/API-010-Preferences-Search-Activity-Reports.md`
+
+Görev sırası:
+
+1. TASK-081
+2. TASK-082
+3. TASK-083
+4. TASK-084
+5. TASK-085
+6. TASK-086
+7. TASK-087
+8. TASK-088
+9. TASK-089
+10. TASK-090
+
+TASK-090 yalnız `GO_FOR_STAGING_VALIDATION` veya `NO-GO_FOR_STAGING_VALIDATION` kararı verebilir;
+production GO veremez. Gerçek staging erişimi sağlandığında ertelenen TASK-080S/TASK-080P kapıları
+ayrıca yeniden açılır.

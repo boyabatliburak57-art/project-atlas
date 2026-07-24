@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.10.0-product-completion-prestaging — 2026-07-24
+
+### Durum
+
+```text
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Product Development: CONTINUE
+```
+
+### Eklendi
+
+- DOC-042–DOC-047 staging gate deferral, v1 scope freeze, onboarding/preferences,
+  navigation/search/activity, unified reports ve accessibility/localization/responsive gereksinimleri
+- ARCH-019 Pre-Staging Product Completion mimarisi
+- DB-010 Preferences, Activity and Reports veri tasarımı
+- API-010 Preferences, Search, Activity and Reports API sözleşmesi
+- TASK-081–TASK-090 Product Completion and Pre-Staging Release Candidate görev sırası
+
+### Değişti
+
+- Staging dışı ürün geliştirmesinin devam edebileceği ve staging kapısının
+  `DEFERRED_EXTERNAL_GATE` olduğu README ve ATLAS_INDEX'e kaydedildi.
+- TASK-090 karar kapsamı `GO_FOR_STAGING_VALIDATION` veya
+  `NO-GO_FOR_STAGING_VALIDATION` ile sınırlandı.
+
+### Değişmedi
+
+- TASK-080 Production Readiness kararı **NO-GO** olarak kaldı.
+- Production launch blokajı kaldırılmadı.
+- Yerel testler, local container/load sonuçları ve eski DAST artifact'leri staging kanıtı olarak
+  yeniden sınıflandırılmadı.
+- Gerçek staging veya production deployment başlatılmadı.
+
 ## 0.9.0-production-readiness — 2026-07-20
 
 ### Eklendi
