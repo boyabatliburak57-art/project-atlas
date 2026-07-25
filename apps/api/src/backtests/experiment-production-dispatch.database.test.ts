@@ -76,7 +76,7 @@ describe('experiment production API dispatch', () => {
     const auth: AuthenticatedUserResolver = () => ownerUserId;
     const module = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(ApiDatabase)
-      .useValue({ database: db })
+      .useValue({ database: db, pool })
       .overrideProvider(AUTHENTICATED_USER_RESOLVER)
       .useValue(auth)
       .compile();
