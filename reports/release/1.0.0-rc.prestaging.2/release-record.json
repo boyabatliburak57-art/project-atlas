@@ -1,0 +1,33 @@
+{
+  "classification": ["PRE_STAGING_ONLY", "NOT_APPROVED_FOR_PRODUCTION"],
+  "version": "1.0.0-rc.prestaging.2",
+  "commitSha": "1525f1b2d3a2ca9b7a9e9b3de7fc5c5846b45cc5",
+  "buildTimestamp": "2026-07-25T22:08:03Z",
+  "baseImage": "node:22.14.0-alpine3.21@sha256:9bef0ef1e268f60627da9ba7d7605e8831d5b56ad07487d24d1aa386336d1944",
+  "configurationSchemaVersion": "1",
+  "localImageIds": {
+    "api": "sha256:b08e613508078dc886d926bf61b92fbe26aa1a4d4a8061319ecc3a4cc6965681",
+    "worker": "sha256:ae521a146086b891683323e7de40a22396e244484040a85aecb77288c963ad61",
+    "web": "sha256:f9cc7212eeea0479719768508912881bd13764107c2e656e2fca64ccda902e21",
+    "migration": "sha256:da50c7804c3a73bd66bb7c158e38a941c7a632fd03bff971bfac62be3643b667"
+  },
+  "registryDigest": null,
+  "stagingEvidence": false,
+  "stagingGate": "DEFERRED_EXTERNAL_GATE",
+  "productionReadiness": "NO-GO",
+  "security": {
+    "dependencyCritical": 0,
+    "dependencyHigh": 0,
+    "containerCritical": 0,
+    "containerHigh": 0,
+    "secretFindings": 0
+  },
+  "artifacts": {
+    "migrationManifest": "migration-manifest.json",
+    "featureFlags": "feature-flag-snapshot.json",
+    "dependencyAudit": "dependency-audit.json",
+    "openapi": "openapi.json",
+    "releaseNotes": "release-notes.md",
+    "validation": "release-validation.md"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "latest": "0016",
+  "migrations": [
+    {
+      "file": "0000_fancy_marrow.sql",
+      "sha256": "e2564b5020118381cba7ef4ba85efd8036a32b16b5da58916bcffe38f5ee7635",
+      "rollback": false
+    },
+    {
+      "file": "0001_free_bulldozer.sql",
+      "sha256": "1e48fc7bf45c2b790a66d95f5e174648906d2aa4194ca152f1bb1b5f35668e2e",
+      "rollback": false
+    },
+    {
+      "file": "0002_scanner_runtime.sql",
+      "sha256": "5718a21b448e061ccf83b411a1083a90531d05db9a654a57ffb202be32c53581",
+      "rollback": true
+    },
+    {
+      "file": "0003_alerts_watchlists_notifications.sql",
+      "sha256": "810644133495fdb17e4b5cb42ea2c0e88e7eab291dfe291b394fc3dbd95d42ca",
+      "rollback": true
+    },
+    {
+      "file": "0004_portfolio_transactions_risk.sql",
+      "sha256": "2f1b22826dddd28a221ae37d7e177dac7277dcb46212679d74cd3ef595144ef9",
+      "rollback": true
+    },
+    {
+      "file": "0005_serious_corsair.sql",
+      "sha256": "ab5d4ab0316550734cacbd299d31a3a5fa896148aa7e71b3329eccec8d510f7f",
+      "rollback": true
+    },
+    {
+      "file": "0006_brief_imperial_guard.sql",
+      "sha256": "7bca845a0569d03a978f0e77e751d4252d41efe2df59e86ae09a3e82bf157256",
+      "rollback": true
+    },
+    {
+      "file": "0007_rapid_lifeguard.sql",
+      "sha256": "1f7be27a932aec408af7c25f1aa39bab7a6c6560389f12da8febd8753db78c7e",
+      "rollback": true
+    },
+    {
+      "file": "0008_stale_mandroid.sql",
+      "sha256": "760d1b5d16c1a99281d8dcaef47c9fd7e81f2e2682d5b523d6c9bfe33ac3c280",
+      "rollback": true
+    },
+    {
+      "file": "0009_messy_terror.sql",
+      "sha256": "0b548f44f6c9d27e920d568696b203b9c3dbdcf0665822ae71b76d1989549085",
+      "rollback": true
+    },
+    {
+      "file": "0010_pale_killer_shrike.sql",
+      "sha256": "69a50dd7f4f58b3f1eaea495e2af7c56bdd040d4f298f4e59fddc272d48d88b1",
+      "rollback": true
+    },
+    {
+      "file": "0011_remarkable_union_jack.sql",
+      "sha256": "a5707e844dea5d55dde9e3d8600e321504518e11efa30c0ac1dd8c1dbf06939d",
+      "rollback": true
+    },
+    {
+      "file": "0012_recovery_retention.sql",
+      "sha256": "7ab405083bd6909eed14b162dba1dc076ef4c2888c3c7d653abed567f5201616",
+      "rollback": true
+    },
+    {
+      "file": "0013_feature_flag_types.sql",
+      "sha256": "dc12343fd6e6e6e61322836881d933b20973b4ffb134fadcdfa99b6e1ce9196e",
+      "rollback": true
+    },
+    {
+      "file": "0014_user_preferences.sql",
+      "sha256": "963ca73fb3a615aa56eca4da445320ed9d8bcdc47a1146021db1dfc9f949e749",
+      "rollback": true
+    },
+    {
+      "file": "0015_user_activity.sql",
+      "sha256": "00f625cd0ebd23b18445d2b344b6a66e8e63767460777bbc4b1fb280a99a6a99",
+      "rollback": true
+    },
+    {
+      "file": "0016_generated_reports.sql",
+      "sha256": "8127cc6da74a6fba94188b99afd068db37bcd7848f4994571ad9b06b3ff1e4e5",
+      "rollback": true
+    }
+  ]
+}

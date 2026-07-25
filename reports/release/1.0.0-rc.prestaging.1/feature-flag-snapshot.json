@@ -1,0 +1,61 @@
+{
+  "scope": "local-static-snapshot",
+  "environment": "local",
+  "capturedAt": "2026-07-25T21:07:09.011Z",
+  "flags": [
+    {
+      "key": "alerts.evaluation.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "backtests.creation.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "exports.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "experiments.creation.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "fundamentals.refresh.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "notifications.email-delivery.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "patterns.refresh.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "portfolios.imports.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    },
+    {
+      "key": "scanner.new-runs.disabled",
+      "type": "kill_switch",
+      "localConfiguredState": "not-set",
+      "safeOutageDefault": true
+    }
+  ]
+}
