@@ -275,16 +275,27 @@ export class PostgresBacktestRuntimeRepository
             signal_price, reason_code
           )
           select
-            item.id::uuid, item."runId"::uuid, item."ownerUserId"::uuid,
-            item."instrumentId"::uuid, item."orderSequence",
-            item."eventAt"::timestamptz, item.side, item."orderType",
-            item.status, item."requestedQuantity"::numeric,
-            item."signalPrice"::numeric, item."reasonCode"
-          from jsonb_to_recordset(${JSON.stringify(orderRows)}::jsonb) as item(
-            id text, "runId" text, "ownerUserId" text, "instrumentId" text,
-            "orderSequence" integer, "eventAt" text, side text,
-            "orderType" text, status text, "requestedQuantity" text,
-            "signalPrice" text, "reasonCode" text
+            item.id, item.run_id, item.owner_user_id, item.instrument_id,
+            item.order_sequence, item.event_at, item.side, item.order_type,
+            item.status, item.requested_quantity, item.signal_price,
+            item.reason_code
+          from unnest(
+            ${sql.param(orderRows.map((row) => row.id))}::uuid[],
+            ${sql.param(orderRows.map((row) => row.runId))}::uuid[],
+            ${sql.param(orderRows.map((row) => row.ownerUserId))}::uuid[],
+            ${sql.param(orderRows.map((row) => row.instrumentId))}::uuid[],
+            ${sql.param(orderRows.map((row) => row.orderSequence))}::integer[],
+            ${sql.param(orderRows.map((row) => row.eventAt.toISOString()))}::timestamptz[],
+            ${sql.param(orderRows.map((row) => row.side))}::text[],
+            ${sql.param(orderRows.map((row) => row.orderType))}::text[],
+            ${sql.param(orderRows.map((row) => row.status))}::text[],
+            ${sql.param(orderRows.map((row) => row.requestedQuantity))}::numeric[],
+            ${sql.param(orderRows.map((row) => row.signalPrice))}::numeric[],
+            ${sql.param(orderRows.map((row) => row.reasonCode))}::text[]
+          ) as item(
+            id, run_id, owner_user_id, instrument_id, order_sequence,
+            event_at, side, order_type, status, requested_quantity,
+            signal_price, reason_code
           )
           on conflict (run_id, order_sequence) do nothing
         `);
@@ -319,19 +330,36 @@ export class PostgresBacktestRuntimeRepository
             slippage_cost, fee, tax, deduplication_key, metadata
           )
           select
-            item.id::uuid, item."runId"::uuid, item."ownerUserId"::uuid,
-            item."orderId"::uuid, item."instrumentId"::uuid,
-            item."fillSequence", item."filledAt"::timestamptz,
-            item.quantity::numeric, item."rawPrice"::numeric,
-            item."fillPrice"::numeric, item.commission::numeric,
-            item."slippageCost"::numeric, item.fee::numeric,
-            item.tax::numeric, item."deduplicationKey", item.metadata
-          from jsonb_to_recordset(${JSON.stringify(fillRows)}::jsonb) as item(
-            id text, "runId" text, "ownerUserId" text, "orderId" text,
-            "instrumentId" text, "fillSequence" integer, "filledAt" text,
-            quantity text, "rawPrice" text, "fillPrice" text,
-            commission text, "slippageCost" text, fee text, tax text,
-            "deduplicationKey" text, metadata jsonb
+            item.id, item.run_id, item.owner_user_id, item.order_id,
+            item.instrument_id, item.fill_sequence, item.filled_at,
+            item.quantity, item.raw_price, item.fill_price, item.commission,
+            item.slippage_cost, item.fee, item.tax, item.deduplication_key,
+            jsonb_build_object(
+              'engineFillId', item.engine_fill_id,
+              'reason', item.reason
+            )
+          from unnest(
+            ${sql.param(fillRows.map((row) => row.id))}::uuid[],
+            ${sql.param(fillRows.map((row) => row.runId))}::uuid[],
+            ${sql.param(fillRows.map((row) => row.ownerUserId))}::uuid[],
+            ${sql.param(fillRows.map((row) => row.orderId))}::uuid[],
+            ${sql.param(fillRows.map((row) => row.instrumentId))}::uuid[],
+            ${sql.param(fillRows.map((row) => row.fillSequence))}::integer[],
+            ${sql.param(fillRows.map((row) => row.filledAt.toISOString()))}::timestamptz[],
+            ${sql.param(fillRows.map((row) => row.quantity))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.rawPrice))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.fillPrice))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.commission))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.slippageCost))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.fee))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.tax))}::numeric[],
+            ${sql.param(fillRows.map((row) => row.deduplicationKey))}::text[],
+            ${sql.param(fillRows.map((row) => String(row.metadata.engineFillId)))}::text[],
+            ${sql.param(fillRows.map((row) => String(row.metadata.reason)))}::text[]
+          ) as item(
+            id, run_id, owner_user_id, order_id, instrument_id, fill_sequence,
+            filled_at, quantity, raw_price, fill_price, commission,
+            slippage_cost, fee, tax, deduplication_key, engine_fill_id, reason
           )
           on conflict (deduplication_key) do nothing
         `);
@@ -364,21 +392,35 @@ export class PostgresBacktestRuntimeRepository
             return_rate, holding_bars, close_reason
           )
           select
-            item.id::uuid, item."runId"::uuid, item."ownerUserId"::uuid,
-            item."instrumentId"::uuid, item."tradeSequence",
-            item."entryFillId"::uuid, item."exitFillId"::uuid,
-            item."openedAt"::timestamptz, item."closedAt"::timestamptz,
-            item.quantity::numeric, item."entryPrice"::numeric,
-            item."exitPrice"::numeric, item."grossPnl"::numeric,
-            item."netPnl"::numeric, item."totalCost"::numeric,
-            item."returnRate"::numeric, item."holdingBars", item."closeReason"
-          from jsonb_to_recordset(${JSON.stringify(tradeRows)}::jsonb) as item(
-            id text, "runId" text, "ownerUserId" text, "instrumentId" text,
-            "tradeSequence" integer, "entryFillId" text, "exitFillId" text,
-            "openedAt" text, "closedAt" text, quantity text,
-            "entryPrice" text, "exitPrice" text, "grossPnl" text,
-            "netPnl" text, "totalCost" text, "returnRate" text,
-            "holdingBars" integer, "closeReason" text
+            item.id, item.run_id, item.owner_user_id, item.instrument_id,
+            item.trade_sequence, item.entry_fill_id, item.exit_fill_id,
+            item.opened_at, item.closed_at, item.quantity, item.entry_price,
+            item.exit_price, item.gross_pnl, item.net_pnl, item.total_cost,
+            item.return_rate, item.holding_bars, item.close_reason
+          from unnest(
+            ${sql.param(tradeRows.map((row) => row.id))}::uuid[],
+            ${sql.param(tradeRows.map((row) => row.runId))}::uuid[],
+            ${sql.param(tradeRows.map((row) => row.ownerUserId))}::uuid[],
+            ${sql.param(tradeRows.map((row) => row.instrumentId))}::uuid[],
+            ${sql.param(tradeRows.map((row) => row.tradeSequence))}::integer[],
+            ${sql.param(tradeRows.map((row) => row.entryFillId))}::uuid[],
+            ${sql.param(tradeRows.map((row) => row.exitFillId))}::uuid[],
+            ${sql.param(tradeRows.map((row) => row.openedAt.toISOString()))}::timestamptz[],
+            ${sql.param(tradeRows.map((row) => row.closedAt.toISOString()))}::timestamptz[],
+            ${sql.param(tradeRows.map((row) => row.quantity))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.entryPrice))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.exitPrice))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.grossPnl))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.netPnl))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.totalCost))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.returnRate))}::numeric[],
+            ${sql.param(tradeRows.map((row) => row.holdingBars))}::integer[],
+            ${sql.param(tradeRows.map((row) => row.closeReason))}::text[]
+          ) as item(
+            id, run_id, owner_user_id, instrument_id, trade_sequence,
+            entry_fill_id, exit_fill_id, opened_at, closed_at, quantity,
+            entry_price, exit_price, gross_pnl, net_pnl, total_cost,
+            return_rate, holding_bars, close_reason
           )
           on conflict (run_id, trade_sequence) do nothing
         `);
