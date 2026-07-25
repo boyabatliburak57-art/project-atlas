@@ -15,9 +15,26 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the seventy-six scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(76);
+  it('creates the seventy-nine scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(79);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
+  });
+
+  it('contains DB-010 activity ownership, retention and deduplication guards', () => {
+    expect(sql).toContain('CREATE TABLE "user_activity_events"');
+    expect(sql).toContain('user_activity_events_user_dedup_unique');
+    expect(sql).toContain('user_activity_events_user_cursor_idx');
+    expect(sql).toContain('user_activity_events_expiry_idx');
+    expect(sql).toContain('user_activity_events_metadata_size');
+  });
+
+  it('contains DB-010 report ownership, lifecycle and artifact guards', () => {
+    expect(sql).toContain('CREATE TABLE "generated_reports"');
+    expect(sql).toContain('generated_reports_owner_request_unique');
+    expect(sql).toContain('generated_reports_owner_status_created_idx');
+    expect(sql).toContain('generated_reports_expiry_idx');
+    expect(sql).toContain('generated_reports_artifact_shape_check');
+    expect(sql).toContain('generated_reports_json_size_check');
   });
 
   it('contains required financial and integrity constraints', () => {
@@ -220,5 +237,12 @@ describe('generated PostgreSQL migrations', () => {
     expect(sql).toContain('recovery_drills_terminal_immutable');
     expect(sql).toContain("current_setting('atlas.retention_purge', true)");
     expect(sql).toContain('retention_job_runs_terminal_immutable');
+  });
+
+  it('contains DB-010 user preference ownership and concurrency guards', () => {
+    expect(sql).toContain('CREATE TABLE "user_preferences"');
+    expect(sql).toContain('user_preferences_user_id_security_users_id_fk');
+    expect(sql).toContain('user_preferences_version_check');
+    expect(sql).toContain('user_preferences_json_size_check');
   });
 });

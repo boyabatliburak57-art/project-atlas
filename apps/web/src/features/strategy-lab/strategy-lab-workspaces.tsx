@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import { AtlasShell, WorkspaceState } from '@/features/portfolio/atlas-shell';
+import { SafeMetadata } from '@/features/trust/safe-metadata';
 
 import { safeLabError, strategyLabApi } from './api';
 import type {
@@ -1182,7 +1183,7 @@ export function BacktestDetailWorkspace({ id }: { readonly id: string }) {
             >
               <p className="rail-label">REPRODUCIBILITY</p>
               <h2 id="methodology-title">Metodoloji ve veri snapshot’ı</h2>
-              <pre>{JSON.stringify(methodology.data ?? {}, null, 2)}</pre>
+              <SafeMetadata metadata={methodology.data} />
               <p>
                 Eksik point-in-time veri, missing bar ve coverage uyarıları
                 sonuçtan gizlenmez.

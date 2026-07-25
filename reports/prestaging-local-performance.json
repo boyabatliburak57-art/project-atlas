@@ -1,0 +1,35 @@
+{
+  "evidenceClass": "NOT_STAGING_EVIDENCE",
+  "environment": "local",
+  "startedAt": "2026-07-25T15:19:26.930Z",
+  "completedAt": "2026-07-25T15:19:27.022Z",
+  "checks": [
+    {
+      "id": "bundle-size",
+      "totalBytes": 1497879,
+      "largestBytes": 283588,
+      "maximumTotalBytes": 2097152,
+      "maximumChunkBytes": 524288,
+      "status": "PASS"
+    },
+    {
+      "id": "route-level-loading",
+      "status": "PASS"
+    },
+    {
+      "id": "bounded-pagination-no-n-plus-one-source-guard",
+      "repositories": 2,
+      "status": "PASS"
+    },
+    {
+      "id": "memory-leak-smoke",
+      "maximumGrowthBytes": 33554432,
+      "growth": 912760,
+      "first": 4049944,
+      "last": 4962704,
+      "status": "PASS"
+    }
+  ],
+  "failed": 0,
+  "status": "PASS"
+}

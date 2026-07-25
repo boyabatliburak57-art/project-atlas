@@ -9,7 +9,7 @@
   },
   "pnpm": {
     "overrides": {
-      "postcss": "8.5.16",
+      "postcss": "8.5.23",
       "sharp": "0.35.3"
     }
   },
@@ -39,6 +39,7 @@
     "perf:portfolio": "bash scripts/run-portfolio-performance.sh",
     "perf:market": "bash scripts/run-market-intelligence-performance.sh",
     "perf:production": "node scripts/operations/run-production-load.mjs",
+    "perf:local-prestaging": "node scripts/operations/local-prestaging-smoke.mjs",
     "perf:market:regression": "bash scripts/run-market-intelligence-regression.sh",
     "preinstall": "node scripts/check-toolchain-versions.mjs --node-only",
     "resilience:validate": "node scripts/operations/validate-resilience-contract.mjs",

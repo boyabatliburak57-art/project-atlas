@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@atlas/config": "workspace:*",
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "1.55.1",
     "@tailwindcss/postcss": "4.3.2",
     "@testing-library/dom": "10.4.1",

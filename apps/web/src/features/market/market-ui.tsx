@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 
+import { createFormatters } from '../localization';
 import type { MarketMeta } from './types';
+
+const formatters = createFormatters();
 
 export function FreshnessBanner({ meta }: { readonly meta: MarketMeta }) {
   const state = meta.stale ? 'stale' : meta.partial ? 'partial' : 'complete';
@@ -56,7 +59,7 @@ export function DirectionValue({
     >
       <span className="direction-word">{direction}</span>{' '}
       {numeric > 0 ? '+' : ''}
-      {numeric.toLocaleString('tr-TR', { maximumFractionDigits: 2 })}
+      {formatters.number(numeric, { maximumFractionDigits: 2 })}
       {suffix}
     </span>
   );
@@ -68,18 +71,13 @@ export function formatNumber(
 ) {
   if (value === null || value === undefined || !Number.isFinite(Number(value)))
     return 'Veri yok';
-  return Number(value).toLocaleString('tr-TR', { maximumFractionDigits });
+  return formatters.number(Number(value), { maximumFractionDigits });
 }
 
 export function formatDateTime(value: string | null | undefined) {
   if (!value) return 'Veri yok';
   const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? 'Veri yok'
-    : new Intl.DateTimeFormat('tr-TR', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      }).format(date);
+  return Number.isNaN(date.getTime()) ? 'Veri yok' : formatters.dateTime(date);
 }
 
 export function humanCode(code: string) {

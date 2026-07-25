@@ -18,12 +18,14 @@ export default defineConfig({
       command: 'pnpm --filter @atlas/api e2e:scanner',
       url: 'http://127.0.0.1:3001/api/v1/scanner/operators',
       reuseExistingServer: false,
+      timeout: 120_000,
     },
     {
       command:
         'pnpm --config.engine-strict=false build && pnpm --config.engine-strict=false start --hostname 127.0.0.1 --port 3100',
       url: 'http://127.0.0.1:3100/scanner',
       reuseExistingServer: false,
+      timeout: 120_000,
       env: { NEXT_PUBLIC_API_URL: 'http://127.0.0.1:3001/api/v1' },
     },
   ],

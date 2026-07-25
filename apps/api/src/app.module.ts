@@ -147,6 +147,15 @@ import { PatternsController } from './patterns/patterns.controller';
 import { PostgresPatternReadModel } from './patterns/patterns.infrastructure';
 import { PATTERN_READ_MODEL } from './patterns/patterns.ports';
 import { PatternsService } from './patterns/patterns.service';
+import { PreferencesController } from './preferences/preferences.controller';
+import { PreferencesRepository } from './preferences/preferences.repository';
+import { PreferencesService } from './preferences/preferences.service';
+import { NavigationController } from './navigation/navigation.controller';
+import { NavigationRepository } from './navigation/navigation.repository';
+import { NavigationService } from './navigation/navigation.service';
+import { ReportsController } from './reports/reports.controller';
+import { ReportsRepository } from './reports/reports.repository';
+import { ReportsService } from './reports/reports.service';
 import {
   BacktestsController,
   ExperimentsController,
@@ -197,6 +206,9 @@ import {
     SymbolDetailController,
     FundamentalsController,
     PatternsController,
+    PreferencesController,
+    NavigationController,
+    ReportsController,
     StrategiesController,
     BacktestsController,
     ExperimentsController,
@@ -254,6 +266,9 @@ import {
     SymbolResponseCache,
     PostgresFundamentalsReader,
     PostgresPatternReadModel,
+    PreferencesRepository,
+    NavigationRepository,
+    ReportsRepository,
     PostgresStrategyApiRepository,
     PostgresBacktestApiStore,
     PostgresExperimentStore,
@@ -395,6 +410,9 @@ import {
     SymbolDetailService,
     FundamentalsService,
     PatternsService,
+    PreferencesService,
+    NavigationService,
+    ReportsService,
     StrategiesService,
     BacktestsService,
     ExperimentsService,

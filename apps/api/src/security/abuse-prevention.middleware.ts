@@ -152,7 +152,7 @@ function classify(request: Request): LimitClass {
     return 'scanner_create';
   if (/^\/api\/v1\/portfolios\/[^/]+\/recalculate$/u.test(path))
     return 'portfolio_recalculate';
-  if (/\/imports|\/exports/u.test(path)) return 'import_export';
+  if (/\/imports|\/exports|\/reports/u.test(path)) return 'import_export';
   if (path.startsWith('/api/v1/backtests')) return 'backtest';
   if (path.startsWith('/api/v1/experiments')) return 'experiment';
   return ['GET', 'HEAD', 'OPTIONS'].includes(request.method)

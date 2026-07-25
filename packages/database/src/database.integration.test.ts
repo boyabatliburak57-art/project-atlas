@@ -110,7 +110,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the seventy-six domain tables', async () => {
+  it('clean-migrates exactly the seventy-nine domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -141,6 +141,7 @@ describe('PostgreSQL migrations', () => {
       'fundamental_metric_snapshots',
       'fundamental_ratio_snapshots',
       'fundamental_statement_snapshots',
+      'generated_reports',
       'incident_timeline_events',
       'incidents',
       'ingestion_runs',
@@ -192,6 +193,8 @@ describe('PostgreSQL migrations', () => {
       'stored_artifacts',
       'strategies',
       'strategy_revisions',
+      'user_activity_events',
+      'user_preferences',
       'watchlist_item_tags',
       'watchlist_items',
       'watchlists',
@@ -207,6 +210,109 @@ describe('PostgreSQL migrations', () => {
         [randomUUID(), randomUUID(), 'INVALID'],
       ),
     ).rejects.toMatchObject({ code: '23503' });
+  });
+
+  it('enforces activity ownership, deduplication and expiry semantics', async () => {
+    const userA = randomUUID();
+    const userB = randomUUID();
+    for (const [id, email] of [
+      [userA, 'activity-a@example.test'],
+      [userB, 'activity-b@example.test'],
+    ])
+      await pool.query(
+        `insert into security_users
+          (id, email, normalized_email, password_hash)
+         values ($1, $2, $2, 'test-only-hash')`,
+        [id, email],
+      );
+
+    await pool.query(
+      `insert into user_activity_events
+        (user_id, event_type, source_type, status, summary,
+         deduplication_key, expires_at)
+       values
+        ($1, 'scan.completed', 'scan', 'completed', 'A event',
+         'scan:a:completed', now() + interval '30 days'),
+        ($2, 'scan.completed', 'scan', 'completed', 'B event',
+         'scan:b:completed', now() + interval '30 days'),
+        ($1, 'scan.expired', 'scan', 'completed', 'Expired event',
+         'scan:a:expired', now() - interval '1 second')`,
+      [userA, userB],
+    );
+    await expect(
+      pool.query(
+        `insert into user_activity_events
+          (user_id, event_type, source_type, status, summary,
+           deduplication_key, expires_at)
+         values ($1, 'scan.completed', 'scan', 'completed', 'Duplicate',
+           'scan:a:completed', now() + interval '30 days')`,
+        [userA],
+      ),
+    ).rejects.toMatchObject({ code: '23505' });
+
+    const visible = await pool.query<{ summary: string }>(
+      `select summary from user_activity_events
+       where user_id = $1 and expires_at > now()
+       order by occurred_at desc, id desc`,
+      [userA],
+    );
+    expect(visible.rows).toEqual([{ summary: 'A event' }]);
+  });
+
+  it('enforces report ownership, deduplication and ready artifact shape', async () => {
+    const owner = randomUUID();
+    const other = randomUUID();
+    for (const [id, email] of [
+      [owner, 'report-owner@example.test'],
+      [other, 'report-other@example.test'],
+    ])
+      await pool.query(
+        `insert into security_users
+          (id, email, normalized_email, password_hash)
+         values ($1, $2, $2, 'test-only-hash')`,
+        [id, email],
+      );
+    const reportId = randomUUID();
+    await pool.query(
+      `insert into generated_reports
+        (id, owner_user_id, report_type, source_type, status, request_hash,
+         storage_key, content_type, byte_size, artifact_payload,
+         data_cutoff_at, generated_at, expires_at)
+       values ($1, $2, 'account_security', 'account_security', 'ready',
+         'report-request-a', 'reports/internal/a.csv', 'text/csv', 4,
+         $3::bytea, now(), now(), now() + interval '7 days')`,
+      [reportId, owner, Buffer.from('safe')],
+    );
+    const visible = await pool.query<{ id: string }>(
+      `select id from generated_reports where id = $1 and owner_user_id = $2`,
+      [reportId, owner],
+    );
+    const hidden = await pool.query<{ id: string }>(
+      `select id from generated_reports where id = $1 and owner_user_id = $2`,
+      [reportId, other],
+    );
+    expect(visible.rows).toEqual([{ id: reportId }]);
+    expect(hidden.rows).toEqual([]);
+    await expect(
+      pool.query(
+        `insert into generated_reports
+          (owner_user_id, report_type, source_type, status, request_hash,
+           data_cutoff_at, expires_at)
+         values ($1, 'account_security', 'account_security', 'queued',
+           'report-request-a', now(), now() + interval '7 days')`,
+        [owner],
+      ),
+    ).rejects.toMatchObject({ code: '23505' });
+    await expect(
+      pool.query(
+        `insert into generated_reports
+          (owner_user_id, report_type, source_type, status, request_hash,
+           data_cutoff_at, expires_at)
+         values ($1, 'account_security', 'account_security', 'ready',
+           'invalid-ready', now(), now() + interval '7 days')`,
+        [owner],
+      ),
+    ).rejects.toMatchObject({ code: '23514' });
   });
 
   it('rejects a duplicate price bar revision', async () => {
@@ -927,6 +1033,21 @@ describe('PostgreSQL migrations', () => {
   });
 
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const reportsRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0016_generated_reports.down.sql'),
+      'utf8',
+    );
+    await pool.query(reportsRollbackSql);
+    const activityRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0015_user_activity.down.sql'),
+      'utf8',
+    );
+    await pool.query(activityRollbackSql);
+    const preferencesRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0014_user_preferences.down.sql'),
+      'utf8',
+    );
+    await pool.query(preferencesRollbackSql);
     const flagRuntimeRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0013_feature_flag_types.down.sql'),
       'utf8',
@@ -1061,7 +1182,7 @@ describe('PostgreSQL migrations', () => {
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 12
+        limit 15
       )
     `);
     await runMigrations(db);

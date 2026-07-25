@@ -224,6 +224,10 @@ Zorunlu okuma:
 - `architecture/ARCH-019-Pre-Staging-Product-Completion.md`
 - `database/DB-010-Preferences-Activity-and-Reports.md`
 - `api/API-010-Preferences-Search-Activity-Reports.md`
+- `ROADMAP.md`
+- `BACKLOG.md`
+- `reports/v1-scope-freeze.md`
+- `guides/V1_RELEASE_ACCEPTANCE_CHECKLIST.md`
 
 Görev sırası:
 

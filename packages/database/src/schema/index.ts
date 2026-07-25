@@ -8,3 +8,6 @@ export * from './portfolio-transactions-risk';
 export * from './recovery';
 export * from './scanner-runtime';
 export * from './strategies-backtests-experiments';
+export * from './user-preferences';
+export * from './user-activity';
+export * from './generated-reports';
