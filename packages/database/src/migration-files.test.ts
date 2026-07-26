@@ -15,8 +15,8 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the seventy-nine scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(79);
+  it('creates the eighty-nine scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(89);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
   });
 
@@ -244,5 +244,15 @@ describe('generated PostgreSQL migrations', () => {
     expect(sql).toContain('user_preferences_user_id_security_users_id_fk');
     expect(sql).toContain('user_preferences_version_check');
     expect(sql).toContain('user_preferences_json_size_check');
+  });
+
+  it('contains versioned legal document, consent and immutability guards', () => {
+    expect(sql).toContain('CREATE TABLE "legal_documents"');
+    expect(sql).toContain('CREATE TABLE "user_document_consents"');
+    expect(sql).toContain('legal_documents_type_version_locale_unique');
+    expect(sql).toContain('user_document_consents_acceptance_unique');
+    expect(sql).toContain('protect_published_legal_document');
+    expect(sql).toContain('LEGAL_REVIEW_REQUIRED');
+    expect(sql).toContain('NOT_FOR_PRODUCTION_PUBLICATION');
   });
 });

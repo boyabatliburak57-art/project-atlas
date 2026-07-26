@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.11.0-data-governance-provider-launch-readiness — 2026-07-26
+
+### Durum
+
+```text
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Product Development: CONTINUE
+```
+
+### Eklendi
+
+- DOC-048–DOC-050 provider integration/data governance, notification delivery/user communications
+  ve launch content/legal review/support gereksinimleri
+- ARCH-020 Provider and Data Operations Runtime mimarisi
+- DB-011 Provider Lineage, Consent and Support veri tasarımı
+- API-011 Data Operations, Consent and Support API sözleşmesi
+- Provider Acceptance Matrix
+- TASK-091–TASK-100 Data Governance, Provider Integration and Launch Readiness görev sırası
+
+### Değişti
+
+- README ve ATLAS_INDEX'e v0.11 kapsamı, belge dizini ve zorunlu görev sırası eklendi.
+- Gerçek provider entegrasyon kanıtı credential, yetki, sözleşme/lisans, health ve contract
+  doğrulamalarına bağlandı.
+- TASK-100 karar kapsamı `GO_FOR_FINAL_STAGING_GATE` veya
+  `NO-GO_FOR_FINAL_STAGING_GATE` ile sınırlandı.
+
+### Değişmedi
+
+- TASK-080 Production Readiness kararı **NO-GO** olarak kaldı.
+- Staging kapısı `DEFERRED_EXTERNAL_GATE`; Product Development `CONTINUE` olarak kaldı.
+- Fake, fixture, stub, replay-only veya sandbox adapter'ları gerçek production entegrasyonu olarak
+  yeniden sınıflandırılmadı.
+- Yerel kanıtlar staging kanıtına dönüştürülmedi ve production deployment başlatılmadı.
+
 ## 0.10.0-product-completion-prestaging — 2026-07-24
 
 ### Durum

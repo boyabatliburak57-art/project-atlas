@@ -34,6 +34,7 @@ const base = {
   ...period,
   providerRevision: 'r1',
   publishedAt: new Date('2026-02-01Z'),
+  availableAt: new Date('2026-02-01T00:05:00Z'),
   sourceTimestamp: new Date('2026-02-01Z'),
   currencyCode: 'TRY',
   unitScale: '1000',
@@ -141,6 +142,7 @@ describe('fundamentals worker ingestion with PostgreSQL', () => {
           ...base,
           providerRevision: 'r2',
           sourceTimestamp: new Date('2026-02-02Z'),
+          availableAt: new Date('2026-03-01Z'),
           metrics: { ...base.metrics, revenue: '11' },
         },
       ],
@@ -151,6 +153,21 @@ describe('fundamentals worker ingestion with PostgreSQL', () => {
       .from(fundamentalStatementSnapshots)
       .where(eq(fundamentalStatementSnapshots.fiscalYear, 2025));
     expect(rows.map((r) => r.providerRevision).sort()).toEqual(['r1', 'r2']);
+    expect(
+      rows
+        .filter(
+          (row) => row.dataCutoffAt <= new Date('2026-02-15T00:00:00.000Z'),
+        )
+        .map((row) => row.providerRevision),
+    ).toEqual(['r1']);
+    expect(
+      rows
+        .filter(
+          (row) => row.dataCutoffAt <= new Date('2026-03-02T00:00:00.000Z'),
+        )
+        .map((row) => row.providerRevision)
+        .sort(),
+    ).toEqual(['r1', 'r2']);
   });
   it('classifies transient and permanent provider errors', () => {
     expect(

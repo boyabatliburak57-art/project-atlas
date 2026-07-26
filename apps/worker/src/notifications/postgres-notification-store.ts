@@ -5,10 +5,12 @@ import {
   alertTriggers,
   instruments,
   notificationDeliveries,
+  communicationDeliveryAttempts,
   notificationOutbox,
   notifications,
   type Database,
 } from '@atlas/database';
+import { createHash } from 'node:crypto';
 import { and, count, eq, inArray, isNull, lte, sql } from 'drizzle-orm';
 
 import type {
@@ -342,6 +344,56 @@ export class PostgresNotificationStore implements NotificationStore {
         })
         .where(eq(notificationDeliveries.id, input.deliveryId));
     });
+  }
+
+  async recordAttemptStarted(input: {
+    readonly deliveryId: string;
+    readonly attempt: number;
+    readonly providerKey: string;
+    readonly now: Date;
+  }): Promise<void> {
+    await this.database
+      .insert(communicationDeliveryAttempts)
+      .values({
+        attempt: input.attempt,
+        deliveryId: input.deliveryId,
+        providerKey: input.providerKey,
+        retryable: 'false',
+        startedAt: input.now,
+        status: 'started',
+      })
+      .onConflictDoNothing();
+  }
+
+  async recordAttemptOutcome(input: {
+    readonly deliveryId: string;
+    readonly attempt: number;
+    readonly status: 'delivered' | 'retry_scheduled' | 'failed';
+    readonly providerMessageId?: string;
+    readonly errorCode?: string;
+    readonly retryable: boolean;
+    readonly now: Date;
+  }): Promise<void> {
+    await this.database
+      .update(communicationDeliveryAttempts)
+      .set({
+        completedAt: input.now,
+        errorCode: input.errorCode ?? null,
+        providerMessageIdHash:
+          input.providerMessageId === undefined
+            ? null
+            : createHash('sha256')
+                .update(input.providerMessageId)
+                .digest('hex'),
+        retryable: String(input.retryable),
+        status: input.status,
+      })
+      .where(
+        and(
+          eq(communicationDeliveryAttempts.deliveryId, input.deliveryId),
+          eq(communicationDeliveryAttempts.attempt, input.attempt),
+        ),
+      );
   }
 
   async markRetry(input: {

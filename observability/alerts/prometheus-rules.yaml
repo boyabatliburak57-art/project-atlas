@@ -56,6 +56,34 @@ groups:
           dedup_key: market-data-stale
           cooldown: 60m
           recovery_notification: required
+      - alert: AtlasDataQualityCriticalFinding
+        expr: increase(atlas_data_quality_findings_total{severity="critical"}[15m]) > 0
+        for: 2m
+        labels:
+          {
+            severity: critical,
+            owner: data-operations-oncall,
+            atlas_group: data-quality,
+          }
+        annotations:
+          runbook_url: https://runbooks.atlas.invalid/data-reconciliation
+          dedup_key: data-quality-critical-finding
+          cooldown: 30m
+          recovery_notification: required
+      - alert: AtlasProviderIngestionFailure
+        expr: rate(atlas_provider_ingestion_runs_total{outcome="failed"}[15m]) > 0
+        for: 10m
+        labels:
+          {
+            severity: warning,
+            owner: data-operations-oncall,
+            atlas_group: provider-ingestion,
+          }
+        annotations:
+          runbook_url: https://runbooks.atlas.invalid/data-reconciliation
+          dedup_key: provider-ingestion-failure
+          cooldown: 30m
+          recovery_notification: required
       - alert: AtlasAlertDeliveryFailure
         expr: rate(atlas_notification_delivery_total{outcome="error"}[15m]) / clamp_min(rate(atlas_notification_delivery_total[15m]), 1) > 0.01
         for: 15m

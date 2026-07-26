@@ -90,6 +90,21 @@ export interface NotificationStore {
     at: Date,
   ): Promise<boolean>;
   markAllRead(userId: string, at: Date): Promise<number>;
+  recordAttemptStarted?(input: {
+    readonly deliveryId: string;
+    readonly attempt: number;
+    readonly providerKey: string;
+    readonly now: Date;
+  }): Promise<void>;
+  recordAttemptOutcome?(input: {
+    readonly deliveryId: string;
+    readonly attempt: number;
+    readonly status: 'delivered' | 'retry_scheduled' | 'failed';
+    readonly providerMessageId?: string;
+    readonly errorCode?: string;
+    readonly retryable: boolean;
+    readonly now: Date;
+  }): Promise<void>;
 }
 
 export interface EmailDeliveryWork {
@@ -118,6 +133,12 @@ export interface EmailSendRequest {
   readonly templateVersion: number;
   readonly locale: string;
   readonly variables: Readonly<Record<string, string>>;
+  readonly rendered?: {
+    readonly subject: string;
+    readonly text: string;
+    readonly html: string;
+    readonly contentHash: string;
+  };
 }
 
 export interface EmailSendResult {

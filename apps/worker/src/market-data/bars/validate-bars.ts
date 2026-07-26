@@ -45,6 +45,13 @@ function validateBar(
   if (bar.closeTime <= bar.openTime) {
     codes.push('CLOSE_TIME_NOT_AFTER_OPEN_TIME');
   }
+  const barDate = bar.openTime.toISOString().slice(0, 10);
+  if (context.listedAt !== null && barDate < context.listedAt) {
+    codes.push('BAR_BEFORE_LISTING');
+  }
+  if (context.delistedAt !== null && barDate > context.delistedAt) {
+    codes.push('BAR_AFTER_DELISTING');
+  }
   if (
     bar.openTime.getTime() > now.getTime() + FUTURE_TOLERANCE_MS ||
     (bar.isClosed &&

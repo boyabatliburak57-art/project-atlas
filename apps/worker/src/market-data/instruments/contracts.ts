@@ -11,6 +11,8 @@ export interface NormalizedInstrument {
   readonly marketCode: 'BIST';
   readonly currencyCode: string;
   readonly status: InstrumentStatus;
+  readonly listedAt?: Date | undefined;
+  readonly delistedAt?: Date | undefined;
 }
 
 export type InstrumentRejectionCode =

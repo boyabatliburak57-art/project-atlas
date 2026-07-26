@@ -3,6 +3,7 @@ import {
   alertRevisions,
   alerts,
   alertTriggers,
+  communicationDeliveryAttempts,
   createDatabase,
   instruments,
   notificationDeliveries,
@@ -237,6 +238,16 @@ describe('notification center and delivery runtime', () => {
 
     const delivery = await deliveryForTrigger(triggerId);
     expect(delivery.attemptCount).toBe(2);
+    const attempts = await db
+      .select()
+      .from(communicationDeliveryAttempts)
+      .where(eq(communicationDeliveryAttempts.deliveryId, delivery.id));
+    expect(attempts.map(({ status }) => status)).toEqual([
+      'retry_scheduled',
+      'delivered',
+    ]);
+    expect(attempts[1]?.providerMessageIdHash).toMatch(/^[a-f0-9]{64}$/u);
+    expect(JSON.stringify(attempts)).not.toContain('fake-email-');
     expect(
       email.sent.filter(({ recipient }) => recipient === 'retry@example.test'),
     ).toHaveLength(1);
@@ -314,6 +325,7 @@ describe('notification center and delivery runtime', () => {
     return (
       await db
         .select({
+          id: notificationDeliveries.id,
           status: notificationDeliveries.status,
           attemptCount: notificationDeliveries.attemptCount,
           errorCode: notificationDeliveries.errorCode,

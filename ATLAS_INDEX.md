@@ -249,3 +249,47 @@ Geçiş kuralı:
 - TASK-090 production GO veremez; yalnız gerçek staging doğrulamasına geçiş uygunluğunu denetler.
 - Production launch, ertelenen gerçek staging kapıları TASK-080S/TASK-080P kapsamında tamamlanmadan
   bloklanır.
+
+## v0.11 Data Governance, Provider Integration and Launch Readiness
+
+Durum:
+
+```text
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Product Development: CONTINUE
+```
+
+Zorunlu okuma:
+
+- `README-v0.11.md`
+- `docs/DOC-048-Provider-Integration-and-Data-Governance.md`
+- `docs/DOC-049-Notification-Delivery-and-User-Communications.md`
+- `docs/DOC-050-Launch-Content-Legal-Review-and-Support.md`
+- `architecture/ARCH-020-Provider-and-Data-Operations-Runtime.md`
+- `database/DB-011-Provider-Lineage-Consent-and-Support.md`
+- `api/API-011-Data-Operations-Consent-and-Support.md`
+- `guides/PROVIDER_ACCEPTANCE_MATRIX.md`
+
+Görev sırası:
+
+1. `tasks/TASK-091-Pre-Staging-Baseline-and-Gap-Verification.md`
+2. `tasks/TASK-092-Provider-Architecture-and-Contracts.md`
+3. `tasks/TASK-093-Real-Market-Data-Provider-Integration.md`
+4. `tasks/TASK-094-Fundamentals-and-Corporate-Actions-Provider.md`
+5. `tasks/TASK-095-Data-Reconciliation-and-Correction-Operations.md`
+6. `tasks/TASK-096-Production-Grade-Notification-Delivery.md`
+7. `tasks/TASK-097-Legal-Documents-Consent-and-Disclosures.md`
+8. `tasks/TASK-098-Help-Center-Demo-and-Product-Education.md`
+9. `tasks/TASK-099-Support-Feedback-and-Account-Lifecycle.md`
+10. `tasks/TASK-100-Non-Staging-Launch-Completeness-Audit.md`
+
+Geçiş ve kanıt kuralları:
+
+- TASK-080 Production Readiness kararı **NO-GO** olarak kalır.
+- Staging kapısı `DEFERRED_EXTERNAL_GATE` durumundadır; ürün geliştirme devam eder.
+- Fake, fixture, stub, replay-only ve sandbox adapter'ları gerçek production provider kanıtı
+  değildir.
+- Credential, provider yetkisi, lisans/redistribution kapsamı ve gerçek health/contract kanıtı
+  olmadan entegrasyon production-ready sayılmaz.
+- TASK-100 production GO veremez; yalnız final staging kapısına geçiş uygunluğunu denetler.

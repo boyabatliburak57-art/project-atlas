@@ -86,6 +86,8 @@ export function planInstrumentImport(
       currencyCode: item.currencyCode.trim().toUpperCase(),
       status:
         item.status === 'suspended' ? 'inactive' : (item.status ?? 'active'),
+      ...(item.listedAt === undefined ? {} : { listedAt: item.listedAt }),
+      ...(item.delistedAt === undefined ? {} : { delistedAt: item.delistedAt }),
     });
   });
 

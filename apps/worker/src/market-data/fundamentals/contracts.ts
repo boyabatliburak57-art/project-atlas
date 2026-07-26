@@ -23,7 +23,9 @@ export interface ProviderFundamentalStatement extends ProviderFundamentalPeriod 
   readonly providerSymbol: string;
   readonly providerRevision: string;
   readonly publishedAt: Date;
+  readonly availableAt?: Date | undefined;
   readonly sourceTimestamp: Date;
+  readonly statementScope?: 'consolidated' | 'standalone' | undefined;
   readonly currencyCode: string;
   readonly unitScale: string;
   readonly metrics: Readonly<Partial<Record<FundamentalMetricCode, string>>>;

@@ -40,6 +40,8 @@ import {
   RecoveryAdminController,
 } from './operations/admin-operations.controller';
 import { AdminOperationsService } from './operations/admin-operations.service';
+import { DataOperationsController } from './data-operations/data-operations.controller';
+import { DataOperationsService } from './data-operations/data-operations.service';
 import { AuthController } from './security/auth.controller';
 import { AccountDeletionController } from './security/account-deletion.controller';
 import { AccountDeletionService } from './security/account-deletion.service';
@@ -58,6 +60,14 @@ import {
 import { PostgresNotificationCenterStore } from './notifications/notifications.infrastructure';
 import { NOTIFICATION_CENTER_STORE } from './notifications/notifications.ports';
 import { NotificationsService } from './notifications/notifications.service';
+import { EmailWebhookController } from './notifications/email-webhook.controller';
+import { EmailWebhookService } from './notifications/email-webhook.service';
+import {
+  ConsentHistoryController,
+  LegalAdminController,
+  LegalController,
+} from './legal/legal.controller';
+import { LegalService } from './legal/legal.service';
 import {
   INDICATOR_REGISTRY,
   IndicatorCatalogService,
@@ -200,6 +210,10 @@ import {
     AlertsController,
     NotificationsController,
     NotificationPreferencesController,
+    EmailWebhookController,
+    LegalController,
+    ConsentHistoryController,
+    LegalAdminController,
     PortfoliosController,
     PortfolioImportsController,
     MarketOverviewController,
@@ -218,6 +232,7 @@ import {
     FeatureFlagsAdminController,
     MaintenanceAdminController,
     RecoveryAdminController,
+    DataOperationsController,
     MetricsController,
   ],
   imports: [
@@ -404,6 +419,8 @@ import {
     WatchlistsService,
     AlertsService,
     NotificationsService,
+    EmailWebhookService,
+    LegalService,
     PortfoliosService,
     PortfolioImportsService,
     MarketOverviewService,
@@ -420,6 +437,7 @@ import {
     OperationalControlsService,
     FeatureFlagRuntimeService,
     AdminOperationsService,
+    DataOperationsService,
   ],
 })
 export class AppModule implements NestModule {

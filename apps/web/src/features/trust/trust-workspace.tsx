@@ -101,6 +101,7 @@ export function TrustWorkspace() {
         </p>
       </section>
       <nav aria-label="Metodoloji yüzeyleri" className="trust-links">
+        <Link href="/legal">Hukuki belgeler ve onay geçmişi</Link>
         <Link href="/market">Piyasa tazeliğini incele</Link>
         <Link href="/portfolios">Portföy metodolojisini incele</Link>
         <Link href="/backtests">Backtest açıklamalarını incele</Link>

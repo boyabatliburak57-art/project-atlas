@@ -25,7 +25,7 @@ export class BarIngestionService {
       throw new BarIngestionError('PROVIDER_NOT_ACTIVE');
     }
 
-    const instrumentId = await this.dependencies.store.findActiveInstrumentId(
+    const instrument = await this.dependencies.store.findActiveInstrument(
       providerId,
       command.providerSymbol,
     );
@@ -40,7 +40,13 @@ export class BarIngestionService {
         to: command.to,
         ...(command.limit === undefined ? {} : { limit: command.limit }),
       });
-      const context = { providerId, instrumentId, command };
+      const context = {
+        providerId,
+        instrumentId: instrument?.id ?? null,
+        listedAt: instrument?.listedAt ?? null,
+        delistedAt: instrument?.delistedAt ?? null,
+        command,
+      };
       const validation = validateBars(
         batch.bars,
         context,

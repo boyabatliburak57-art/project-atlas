@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { AtlasShell, WorkspaceState } from '../portfolio/atlas-shell';
+import { LegalConsentPanel } from '../legal/legal-center';
 import { preferencesApi, type UserPreferences } from './api';
 
 const steps = [
@@ -124,6 +125,7 @@ export function OnboardingWorkspace() {
               demoData={demoData}
               setDemoData={setDemoData}
             />
+            {code === 'disclosure' && <LegalConsentPanel source="onboarding" />}
             {save.error && (
               <p role="alert">Kaydedilemedi: {save.error.message}</p>
             )}

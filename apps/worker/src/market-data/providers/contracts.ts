@@ -12,7 +12,7 @@ export const MARKET_DATA_TIMEFRAMES = [
 export type MarketDataTimeframe = (typeof MARKET_DATA_TIMEFRAMES)[number];
 export type DecimalString = string;
 
-export interface ProviderCapabilities {
+export interface MarketDataProviderCapabilities {
   readonly supportedTimeframes: readonly MarketDataTimeframe[];
   readonly dataMode: 'delayed' | 'realtime' | 'end-of-day';
   readonly historicalDepthDays: number | null;
@@ -33,6 +33,8 @@ export interface ProviderInstrumentDto {
   readonly currencyCode: string;
   readonly isin?: string | undefined;
   readonly status?: 'active' | 'suspended' | 'delisted' | undefined;
+  readonly listedAt?: Date | undefined;
+  readonly delistedAt?: Date | undefined;
 }
 
 export interface ProviderBarDto {
@@ -47,6 +49,8 @@ export interface ProviderBarDto {
   readonly volume: DecimalString;
   readonly isClosed: boolean;
   readonly sourceTimestamp?: Date | undefined;
+  readonly availableAt?: Date | undefined;
+  readonly providerRevision?: string | undefined;
 }
 
 export interface FetchBarsRequest {
@@ -65,7 +69,7 @@ export interface ProviderBarBatch {
 
 export interface MarketDataProvider {
   readonly code: string;
-  getCapabilities(): ProviderCapabilities;
+  getCapabilities(): MarketDataProviderCapabilities;
   listInstruments(): Promise<readonly ProviderInstrumentDto[]>;
   fetchBars(request: FetchBarsRequest): Promise<ProviderBarBatch>;
 }

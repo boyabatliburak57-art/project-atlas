@@ -5,6 +5,7 @@ import Redis from 'ioredis';
 import { ZodError } from 'zod';
 
 import type { StructuredLogger } from '../observability/structured-logger';
+import type { WorkerEnvironment } from '../config/environment';
 import { JOB_NAMES } from '../queue/queue-contracts';
 import { BarIngestionError } from './bars/bar-ingestion-service';
 import { processBarIngestionJob } from './bars/bar-ingestion-job';
@@ -149,12 +150,21 @@ export function createMarketDataComposition(
 }
 
 export function createDefaultMarketDataComposition(
-  databaseUrl: string,
-  redisUrl: string,
+  environment: WorkerEnvironment,
   logger: StructuredLogger,
 ): MarketDataComposition {
-  const { db, pool } = createDatabase(databaseUrl);
-  const redis = new Redis(redisUrl, { maxRetriesPerRequest: null });
+  if (
+    environment.ATLAS_ENV === 'staging' ||
+    environment.ATLAS_ENV === 'production'
+  ) {
+    throw new Error(
+      'A selected market-data provider adapter and credential resolver are required',
+    );
+  }
+  const { db, pool } = createDatabase(environment.DATABASE_URL);
+  const redis = new Redis(environment.REDIS_URL, {
+    maxRetriesPerRequest: null,
+  });
   return createMarketDataComposition({
     database: db,
     logger,

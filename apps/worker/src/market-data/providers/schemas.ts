@@ -44,6 +44,8 @@ export const providerInstrumentSchema = z.strictObject({
   currencyCode: z.string().trim().length(3).toUpperCase(),
   isin: z.string().trim().length(12).optional(),
   status: z.enum(['active', 'suspended', 'delisted']).default('active'),
+  listedAt: providerDateSchema.optional(),
+  delistedAt: providerDateSchema.optional(),
 });
 
 export const providerInstrumentListSchema = z.array(providerInstrumentSchema);
@@ -61,6 +63,8 @@ export const providerBarSchema = z
     volume: nonNegativeDecimalStringSchema,
     isClosed: z.boolean(),
     sourceTimestamp: providerDateSchema.optional(),
+    availableAt: providerDateSchema.optional(),
+    providerRevision: z.string().trim().min(1).max(128).optional(),
   })
   .superRefine((bar, context) => {
     if (bar.closeTime <= bar.openTime) {
@@ -68,6 +72,18 @@ export const providerBarSchema = z
         code: 'custom',
         message: 'closeTime must be after openTime',
         path: ['closeTime'],
+      });
+    }
+
+    if (
+      bar.sourceTimestamp !== undefined &&
+      bar.availableAt !== undefined &&
+      bar.availableAt < bar.sourceTimestamp
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: 'availableAt must not precede sourceTimestamp',
+        path: ['availableAt'],
       });
     }
 

@@ -60,7 +60,7 @@ export class DatabaseFundamentalsStore implements FundamentalsIngestionStore {
           .values({
             instrumentId: statement.instrumentId,
             providerId,
-            statementType: 'consolidated',
+            statementType: statement.statementScope ?? 'consolidated',
             fiscalYear: statement.fiscalYear,
             fiscalPeriod: statement.fiscalPeriod,
             periodStart: statement.periodStart,
@@ -70,10 +70,17 @@ export class DatabaseFundamentalsStore implements FundamentalsIngestionStore {
             providerRevision: statement.providerRevision,
             generationId,
             policyVersion: 'fundamentals-normalization-v1',
-            dataCutoffAt: statement.sourceTimestamp,
+            dataCutoffAt: statement.availableAt ?? statement.publishedAt,
             publishedAt: statement.publishedAt,
             sourceTimestamp: statement.sourceTimestamp,
-            normalizedPayload: { periodType: statement.periodType },
+            normalizedPayload: {
+              periodType: statement.periodType,
+              availableAt: (
+                statement.availableAt ?? statement.publishedAt
+              ).toISOString(),
+              statementScope: statement.statementScope ?? 'consolidated',
+              providerCode: statement.providerCode,
+            },
             qualityStatus:
               Object.keys(statement.metrics).length ===
               FUNDAMENTAL_METRIC_CODES.length
@@ -95,7 +102,7 @@ export class DatabaseFundamentalsStore implements FundamentalsIngestionStore {
             statementSnapshotId: snapshotId,
             generationId,
             policyVersion: 'fundamentals-normalization-v1',
-            dataCutoffAt: statement.sourceTimestamp,
+            dataCutoffAt: statement.availableAt ?? statement.publishedAt,
             metricCode: code,
             value: value ?? null,
             status: value === undefined ? 'missing' : 'complete',
@@ -119,7 +126,7 @@ export class DatabaseFundamentalsStore implements FundamentalsIngestionStore {
             instrumentId: statement.instrumentId,
             generationId,
             policyVersion: 'fundamentals-normalization-v1',
-            dataCutoffAt: statement.sourceTimestamp,
+            dataCutoffAt: statement.availableAt ?? statement.publishedAt,
             ratioCode: ratio.code,
             formulaVersion: ratio.formulaVersion,
             fiscalPeriodReference: ratio.financialPeriod,

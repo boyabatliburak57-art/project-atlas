@@ -35,7 +35,9 @@ export interface NormalizedFundamentalStatement extends FundamentalPeriod {
   readonly providerCode: string;
   readonly providerRevision: string;
   readonly publishedAt: Date;
+  readonly availableAt?: Date | undefined;
   readonly sourceTimestamp: Date;
+  readonly statementScope?: 'consolidated' | 'standalone' | undefined;
   readonly currencyCode: string;
   /** Values are already normalized to base currency units. Missing means absent, never zero. */
   readonly metrics: Readonly<Partial<Record<FundamentalMetricCode, string>>>;

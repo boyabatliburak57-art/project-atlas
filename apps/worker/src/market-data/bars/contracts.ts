@@ -16,6 +16,8 @@ export interface FetchBarRangeCommand {
 
 export type BarValidationIssueCode =
   | 'BAR_OUTSIDE_REQUEST_RANGE'
+  | 'BAR_BEFORE_LISTING'
+  | 'BAR_AFTER_DELISTING'
   | 'CLOSE_TIME_NOT_AFTER_OPEN_TIME'
   | 'DUPLICATE_BAR_IN_BATCH'
   | 'FUTURE_TIMESTAMP'
@@ -37,6 +39,8 @@ export interface RejectedBar {
 export interface BarPersistenceContext {
   readonly providerId: string;
   readonly instrumentId: string | null;
+  readonly listedAt: string | null;
+  readonly delistedAt: string | null;
   readonly command: FetchBarRangeCommand;
 }
 
@@ -61,10 +65,14 @@ export interface BarIngestionResult extends BarPersistenceResult {
 
 export interface BarIngestionStore {
   findActiveProviderId(code: string): Promise<string | null>;
-  findActiveInstrumentId(
+  findActiveInstrument(
     providerId: string,
     providerSymbol: string,
-  ): Promise<string | null>;
+  ): Promise<{
+    readonly id: string;
+    readonly listedAt: string | null;
+    readonly delistedAt: string | null;
+  } | null>;
   createRun(providerId: string, command: FetchBarRangeCommand): Promise<string>;
   persistBatch(
     runId: string,

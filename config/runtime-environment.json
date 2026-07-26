@@ -9,6 +9,7 @@
         "ATLAS_ENV",
         "CONFIG_SCHEMA_VERSION",
         "DATABASE_URL",
+        "EMAIL_WEBHOOK_SIGNING_SECRET",
         "HEALTH_CHECK_DATABASE",
         "METRICS_BEARER_TOKEN",
         "NODE_ENV",
@@ -25,6 +26,7 @@
       "secrets": [
         "AUTH_SESSION_HMAC_KEY",
         "DATABASE_URL",
+        "EMAIL_WEBHOOK_SIGNING_SECRET",
         "METRICS_BEARER_TOKEN",
         "OBJECT_STORAGE_ACCESS_KEY_ID",
         "OBJECT_STORAGE_SECRET_ACCESS_KEY",
@@ -40,6 +42,8 @@
         "ATLAS_ENV",
         "CONFIG_SCHEMA_VERSION",
         "DATABASE_URL",
+        "EMAIL_PROVIDER_MODE",
+        "MARKET_DATA_PROVIDER_MODE",
         "NODE_ENV",
         "OBJECT_STORAGE_ACCESS_KEY_ID",
         "OBJECT_STORAGE_BUCKET",
@@ -54,6 +58,7 @@
       ],
       "secrets": [
         "DATABASE_URL",
+        "EMAIL_PROVIDER_TOKEN",
         "OBJECT_STORAGE_ACCESS_KEY_ID",
         "OBJECT_STORAGE_SECRET_ACCESS_KEY",
         "REDIS_URL"

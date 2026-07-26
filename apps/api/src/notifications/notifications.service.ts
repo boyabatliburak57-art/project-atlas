@@ -177,6 +177,17 @@ export class NotificationsService {
     );
   }
 
+  async unsubscribe(userId: string) {
+    const current =
+      (await this.store.getPreferences(userId)) ?? defaultPreferences(userId);
+    return preferenceDto(
+      await this.store.putPreferences(
+        { ...current, emailAlertsEnabled: false },
+        new Date(),
+      ),
+    );
+  }
+
   private async owned(
     userId: string,
     notificationId: string,

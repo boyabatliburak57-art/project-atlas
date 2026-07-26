@@ -193,3 +193,182 @@ test('non-admin receives a safe denied state without operational data', async ({
   ).toContainText('Admin yetkisi gerekli');
   await expect(page.getByRole('table')).toHaveCount(0);
 });
+
+test('admin legal publishing requires explicit counsel evidence and version', async ({
+  page,
+}) => {
+  let approval: Record<string, unknown> | undefined;
+  await page.route('**/api/v1/admin/operations/overview', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          audit: [],
+          incidents: [],
+          queues: [],
+          recovery: [],
+          releases: [],
+        },
+      }),
+    }),
+  );
+  await page.route('**/api/v1/admin/feature-flags', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { expired: [], items: [] } }),
+    }),
+  );
+  await page.route('**/api/v1/admin/data-operations', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: { connections: [], corrections: [], findings: [], runs: [] },
+      }),
+    }),
+  );
+  await page.route('**/api/v1/admin/legal/documents', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: [
+          {
+            documentType: 'privacyNotice',
+            id: '00000000-0000-4000-8000-000000009713',
+            locale: 'tr-TR',
+            rowVersion: 3,
+            status: 'draft',
+            title: 'Gizlilik Bildirimi',
+            version: 2,
+          },
+        ],
+      }),
+    }),
+  );
+  await page.route(
+    '**/api/v1/admin/legal/documents/*/approve',
+    async (route) => {
+      approval = route.request().postDataJSON() as Record<string, unknown>;
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { status: 'approved' } }),
+      });
+    },
+  );
+  await page.goto('/admin/operations');
+  const button = page.getByRole('button', {
+    name: 'Record counsel approval',
+  });
+  await expect(button).toBeDisabled();
+  await page
+    .getByLabel('Legal approval reference')
+    .fill('COUNSEL-APPROVAL-2026-097');
+  await page.getByLabel('Approval confirmation').fill('LEGAL_COUNSEL_APPROVED');
+  await expect(button).toBeEnabled();
+  await button.click();
+  await expect
+    .poll(() => approval)
+    .toMatchObject({
+      confirmation: 'LEGAL_COUNSEL_APPROVED',
+      expectedVersion: 3,
+      legalApprovalReference: 'COUNSEL-APPROVAL-2026-097',
+    });
+});
+
+test('admin reviews data-quality findings and versioned correction operations accessibly', async ({
+  page,
+}) => {
+  let correctionCommand: Record<string, unknown> | undefined;
+  await page.route('**/api/v1/admin/operations/overview', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          audit: [],
+          incidents: [],
+          queues: [],
+          recovery: [],
+          releases: [],
+        },
+      }),
+    }),
+  );
+  await page.route('**/api/v1/admin/feature-flags', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { expired: [], items: [] } }),
+    }),
+  );
+  await page.route('**/api/v1/admin/data-operations', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          connections: [
+            {
+              id: 'provider-1',
+              providerKey: 'sandbox',
+              status: 'degraded',
+              version: 2,
+            },
+          ],
+          corrections: [
+            {
+              findingId: 'finding-1',
+              id: 'correction-1',
+              rebuildStatus: 'not_requested',
+              state: 'open',
+              version: 3,
+            },
+          ],
+          findings: [
+            {
+              findingType: 'missingBar',
+              id: 'finding-1',
+              resourceKey: 'BIST:X',
+              severity: 'warning',
+              status: 'open',
+              version: 1,
+            },
+          ],
+          runs: [{ capability: 'ohlcv', id: 'run-1', status: 'failed' }],
+        },
+      }),
+    }),
+  );
+  await page.route(
+    '**/api/v1/admin/data-operations/corrections/correction-1/investigating',
+    async (route) => {
+      correctionCommand = route.request().postDataJSON() as Record<
+        string,
+        unknown
+      >;
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: { id: 'correction-1', state: 'investigating', version: 4 },
+        }),
+      });
+    },
+  );
+
+  await page.goto('/admin/operations');
+  const dataOperations = page.getByRole('region', {
+    name: 'Data reconciliation',
+  });
+  await expect(
+    dataOperations.getByRole('table', { name: 'Data correction requests' }),
+  ).toContainText('open');
+  await dataOperations
+    .getByRole('button', { name: 'Start investigation' })
+    .click();
+  await expect
+    .poll(() => correctionCommand)
+    .toMatchObject({
+      expectedVersion: 3,
+      reason: 'Controlled incident mitigation',
+    });
+  await dataOperations.getByLabel('Correction confirmation').focus();
+  await expect(page.locator(':focus')).toHaveAccessibleName(
+    'Correction confirmation',
+  );
+});

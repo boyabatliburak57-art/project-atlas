@@ -459,6 +459,21 @@ describe('Alerts and notifications API', () => {
         expect(body).toMatchObject({ data: { timezone: 'Europe/Istanbul' } }),
       );
   });
+
+  it('unsubscribes only the authenticated user from optional alert e-mail', async () => {
+    await request(server(application))
+      .post('/api/v1/notification-preferences/unsubscribe')
+      .set('x-test-user-id', ownerId)
+      .expect(200)
+      .expect(({ body }) =>
+        expect(body).toMatchObject({
+          data: { emailAlertsEnabled: false, locale: 'tr-TR' },
+        }),
+      );
+    expect(
+      (await notificationStore.getPreferences(otherId))?.emailAlertsEnabled,
+    ).not.toBe(false);
+  });
 });
 
 function alertRequest(savedScanId: string) {

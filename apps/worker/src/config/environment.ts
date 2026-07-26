@@ -51,6 +51,26 @@ const environmentSchema = z.object({
   OBJECT_STORAGE_BUCKET: z.string().min(1).optional(),
   OBJECT_STORAGE_ENDPOINT: z.url().optional(),
   OBJECT_STORAGE_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+  MARKET_DATA_PROVIDER_MODE: z
+    .enum(['disabled', 'sandbox', 'production'])
+    .default('disabled'),
+  MARKET_DATA_PROVIDER_CODE: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    .optional(),
+  MARKET_DATA_PROVIDER_BASE_URL: z.url().optional(),
+  MARKET_DATA_PROVIDER_CREDENTIAL_REF: z.string().min(1).max(256).optional(),
+  MARKET_DATA_PROVIDER_LICENSE_ID: z.string().min(1).max(128).optional(),
+  EMAIL_PROVIDER_MODE: z
+    .enum(['disabled', 'sandbox', 'production'])
+    .default('sandbox'),
+  EMAIL_PROVIDER_BASE_URL: z.url().optional(),
+  EMAIL_PROVIDER_CREDENTIAL_REF: z
+    .string()
+    .regex(/^(secret|vault|aws-sm|gcp-sm|azure-kv):\/\//u)
+    .max(512)
+    .optional(),
+  EMAIL_PROVIDER_TOKEN: z.string().min(16).max(4096).optional(),
   REDIS_URL: redisUrlSchema,
   RELEASE_COMMIT_SHA: z.string().min(7).max(64).default('development'),
   RELEASE_VERSION: z.string().min(1).max(128).default('development'),
@@ -109,6 +129,15 @@ type DeploymentEnvironmentKeys =
   | 'OBJECT_STORAGE_BUCKET'
   | 'OBJECT_STORAGE_ENDPOINT'
   | 'OBJECT_STORAGE_SECRET_ACCESS_KEY'
+  | 'MARKET_DATA_PROVIDER_MODE'
+  | 'MARKET_DATA_PROVIDER_CODE'
+  | 'MARKET_DATA_PROVIDER_BASE_URL'
+  | 'MARKET_DATA_PROVIDER_CREDENTIAL_REF'
+  | 'MARKET_DATA_PROVIDER_LICENSE_ID'
+  | 'EMAIL_PROVIDER_MODE'
+  | 'EMAIL_PROVIDER_BASE_URL'
+  | 'EMAIL_PROVIDER_CREDENTIAL_REF'
+  | 'EMAIL_PROVIDER_TOKEN'
   | 'RELEASE_COMMIT_SHA'
   | 'RELEASE_VERSION'
   | 'TELEMETRY_POLICY_VERSION'
@@ -163,6 +192,40 @@ export function parseEnvironment(
     }
     if (result.data.WORKER_DEBUG) {
       throw new Error('Invalid worker environment: WORKER_DEBUG');
+    }
+    if (result.data.MARKET_DATA_PROVIDER_MODE !== 'disabled') {
+      const providerFields = [
+        'MARKET_DATA_PROVIDER_CODE',
+        'MARKET_DATA_PROVIDER_BASE_URL',
+        'MARKET_DATA_PROVIDER_CREDENTIAL_REF',
+        'MARKET_DATA_PROVIDER_LICENSE_ID',
+      ] as const;
+      const missingProviderFields = providerFields.filter(
+        (field) =>
+          typeof environment[field] !== 'string' ||
+          environment[field].trim() === '',
+      );
+      if (missingProviderFields.length > 0) {
+        throw new Error(
+          `Invalid worker environment: ${missingProviderFields.join(', ')}`,
+        );
+      }
+    }
+    if (result.data.EMAIL_PROVIDER_MODE === 'production') {
+      const emailProviderFields = [
+        'EMAIL_PROVIDER_BASE_URL',
+        'EMAIL_PROVIDER_CREDENTIAL_REF',
+        'EMAIL_PROVIDER_TOKEN',
+      ] as const;
+      const missingEmailProviderFields = emailProviderFields.filter(
+        (field) =>
+          typeof environment[field] !== 'string' ||
+          environment[field].trim() === '',
+      );
+      if (missingEmailProviderFields.length > 0)
+        throw new Error(
+          `Invalid worker environment: ${missingEmailProviderFields.join(', ')}`,
+        );
     }
   }
 

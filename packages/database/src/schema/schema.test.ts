@@ -78,9 +78,26 @@ import {
   recoveryDrills,
   retentionJobRuns,
   storedArtifacts,
+  providerConnections,
+  providerIngestionRuns,
+  providerDataRevisions,
+  dataQualityFindings,
+  dataCorrectionRequests,
+  communicationTemplates,
+  communicationDeliveryAttempts,
+  communicationProviderEvents,
+  legalDocuments,
+  userDocumentConsents,
 } from './index';
 
 describe('initial database schema', () => {
+  it('exports versioned legal documents and user consent history', () => {
+    expect([legalDocuments, userDocumentConsents].map(getTableName)).toEqual([
+      'legal_documents',
+      'user_document_consents',
+    ]);
+  });
+
   it('exports the six recovery and retention tables', () => {
     expect(
       [
@@ -297,6 +314,38 @@ describe('initial database schema', () => {
       'feature_flag_versions',
       'operational_audit_events',
       'release_records',
+    ]);
+  });
+
+  it('exports the five DB-011 provider lineage and correction tables', () => {
+    expect(
+      [
+        providerConnections,
+        providerIngestionRuns,
+        providerDataRevisions,
+        dataQualityFindings,
+        dataCorrectionRequests,
+      ].map(getTableName),
+    ).toEqual([
+      'provider_connections',
+      'provider_ingestion_runs',
+      'provider_data_revisions',
+      'data_quality_findings',
+      'data_correction_requests',
+    ]);
+  });
+
+  it('exports the DB-011 communication governance tables', () => {
+    expect(
+      [
+        communicationTemplates,
+        communicationDeliveryAttempts,
+        communicationProviderEvents,
+      ].map(getTableName),
+    ).toEqual([
+      'communication_templates',
+      'communication_delivery_attempts',
+      'communication_provider_events',
     ]);
   });
 });

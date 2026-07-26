@@ -141,6 +141,19 @@ export class NotificationPreferencesController {
     );
   }
 
+  @Post('unsubscribe')
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Disable optional alert e-mail while preserving security communications',
+  })
+  async unsubscribe(@Req() request: Request) {
+    return this.response(
+      request,
+      await this.service.unsubscribe(this.authenticatedUser(request)),
+    );
+  }
+
   private response(request: Request, data: unknown) {
     return { data, meta: { requestId: getRequestId(request) } };
   }

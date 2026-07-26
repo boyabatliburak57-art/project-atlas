@@ -3,8 +3,8 @@ import { z } from 'zod';
 import type {
   FetchBarsRequest,
   MarketDataProvider,
+  MarketDataProviderCapabilities,
   ProviderBarBatch,
-  ProviderCapabilities,
   ProviderInstrumentDto,
   RawMarketDataProviderAdapter,
 } from './contracts';
@@ -24,7 +24,7 @@ export class ValidatedMarketDataProvider implements MarketDataProvider {
     this.code = parseProviderCode(adapter.code);
   }
 
-  getCapabilities(): ProviderCapabilities {
+  getCapabilities(): MarketDataProviderCapabilities {
     return this.parseExternalResponseSync(
       () => this.adapter.getCapabilities(),
       providerCapabilitiesSchema,

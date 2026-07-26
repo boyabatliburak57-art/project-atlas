@@ -4,6 +4,7 @@ import {
   ingestionRuns,
   priceBars,
   providerInstrumentMappings,
+  instruments,
   type Database,
 } from '@atlas/database';
 import { and, desc, eq, ne, sql } from 'drizzle-orm';
@@ -56,13 +57,25 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
     return rows[0]?.id ?? null;
   }
 
-  async findActiveInstrumentId(
+  async findActiveInstrument(
     providerId: string,
     providerSymbol: string,
-  ): Promise<string | null> {
+  ): Promise<{
+    readonly id: string;
+    readonly listedAt: string | null;
+    readonly delistedAt: string | null;
+  } | null> {
     const rows = await this.database
-      .select({ instrumentId: providerInstrumentMappings.instrumentId })
+      .select({
+        id: providerInstrumentMappings.instrumentId,
+        listedAt: instruments.listedAt,
+        delistedAt: instruments.delistedAt,
+      })
       .from(providerInstrumentMappings)
+      .innerJoin(
+        instruments,
+        eq(providerInstrumentMappings.instrumentId, instruments.id),
+      )
       .where(
         and(
           eq(providerInstrumentMappings.providerId, providerId),
@@ -71,7 +84,7 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
         ),
       )
       .limit(1);
-    return rows[0]?.instrumentId ?? null;
+    return rows[0] ?? null;
   }
 
   async createRun(

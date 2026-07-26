@@ -5,6 +5,7 @@ import type {
   NotificationStore,
 } from './contracts';
 import { EmailDeliveryError } from './email-adapter';
+import { CommunicationTemplateRegistry } from './communication-templates';
 
 export interface NotificationDeliveryResult {
   readonly status: 'delivered' | 'failed' | 'retry_scheduled' | 'duplicate';
@@ -20,6 +21,7 @@ export class NotificationDeliveryProcessor {
       readonly recipients: EmailRecipientResolver;
       readonly workerId: string;
       readonly now?: (() => Date) | undefined;
+      readonly templates?: CommunicationTemplateRegistry | undefined;
     },
   ) {}
 
@@ -41,19 +43,48 @@ export class NotificationDeliveryProcessor {
       });
       return { status: 'failed' };
     }
+    await this.dependencies.store.recordAttemptStarted?.({
+      attempt: work.attempt,
+      deliveryId: work.deliveryId,
+      now,
+      providerKey: providerKey(this.dependencies.email),
+    });
     try {
-      await this.dependencies.email.send({
+      const variables = templateVariables(work);
+      const rendered = (
+        this.dependencies.templates ?? new CommunicationTemplateRegistry()
+      ).render({
+        code: work.templateCode,
+        locale: work.locale,
+        variables,
+        version: work.templateVersion,
+      });
+      const sent = await this.dependencies.email.send({
         recipient,
         idempotencyKey: work.idempotencyKey,
         templateCode: work.templateCode,
         templateVersion: work.templateVersion,
         locale: work.locale,
-        variables: templateVariables(work),
+        variables,
+        rendered: {
+          contentHash: rendered.contentHash,
+          html: rendered.html,
+          subject: rendered.subject,
+          text: rendered.text,
+        },
       });
       await this.dependencies.store.markDelivered({
         outboxId,
         deliveryId: work.deliveryId,
         now: this.dependencies.now?.() ?? new Date(),
+      });
+      await this.dependencies.store.recordAttemptOutcome?.({
+        attempt: work.attempt,
+        deliveryId: work.deliveryId,
+        now: this.dependencies.now?.() ?? new Date(),
+        providerMessageId: sent.messageId,
+        retryable: false,
+        status: 'delivered',
       });
       return { status: 'delivered' };
     } catch (error: unknown) {
@@ -69,6 +100,14 @@ export class NotificationDeliveryProcessor {
           errorCode: normalized.code,
           now: failedAt,
         });
+        await this.dependencies.store.recordAttemptOutcome?.({
+          attempt: work.attempt,
+          deliveryId: work.deliveryId,
+          errorCode: normalized.code,
+          now: failedAt,
+          retryable: false,
+          status: 'failed',
+        });
         return { status: 'failed' };
       }
       const availableAt = new Date(
@@ -81,6 +120,14 @@ export class NotificationDeliveryProcessor {
         availableAt,
         now: failedAt,
       });
+      await this.dependencies.store.recordAttemptOutcome?.({
+        attempt: work.attempt,
+        deliveryId: work.deliveryId,
+        errorCode: normalized.code,
+        now: failedAt,
+        retryable: !retry.exhausted,
+        status: retry.exhausted ? 'failed' : 'retry_scheduled',
+      });
       return retry.exhausted
         ? { status: 'failed' }
         : {
@@ -90,6 +137,15 @@ export class NotificationDeliveryProcessor {
           };
     }
   }
+}
+
+function providerKey(adapter: EmailAdapter): string {
+  const mode = (adapter as { readonly mode?: unknown }).mode;
+  return mode === 'REAL_INTEGRATION'
+    ? 'transactional-http'
+    : mode === 'SANDBOX_INTEGRATION'
+      ? 'sandbox'
+      : 'test';
 }
 
 function retryDelayMs(attempt: number): number {

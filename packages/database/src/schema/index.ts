@@ -11,3 +11,6 @@ export * from './strategies-backtests-experiments';
 export * from './user-preferences';
 export * from './user-activity';
 export * from './generated-reports';
+export * from './data-operations';
+export * from './communications';
+export * from './legal-consent';

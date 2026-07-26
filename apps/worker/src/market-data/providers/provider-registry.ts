@@ -3,11 +3,19 @@ import type {
   RawMarketDataProviderAdapter,
 } from './contracts';
 import { ProviderError } from './errors';
+import {
+  ProviderContractRegistry,
+  type ProviderCapability,
+  type ProviderFallbackPolicy,
+  type ProviderRegistration,
+  type ProviderSelection,
+} from './provider-core';
 import { parseProviderCode } from './schemas';
 import { ValidatedMarketDataProvider } from './validated-provider';
 
 export class ProviderRegistry {
   private readonly providers = new Map<string, MarketDataProvider>();
+  private readonly contracts = new ProviderContractRegistry();
 
   register(adapter: RawMarketDataProviderAdapter): MarketDataProvider {
     const provider = new ValidatedMarketDataProvider(adapter);
@@ -38,5 +46,27 @@ export class ProviderRegistry {
 
   listCodes(): readonly string[] {
     return [...this.providers.keys()].sort();
+  }
+
+  registerContract(registration: ProviderRegistration): void {
+    this.contracts.register(registration);
+  }
+
+  discoverCapabilities(
+    code: string,
+  ): import('./provider-core').ProviderCapabilities {
+    return this.contracts.discover(code);
+  }
+
+  selectProvider(
+    capability: ProviderCapability,
+    policy: ProviderFallbackPolicy,
+    excludedCodes?: ReadonlySet<string>,
+  ): Promise<ProviderSelection> {
+    return this.contracts.select(capability, policy, excludedCodes);
+  }
+
+  listContractCodes(): readonly string[] {
+    return this.contracts.listCodes();
   }
 }

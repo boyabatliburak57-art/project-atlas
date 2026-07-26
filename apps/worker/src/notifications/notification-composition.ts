@@ -17,11 +17,16 @@ import type {
   NotificationPreferenceResolver,
   NotificationStore,
 } from './contracts';
-import { UnconfiguredEmailAdapter } from './email-adapter';
+import {
+  SandboxEmailAdapter,
+  TransactionalEmailHttpAdapter,
+  UnconfiguredEmailAdapter,
+} from './email-adapter';
 import { NotificationDeliveryProcessor } from './notification-delivery-processor';
 import { NotificationOrchestrator } from './notification-orchestrator';
 import { PostgresNotificationPreferenceResolver } from './postgres-notification-preference-resolver';
 import { PostgresNotificationStore } from './postgres-notification-store';
+import { PostgresEmailRecipientResolver } from './postgres-email-recipient-resolver';
 
 export interface NotificationComposition {
   readonly process: (
@@ -145,10 +150,24 @@ export function createDefaultNotificationComposition(
   queue: Queue<NotificationDeliveryQueuePayload>,
 ): NotificationComposition {
   const { db, pool } = createDatabase(environment.DATABASE_URL);
+  const email =
+    environment.EMAIL_PROVIDER_MODE === 'sandbox'
+      ? new SandboxEmailAdapter()
+      : environment.EMAIL_PROVIDER_MODE === 'production'
+        ? new TransactionalEmailHttpAdapter({
+            baseUrl: environment.EMAIL_PROVIDER_BASE_URL!,
+            credentialReference: environment.EMAIL_PROVIDER_CREDENTIAL_REF!,
+            credentials: {
+              resolve: () => Promise.resolve(environment.EMAIL_PROVIDER_TOKEN!),
+            },
+          })
+        : new UnconfiguredEmailAdapter();
   return createNotificationComposition({
     database: db,
+    email,
     queue,
     logger,
+    recipients: new PostgresEmailRecipientResolver(db),
     close: () => pool.end(),
   });
 }

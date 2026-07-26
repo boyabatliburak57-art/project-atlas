@@ -110,7 +110,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the seventy-nine domain tables', async () => {
+  it('clean-migrates exactly the eighty-nine domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -134,7 +134,12 @@ describe('PostgreSQL migrations', () => {
       'backtest_summaries',
       'backtest_trades',
       'backup_status_checks',
+      'communication_delivery_attempts',
+      'communication_provider_events',
+      'communication_templates',
+      'data_correction_requests',
       'data_providers',
+      'data_quality_findings',
       'data_quality_issues',
       'feature_flag_versions',
       'feature_flags',
@@ -147,6 +152,7 @@ describe('PostgreSQL migrations', () => {
       'ingestion_runs',
       'instrument_symbol_history',
       'instruments',
+      'legal_documents',
       'legal_holds',
       'market_overview_snapshots',
       'market_rank_snapshots',
@@ -172,6 +178,9 @@ describe('PostgreSQL migrations', () => {
       'preset_scan_revisions',
       'preset_scans',
       'price_bars',
+      'provider_connections',
+      'provider_data_revisions',
+      'provider_ingestion_runs',
       'provider_instrument_mappings',
       'recovery_drills',
       'release_records',
@@ -194,6 +203,7 @@ describe('PostgreSQL migrations', () => {
       'strategies',
       'strategy_revisions',
       'user_activity_events',
+      'user_document_consents',
       'user_preferences',
       'watchlist_item_tags',
       'watchlist_items',
@@ -1033,6 +1043,21 @@ describe('PostgreSQL migrations', () => {
   });
 
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const legalRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0019_dusty_puma.down.sql'),
+      'utf8',
+    );
+    await pool.query(legalRollbackSql);
+    const communicationsRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0018_violet_justice.down.sql'),
+      'utf8',
+    );
+    await pool.query(communicationsRollbackSql);
+    const dataOperationsRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0017_round_dazzler.down.sql'),
+      'utf8',
+    );
+    await pool.query(dataOperationsRollbackSql);
     const reportsRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0016_generated_reports.down.sql'),
       'utf8',
@@ -1182,7 +1207,7 @@ describe('PostgreSQL migrations', () => {
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 15
+        limit 18
       )
     `);
     await runMigrations(db);

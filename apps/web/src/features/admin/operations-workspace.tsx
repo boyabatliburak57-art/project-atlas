@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { AtlasShell, WorkspaceState } from '../portfolio/atlas-shell';
-import { adminOperationsApi, type AdminFlag } from './api';
+import {
+  adminOperationsApi,
+  type AdminFlag,
+  type AdminLegalDocument,
+} from './api';
 
 const killSwitchKeys = new Set([
   'scanner.new-runs.disabled',
@@ -30,12 +34,24 @@ export function OperationsWorkspace() {
     queryFn: adminOperationsApi.flags,
     retry: false,
   });
+  const dataOperations = useQuery({
+    queryKey: ['admin', 'data-operations'],
+    queryFn: adminOperationsApi.dataOperations,
+    retry: false,
+  });
+  const legalDocuments = useQuery({
+    queryFn: adminOperationsApi.legalDocuments,
+    queryKey: ['admin', 'legal-documents'],
+    retry: false,
+  });
   const [reason, setReason] = useState('Controlled incident mitigation');
   const [confirmation, setConfirmation] = useState('');
   const [bannerMessage, setBannerMessage] = useState('');
   const [bannerConfirmation, setBannerConfirmation] = useState('');
   const [queueConfirmation, setQueueConfirmation] = useState('');
   const [rolloutPercentage, setRolloutPercentage] = useState(10);
+  const [legalApprovalReference, setLegalApprovalReference] = useState('');
+  const [legalConfirmation, setLegalConfirmation] = useState('');
   const mutation = useMutation({
     mutationFn: async ({
       flag,
@@ -99,6 +115,48 @@ export function OperationsWorkspace() {
       });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin'] }),
+  });
+  const legalMutation = useMutation({
+    mutationFn: (document: AdminLegalDocument) =>
+      document.status === 'approved'
+        ? adminOperationsApi.publishLegalDocument(document.id, {
+            effectiveAt: new Date().toISOString(),
+            expectedVersion: document.rowVersion,
+            reason,
+          })
+        : adminOperationsApi.approveLegalDocument(document.id, {
+            confirmation: legalConfirmation as 'LEGAL_COUNSEL_APPROVED',
+            expectedVersion: document.rowVersion,
+            legalApprovalReference,
+            reason,
+          }),
+    onSuccess: async () => {
+      setLegalConfirmation('');
+      await queryClient.invalidateQueries({
+        queryKey: ['admin', 'legal-documents'],
+      });
+    },
+  });
+  const [correctionConfirmation, setCorrectionConfirmation] = useState('');
+  const correctionMutation = useMutation({
+    mutationFn: (correction: { id: string; version: number; state: string }) =>
+      adminOperationsApi.transitionCorrection(
+        correction.id,
+        correction.state === 'open' ? 'investigating' : 'approved',
+        {
+          expectedVersion: correction.version,
+          reason,
+          ...(correctionConfirmation
+            ? { confirmation: correctionConfirmation }
+            : {}),
+        },
+      ),
+    onSuccess: async () => {
+      setCorrectionConfirmation('');
+      await queryClient.invalidateQueries({
+        queryKey: ['admin', 'data-operations'],
+      });
+    },
   });
 
   return (
@@ -344,6 +402,164 @@ export function OperationsWorkspace() {
                   Publish banner
                 </button>
               </div>
+            </section>
+
+            <section
+              aria-labelledby="data-operations"
+              className="admin-section"
+            >
+              <h2 id="data-operations">Data reconciliation</h2>
+              {dataOperations.isLoading && (
+                <p aria-live="polite">Data-quality state loading.</p>
+              )}
+              {dataOperations.isError && (
+                <p className="admin-warning" role="alert">
+                  Data operations are unavailable.
+                </p>
+              )}
+              {dataOperations.data && (
+                <>
+                  <div className="admin-metric-grid">
+                    <Metric
+                      label="Providers"
+                      value={String(dataOperations.data.connections.length)}
+                    />
+                    <Metric
+                      label="Open findings"
+                      value={String(
+                        dataOperations.data.findings.filter(
+                          (finding) => finding.status !== 'resolved',
+                        ).length,
+                      )}
+                    />
+                    <Metric
+                      label="Corrections"
+                      value={String(dataOperations.data.corrections.length)}
+                    />
+                    <Metric
+                      label="Ingestion runs"
+                      value={String(dataOperations.data.runs.length)}
+                    />
+                  </div>
+                  <label>
+                    Correction confirmation
+                    <input
+                      value={correctionConfirmation}
+                      onChange={(event) =>
+                        setCorrectionConfirmation(event.target.value)
+                      }
+                      placeholder="QUEUE_CONTROLLED_REPLAY"
+                    />
+                  </label>
+                  <div
+                    aria-label="Data correction requests"
+                    className="admin-table"
+                    role="table"
+                  >
+                    {dataOperations.data.corrections.map((correction) => (
+                      <div className="admin-row" key={correction.id} role="row">
+                        <strong role="cell">{correction.state}</strong>
+                        <span role="cell">
+                          Read model {correction.rebuildStatus}
+                        </span>
+                        <button
+                          disabled={
+                            correctionMutation.isPending ||
+                            !['open', 'investigating'].includes(
+                              correction.state,
+                            )
+                          }
+                          onClick={() => correctionMutation.mutate(correction)}
+                          type="button"
+                        >
+                          {correction.state === 'open'
+                            ? 'Start investigation'
+                            : 'Approve correction'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  {correctionMutation.isError && (
+                    <p className="admin-warning" role="alert">
+                      Correction update rejected due to authorization,
+                      confirmation or version conflict.
+                    </p>
+                  )}
+                </>
+              )}
+            </section>
+            <section
+              aria-labelledby="legal-documents"
+              className="admin-section"
+            >
+              <h2 id="legal-documents">Legal document publishing</h2>
+              <p>
+                Approval requires external counsel evidence. Placeholder
+                documents cannot be approved or published.
+              </p>
+              <label>
+                Legal approval reference
+                <input
+                  onChange={(event) =>
+                    setLegalApprovalReference(event.target.value)
+                  }
+                  value={legalApprovalReference}
+                />
+              </label>
+              <label>
+                Approval confirmation
+                <input
+                  onChange={(event) => setLegalConfirmation(event.target.value)}
+                  placeholder="LEGAL_COUNSEL_APPROVED"
+                  value={legalConfirmation}
+                />
+              </label>
+              {legalDocuments.isLoading && (
+                <p aria-live="polite">Legal documents loading.</p>
+              )}
+              {legalDocuments.isError && (
+                <p className="admin-warning" role="alert">
+                  Legal document administration is unavailable.
+                </p>
+              )}
+              <div
+                aria-label="Legal document versions"
+                className="admin-table"
+                role="table"
+              >
+                {legalDocuments.data?.map((document) => (
+                  <div className="admin-row" key={document.id} role="row">
+                    <strong role="cell">{document.title}</strong>
+                    <span role="cell">
+                      v{document.version} · {document.locale} ·{' '}
+                      {document.status}
+                    </span>
+                    <button
+                      disabled={
+                        legalMutation.isPending ||
+                        !['draft', 'legalReviewRequired', 'approved'].includes(
+                          document.status,
+                        ) ||
+                        (document.status !== 'approved' &&
+                          (legalConfirmation !== 'LEGAL_COUNSEL_APPROVED' ||
+                            legalApprovalReference.length < 8))
+                      }
+                      onClick={() => legalMutation.mutate(document)}
+                      type="button"
+                    >
+                      {document.status === 'approved'
+                        ? 'Publish reviewed version'
+                        : 'Record counsel approval'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {legalMutation.isError && (
+                <p className="admin-warning" role="alert">
+                  Legal document update rejected due to review evidence,
+                  authorization or version conflict.
+                </p>
+              )}
             </section>
           </>
         )}

@@ -20,6 +20,8 @@ describe('parseEnvironment', () => {
       AUTH_SESSION_HMAC_KEY: 'local-only-auth-hmac-key-32-bytes',
       AUTH_SESSION_TTL_SECONDS: 86_400,
       DATABASE_URL: 'postgresql://atlas:atlas@127.0.0.1:5432/atlas',
+      EMAIL_PROVIDER_KEY: 'transactional-email',
+      EMAIL_WEBHOOK_SIGNING_SECRET: 'local-only-email-webhook-key-32-bytes',
       HEALTH_CHECK_DATABASE: false,
       LOG_LEVEL: 'log',
       MARKET_PUBLIC_RATE_LIMIT: 300,
@@ -52,6 +54,8 @@ describe('parseEnvironment', () => {
         API_CORS_ORIGIN: 'https://atlas.example',
         ATLAS_ENV: 'production',
         DATABASE_URL: 'postgresql://atlas:secret@database:5432/atlas',
+        EMAIL_WEBHOOK_SIGNING_SECRET:
+          'production-email-webhook-key-at-least-32-bytes',
         HEALTH_CHECK_DATABASE: 'true',
         METRICS_BEARER_TOKEN: 'production-metrics-token-change-me-000000',
         REDIS_URL: 'rediss://redis:6379',
@@ -71,6 +75,8 @@ describe('parseEnvironment', () => {
         ATLAS_ENV: 'production',
         AUTH_SESSION_HMAC_KEY: 'production-hmac-key-with-at-least-32-bytes',
         DATABASE_URL: 'postgresql://atlas:secret@database:5432/atlas',
+        EMAIL_WEBHOOK_SIGNING_SECRET:
+          'production-email-webhook-key-at-least-32-bytes',
         HEALTH_CHECK_DATABASE: 'true',
         METRICS_BEARER_TOKEN: 'production-metrics-token-change-me-000000',
         OBJECT_STORAGE_ACCESS_KEY_ID: 'access',

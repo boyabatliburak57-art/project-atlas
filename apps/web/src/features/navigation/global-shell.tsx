@@ -156,6 +156,7 @@ export function GlobalShell({ children }: { readonly children: ReactNode }) {
           zamanı ve yöntem sürümlerini sonuçla birlikte değerlendirin.
         </p>
         <Link href="/trust">Güven, metodoloji ve açıklamalar</Link>
+        <Link href="/legal">Hukuki belgeler ve onaylar</Link>
         <span>Legal review required</span>
       </footer>
       {open ? (

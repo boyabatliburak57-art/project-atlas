@@ -84,5 +84,13 @@ export function normalizeStatement(
     metrics.freeCashFlow = Decimal.parse(metrics.operatingCashFlow)
       .minus(Decimal.parse(metrics.capitalExpenditure))
       .toString();
-  return { ...statement, instrumentId, providerCode, metrics, warnings: [] };
+  return {
+    ...statement,
+    instrumentId,
+    providerCode,
+    availableAt: statement.availableAt ?? statement.publishedAt,
+    statementScope: statement.statementScope ?? 'consolidated',
+    metrics,
+    warnings: [],
+  };
 }

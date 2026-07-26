@@ -154,6 +154,15 @@ const environmentSchema = z.object({
     .max(300_000)
     .default(5_000),
   METRICS_BEARER_TOKEN: z.string().min(32).max(512).optional(),
+  EMAIL_PROVIDER_KEY: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u)
+    .default('transactional-email'),
+  EMAIL_WEBHOOK_SIGNING_SECRET: z
+    .string()
+    .min(32)
+    .max(512)
+    .default('local-only-email-webhook-key-32-bytes'),
 });
 
 export type Environment = z.infer<typeof environmentSchema>;
@@ -177,6 +186,7 @@ export function parseEnvironment(
       'API_CORS_ORIGIN',
       'AUTH_SESSION_HMAC_KEY',
       'DATABASE_URL',
+      'EMAIL_WEBHOOK_SIGNING_SECRET',
       'METRICS_BEARER_TOKEN',
       'OBJECT_STORAGE_ACCESS_KEY_ID',
       'OBJECT_STORAGE_BUCKET',

@@ -128,6 +128,10 @@ describe('OpenAPI document', () => {
     expect(
       document.paths['/api/v1/notification-preferences']?.put,
     ).toBeDefined();
+    expect(
+      document.paths['/api/v1/notification-preferences/unsubscribe']?.post,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/webhooks/email']?.post).toBeDefined();
     expect(document.paths['/api/v1/portfolios']?.get).toBeDefined();
     expect(document.paths['/api/v1/portfolios']?.post).toBeDefined();
     expect(document.paths['/api/v1/portfolios/{id}']?.get).toBeDefined();
@@ -365,6 +369,22 @@ describe('OpenAPI document', () => {
     ).toBeDefined();
     expect(
       document.paths['/api/v1/admin/operations/overview']?.get,
+    ).toBeDefined();
+    expect(document.paths['/api/v1/admin/data-operations']?.get).toBeDefined();
+    expect(document.paths['/api/v1/legal/documents']?.get).toBeDefined();
+    expect(document.paths['/api/v1/legal/documents/{type}']?.get).toBeDefined();
+    expect(document.paths['/api/v1/legal/consents']?.post).toBeDefined();
+    expect(document.paths['/api/v1/me/consents']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/admin/legal/documents/{id}/publish']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/admin/data-operations/corrections']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths[
+        '/api/v1/admin/data-operations/corrections/{id}/{transition}'
+      ]?.post,
     ).toBeDefined();
     expect(
       document.paths['/api/v1/admin/operations/queues']?.get,

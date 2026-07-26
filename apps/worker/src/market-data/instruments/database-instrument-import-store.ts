@@ -27,6 +27,8 @@ interface InstrumentRecord {
   readonly marketCode: string;
   readonly currencyCode: string;
   readonly status: string;
+  readonly listedAt: string | null;
+  readonly delistedAt: string | null;
   readonly createdAt: Date;
 }
 
@@ -185,6 +187,8 @@ export class DatabaseInstrumentImportStore implements InstrumentImportStore {
           marketCode: input.marketCode,
           currencyCode: input.currencyCode,
           status: input.status,
+          listedAt: input.listedAt?.toISOString().slice(0, 10),
+          delistedAt: input.delistedAt?.toISOString().slice(0, 10),
         })
         .returning({ id: instruments.id });
       instrumentId = rows[0]?.id;
@@ -221,6 +225,8 @@ export class DatabaseInstrumentImportStore implements InstrumentImportStore {
           marketCode: input.marketCode,
           currencyCode: input.currencyCode,
           status: input.status,
+          listedAt: input.listedAt?.toISOString().slice(0, 10) ?? null,
+          delistedAt: input.delistedAt?.toISOString().slice(0, 10) ?? null,
           updatedAt: new Date(),
         })
         .where(eq(instruments.id, instrumentId));
@@ -289,6 +295,8 @@ export class DatabaseInstrumentImportStore implements InstrumentImportStore {
           marketCode: instruments.marketCode,
           currencyCode: instruments.currencyCode,
           status: instruments.status,
+          listedAt: instruments.listedAt,
+          delistedAt: instruments.delistedAt,
           createdAt: instruments.createdAt,
         },
       })
@@ -378,6 +386,8 @@ export class DatabaseInstrumentImportStore implements InstrumentImportStore {
       marketCode: instruments.marketCode,
       currencyCode: instruments.currencyCode,
       status: instruments.status,
+      listedAt: instruments.listedAt,
+      delistedAt: instruments.delistedAt,
       createdAt: instruments.createdAt,
     };
   }
@@ -394,7 +404,11 @@ export class DatabaseInstrumentImportStore implements InstrumentImportStore {
       current.isin !== (input.isin ?? null) ||
       current.marketCode !== input.marketCode ||
       current.currencyCode !== input.currencyCode ||
-      current.status !== input.status
+      current.status !== input.status ||
+      current.listedAt !==
+        (input.listedAt?.toISOString().slice(0, 10) ?? null) ||
+      current.delistedAt !==
+        (input.delistedAt?.toISOString().slice(0, 10) ?? null)
     );
   }
 
