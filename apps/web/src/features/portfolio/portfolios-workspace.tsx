@@ -85,9 +85,14 @@ export function PortfoliosWorkspace() {
             </WorkspaceState>
           )}
           {portfolios.data?.length === 0 && (
-            <WorkspaceState kind="empty">
-              Henüz portföy yok. İlk portföyünüzü oluşturarak başlayın.
-            </WorkspaceState>
+            <>
+              <WorkspaceState kind="empty">
+                Portföy değerleme, performans ve risk takibi sağlar. İlk
+                portföyünüzü oluşturun veya güvenli DEMO örneğini hazırlayın.
+              </WorkspaceState>
+              <Link href="/help/portfoy-risk">Portföy rehberini aç</Link>
+              <Link href="/help#demo-title">DEMO portföy oluştur</Link>
+            </>
           )}
           {portfolios.data?.map((portfolio) => (
             <PortfolioListRow

@@ -110,7 +110,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the eighty-nine domain tables', async () => {
+  it('clean-migrates exactly the ninety-three domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -202,7 +202,11 @@ describe('PostgreSQL migrations', () => {
       'stored_artifacts',
       'strategies',
       'strategy_revisions',
+      'support_attachment_references',
+      'support_request_events',
+      'support_requests',
       'user_activity_events',
+      'user_demo_resources',
       'user_document_consents',
       'user_preferences',
       'watchlist_item_tags',
@@ -1043,6 +1047,16 @@ describe('PostgreSQL migrations', () => {
   });
 
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const supportRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0021_lazy_leo.down.sql'),
+      'utf8',
+    );
+    await pool.query(supportRollbackSql);
+    const demoRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0020_organic_jazinda.down.sql'),
+      'utf8',
+    );
+    await pool.query(demoRollbackSql);
     const legalRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0019_dusty_puma.down.sql'),
       'utf8',
@@ -1207,7 +1221,7 @@ describe('PostgreSQL migrations', () => {
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 18
+        limit 20
       )
     `);
     await runMigrations(db);

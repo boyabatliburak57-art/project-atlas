@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { translate } from '../localization';
+import { searchHelp } from '../help/catalog';
 import { navigationApi, type SearchItem } from './api';
 
 const links = [
@@ -20,6 +21,8 @@ const links = [
   ['Trust', '/trust'],
   ['Activity', '/activity'],
   ['Settings', '/onboarding'],
+  ['Help', '/help'],
+  ['Support', '/support'],
 ] as const;
 const actions = [
   ['Yeni tarama', '/scanner?new=true'],
@@ -108,6 +111,14 @@ export function GlobalShell({ children }: { readonly children: ReactNode }) {
         href,
         subtitle: translate('quickAction'),
       })),
+    ...searchHelp(query)
+      .slice(0, 5)
+      .map((article) => ({
+        href: `/help/${article.slug}`,
+        id: `help-${article.slug}`,
+        subtitle: `Yardım · ${article.category}`,
+        title: article.title,
+      })),
     ...results,
   ];
   function choose(index: number) {
@@ -157,6 +168,7 @@ export function GlobalShell({ children }: { readonly children: ReactNode }) {
         </p>
         <Link href="/trust">Güven, metodoloji ve açıklamalar</Link>
         <Link href="/legal">Hukuki belgeler ve onaylar</Link>
+        <Link href="/help">Yardım merkezi ve sözlük</Link>
         <span>Legal review required</span>
       </footer>
       {open ? (

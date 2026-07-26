@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { scannerApi } from './api';
@@ -1237,6 +1238,7 @@ function EmptyState({ title, text }: { title: string; text: string }) {
       <span>—</span>
       <strong>{title}</strong>
       <p>{text}</p>
+      <Link href="/help/scanner-baslangic">Scanner rehberini aç</Link>
     </div>
   );
 }

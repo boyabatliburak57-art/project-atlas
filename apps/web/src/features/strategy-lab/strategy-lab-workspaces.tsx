@@ -111,9 +111,13 @@ export function StrategiesWorkspace() {
           </WorkspaceState>
         )}
         {strategies.data?.length === 0 && (
-          <WorkspaceState kind="empty">
-            İlk stratejinizi oluşturarak araştırma kaydını başlatın.
-          </WorkspaceState>
+          <>
+            <WorkspaceState kind="empty">
+              Stratejiler sürümlü kural ve backtest varsayımlarını saklar. İlk
+              stratejinizi oluşturun veya deterministic DEMO’yu inceleyin.
+            </WorkspaceState>
+            <Link href="/help/strategy-lab">Strategy Lab rehberini aç</Link>
+          </>
         )}
         <div className="strategy-ledger">
           {strategies.data?.map((strategy) => (

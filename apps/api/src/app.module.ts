@@ -43,7 +43,10 @@ import { AdminOperationsService } from './operations/admin-operations.service';
 import { DataOperationsController } from './data-operations/data-operations.controller';
 import { DataOperationsService } from './data-operations/data-operations.service';
 import { AuthController } from './security/auth.controller';
-import { AccountDeletionController } from './security/account-deletion.controller';
+import {
+  AccountDeletionAdminController,
+  AccountDeletionController,
+} from './security/account-deletion.controller';
 import { AccountDeletionService } from './security/account-deletion.service';
 import { AuthSessionService } from './security/auth-session.service';
 import { AuthenticationMiddleware } from './security/authentication.middleware';
@@ -68,6 +71,16 @@ import {
   LegalController,
 } from './legal/legal.controller';
 import { LegalService } from './legal/legal.service';
+import { DemoController } from './demo/demo.controller';
+import { DemoService } from './demo/demo.service';
+import {
+  SupportAdminController,
+  SupportController,
+} from './support/support.controller';
+import {
+  MetadataOnlySupportMalwareScanner,
+  SupportService,
+} from './support/support.service';
 import {
   INDICATOR_REGISTRY,
   IndicatorCatalogService,
@@ -201,6 +214,7 @@ import {
     HealthController,
     AuthController,
     AccountDeletionController,
+    AccountDeletionAdminController,
     IndicatorCatalogController,
     ScannerRuntimeController,
     ScannerCatalogController,
@@ -214,6 +228,9 @@ import {
     LegalController,
     ConsentHistoryController,
     LegalAdminController,
+    DemoController,
+    SupportController,
+    SupportAdminController,
     PortfoliosController,
     PortfolioImportsController,
     MarketOverviewController,
@@ -421,6 +438,9 @@ import {
     NotificationsService,
     EmailWebhookService,
     LegalService,
+    DemoService,
+    SupportService,
+    MetadataOnlySupportMalwareScanner,
     PortfoliosService,
     PortfolioImportsService,
     MarketOverviewService,

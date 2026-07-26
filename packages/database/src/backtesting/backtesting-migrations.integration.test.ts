@@ -286,6 +286,16 @@ describe('PostgreSQL strategy, backtest and experiment migration invariants', ()
   });
 
   it('executes the documented rollback and reapplies the forward migration', async () => {
+    const supportRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0021_lazy_leo.down.sql'),
+      'utf8',
+    );
+    await pool.query(supportRollbackSql);
+    const demoRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0020_organic_jazinda.down.sql'),
+      'utf8',
+    );
+    await pool.query(demoRollbackSql);
     const legalRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0019_dusty_puma.down.sql'),
       'utf8',
@@ -361,7 +371,7 @@ describe('PostgreSQL strategy, backtest and experiment migration invariants', ()
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 12
+        limit 14
       )
     `);
     await runMigrations(db);

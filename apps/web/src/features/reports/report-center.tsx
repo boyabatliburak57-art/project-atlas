@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 import { createFormatters } from '../localization';
 import { SafeMetadata } from '../trust/safe-metadata';
@@ -103,6 +104,7 @@ export function ReportCenter() {
           Veri kesim zamanı, metodoloji, kaynak revision’ları ve uyarılarıyla
           yeniden üretilebilir dışa aktarımlar.
         </p>
+        <Link href="/help/raporlar-export">Rapor ve export rehberini aç</Link>
       </header>
 
       <fieldset className="report-builder">

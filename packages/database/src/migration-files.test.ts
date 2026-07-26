@@ -15,8 +15,8 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the eighty-nine scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(89);
+  it('creates the ninety-three scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(93);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
   });
 
@@ -254,5 +254,22 @@ describe('generated PostgreSQL migrations', () => {
     expect(sql).toContain('protect_published_legal_document');
     expect(sql).toContain('LEGAL_REVIEW_REQUIRED');
     expect(sql).toContain('NOT_FOR_PRODUCTION_PUBLICATION');
+  });
+
+  it('contains owner-isolated demo resource and reset guards', () => {
+    expect(sql).toContain('CREATE TABLE "user_demo_resources"');
+    expect(sql).toContain('user_demo_resources_owner_key_unique');
+    expect(sql).toContain('user_demo_resources_demo_check');
+    expect(sql).toContain('user_demo_resources_owner_user_id_security_users');
+  });
+
+  it('contains support ownership, timeline and safe attachment guards', () => {
+    expect(sql).toContain('CREATE TABLE "support_requests"');
+    expect(sql).toContain('CREATE TABLE "support_request_events"');
+    expect(sql).toContain('CREATE TABLE "support_attachment_references"');
+    expect(sql).toContain('support_requests_owner_updated_idx');
+    expect(sql).toContain('support_attachments_size_check');
+    expect(sql).toContain('support_attachments_checksum_check');
+    expect(sql).toContain('support_attachments_scan_check');
   });
 });

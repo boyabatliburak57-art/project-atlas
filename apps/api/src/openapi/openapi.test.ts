@@ -39,6 +39,9 @@ describe('OpenAPI document', () => {
       document.paths['/api/v1/auth/password-reset/confirm']?.post,
     ).toBeDefined();
     expect(document.paths['/api/v1/account/deletion']?.post).toBeDefined();
+    expect(
+      document.paths['/api/v1/admin/account/deletion/{id}/cancel']?.post,
+    ).toBeDefined();
     expect(document.paths['/api/v1/indicators']?.get).toBeDefined();
     expect(document.paths['/api/v1/indicators/{code}']?.get).toBeDefined();
     expect(document.paths['/api/v1/scanner/runs']?.post).toBeDefined();
@@ -375,6 +378,15 @@ describe('OpenAPI document', () => {
     expect(document.paths['/api/v1/legal/documents/{type}']?.get).toBeDefined();
     expect(document.paths['/api/v1/legal/consents']?.post).toBeDefined();
     expect(document.paths['/api/v1/me/consents']?.get).toBeDefined();
+    expect(document.paths['/api/v1/me/demo']?.get).toBeDefined();
+    expect(document.paths['/api/v1/me/demo']?.post).toBeDefined();
+    expect(document.paths['/api/v1/me/demo']?.delete).toBeDefined();
+    expect(document.paths['/api/v1/support/requests']?.post).toBeDefined();
+    expect(document.paths['/api/v1/support/requests']?.get).toBeDefined();
+    expect(document.paths['/api/v1/support/requests/{id}']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/admin/support/requests/{id}/actions']?.post,
+    ).toBeDefined();
     expect(
       document.paths['/api/v1/admin/legal/documents/{id}/publish']?.post,
     ).toBeDefined();

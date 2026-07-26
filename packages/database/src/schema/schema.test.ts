@@ -88,6 +88,10 @@ import {
   communicationProviderEvents,
   legalDocuments,
   userDocumentConsents,
+  userDemoResources,
+  supportRequests,
+  supportRequestEvents,
+  supportAttachmentReferences,
 } from './index';
 
 describe('initial database schema', () => {
@@ -95,6 +99,22 @@ describe('initial database schema', () => {
     expect([legalDocuments, userDocumentConsents].map(getTableName)).toEqual([
       'legal_documents',
       'user_document_consents',
+    ]);
+  });
+
+  it('exports owner-isolated demo resources', () => {
+    expect(getTableName(userDemoResources)).toBe('user_demo_resources');
+  });
+
+  it('exports owner-isolated support, timeline and attachment references', () => {
+    expect(
+      [supportRequests, supportRequestEvents, supportAttachmentReferences].map(
+        getTableName,
+      ),
+    ).toEqual([
+      'support_requests',
+      'support_request_events',
+      'support_attachment_references',
     ]);
   });
 

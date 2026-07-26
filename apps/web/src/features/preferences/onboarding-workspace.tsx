@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { AtlasShell, WorkspaceState } from '../portfolio/atlas-shell';
 import { LegalConsentPanel } from '../legal/legal-center';
+import { demoApi } from '../help/demo-api';
 import { preferencesApi, type UserPreferences } from './api';
 
 const steps = [
@@ -63,8 +64,11 @@ export function OnboardingWorkspace() {
     onSuccess: (data) => client.setQueryData(['user-preferences'], data),
   });
   const complete = useMutation({
-    mutationFn: ({ version }: { version: number }) =>
-      preferencesApi.complete(version, demoData),
+    mutationFn: async ({ version }: { version: number }) => {
+      const completed = await preferencesApi.complete(version, demoData);
+      if (demoData) await demoApi.create();
+      return completed;
+    },
     onSuccess: (data) => client.setQueryData(['user-preferences'], data),
   });
   const reset = useMutation({

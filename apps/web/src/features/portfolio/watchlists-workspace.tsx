@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { FormEvent, useEffect, useState } from 'react';
+import Link from 'next/link';
 
 import { AtlasShell, WorkspaceState } from './atlas-shell';
 import { portfolioApi } from './api';
@@ -90,9 +91,13 @@ export function WatchlistsWorkspace() {
               </WorkspaceState>
             )}
             {watchlists.data?.length === 0 && (
-              <WorkspaceState kind="empty">
-                İlk listenizi oluşturarak başlayın.
-              </WorkspaceState>
+              <>
+                <WorkspaceState kind="empty">
+                  Watchlist sembolleri ve piyasa durumunu birlikte izler. İlk
+                  listenizi oluşturun veya DEMO listesini deneyin.
+                </WorkspaceState>
+                <Link href="/help/watchlist-alert">Watchlist rehberini aç</Link>
+              </>
             )}
             {watchlists.data?.map((item) => (
               <button
