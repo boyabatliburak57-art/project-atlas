@@ -1,5 +1,10 @@
 # DOC-048 — Provider Integration and Data Governance
 
+The temporary `borsa-api` adapter is documented in
+`guides/BORSA_API_SANDBOX_INTEGRATION.md`. It is an unofficial delayed
+`SANDBOX_INTEGRATION`, has no commercial display or redistribution approval,
+and is blocked in production.
+
 ## Zorunlu kabiliyetler
 
 - Provider-neutral ports ve capability discovery

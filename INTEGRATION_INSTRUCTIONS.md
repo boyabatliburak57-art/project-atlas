@@ -1,10 +1,12 @@
-# v0.11 Entegrasyon
+# v0.12 Entegrasyon
 
 ```bash
 cd ~/Documents/project-atlas
-cp -R ~/Downloads/project-atlas-blueprint-v0.11-data-governance-launch-readiness-delta/. .
+cp -R ~/Downloads/project-atlas-blueprint-v0.12-external-integrations-launch-readiness-delta/. .
 ```
 
-README, ATLAS_INDEX ve CHANGELOG'a mevcut içeriği silmeden v0.11 bölümünü ve TASK-091–100 sırasını ekle.
+README, ATLAS_INDEX ve CHANGELOG'a v0.12 External Integrations and Launch Readiness bölümünü ekle.
 
-TASK-080 Production Readiness kararını GO olarak değiştirme.
+TASK-101–110 sırasını kaydet.
+
+TASK-080 Production Readiness kararını değiştirme.

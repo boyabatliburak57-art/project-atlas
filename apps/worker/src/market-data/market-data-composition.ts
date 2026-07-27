@@ -20,6 +20,7 @@ import {
 import {
   ProviderError,
   ProviderRegistry,
+  BorsaApiAdapter,
   type RawMarketDataProviderAdapter,
 } from './providers';
 import { FakeMarketDataProviderAdapter } from './providers/testing/fake-market-data-provider';
@@ -153,9 +154,14 @@ export function createDefaultMarketDataComposition(
   environment: WorkerEnvironment,
   logger: StructuredLogger,
 ): MarketDataComposition {
+  const selectedProvider =
+    environment.MARKET_DATA_PROVIDER ?? environment.MARKET_DATA_PROVIDER_CODE;
+  const useBorsaApi =
+    selectedProvider === 'borsa-api' && environment.BORSA_API_ENABLED === true;
   if (
-    environment.ATLAS_ENV === 'staging' ||
-    environment.ATLAS_ENV === 'production'
+    (environment.ATLAS_ENV === 'staging' ||
+      environment.ATLAS_ENV === 'production') &&
+    !useBorsaApi
   ) {
     throw new Error(
       'A selected market-data provider adapter and credential resolver are required',
@@ -165,24 +171,34 @@ export function createDefaultMarketDataComposition(
   const redis = new Redis(environment.REDIS_URL, {
     maxRetriesPerRequest: null,
   });
+  const cache = new RedisMarketIntelligenceCacheBackend(redis);
   return createMarketDataComposition({
     database: db,
     logger,
-    providerAdapters: [
-      new FakeMarketDataProviderAdapter({
-        capabilities: {
-          supportedTimeframes: ['1d'],
-          dataMode: 'end-of-day',
-          historicalDepthDays: null,
-          supportsCorporateActions: false,
-          supportsFundamentals: false,
-          supportsPagination: false,
-          rateLimit: null,
-        },
-        instruments: [],
-        barBatch: { bars: [] },
-      }),
-    ],
+    providerAdapters: useBorsaApi
+      ? [
+          new BorsaApiAdapter({
+            cache,
+            timeoutMs: environment.BORSA_API_TIMEOUT_MS ?? 10_000,
+            maxConcurrency: environment.BORSA_API_MAX_CONCURRENCY ?? 2,
+            requestsPerSecond: environment.BORSA_API_REQUESTS_PER_SECOND ?? 1,
+          }),
+        ]
+      : [
+          new FakeMarketDataProviderAdapter({
+            capabilities: {
+              supportedTimeframes: ['1d'],
+              dataMode: 'end-of-day',
+              historicalDepthDays: null,
+              supportsCorporateActions: false,
+              supportsFundamentals: false,
+              supportsPagination: false,
+              rateLimit: null,
+            },
+            instruments: [],
+            barBatch: { bars: [] },
+          }),
+        ],
     fundamentalsProviders: [
       new FakeFundamentalsProvider(
         'fake-provider',
@@ -196,7 +212,7 @@ export function createDefaultMarketDataComposition(
         [],
       ),
     ],
-    qualityCache: new RedisMarketIntelligenceCacheBackend(redis),
+    qualityCache: cache,
     close: async () => {
       await Promise.all([pool.end(), redis.quit()]);
     },

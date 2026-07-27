@@ -14,6 +14,11 @@ describe('parseEnvironment', () => {
       CONFIG_SCHEMA_VERSION: '1',
       DATABASE_URL: 'postgresql://atlas:local@localhost:5432/atlas',
       EMAIL_PROVIDER_MODE: 'sandbox',
+      BORSA_API_ALLOW_IN_PRODUCTION: false,
+      BORSA_API_ENABLED: false,
+      BORSA_API_MAX_CONCURRENCY: 2,
+      BORSA_API_REQUESTS_PER_SECOND: 1,
+      BORSA_API_TIMEOUT_MS: 10_000,
       MARKET_DATA_PROVIDER_MODE: 'disabled',
       NODE_ENV: 'development',
       OTEL_TRACE_SAMPLE_RATIO: 0.1,
@@ -85,5 +90,26 @@ describe('parseEnvironment', () => {
         MARKET_DATA_PROVIDER_MODE: 'production',
       }),
     ).toThrow('MARKET_DATA_PROVIDER_CODE');
+  });
+
+  it('fails fast when borsa-api is selected in production', () => {
+    expect(() =>
+      parseEnvironment({
+        ATLAS_ENV: 'production',
+        DATABASE_URL: 'postgresql://atlas:local@localhost:5432/atlas',
+        REDIS_URL: 'rediss://redis:6379',
+        OBJECT_STORAGE_ACCESS_KEY_ID: 'reference-only',
+        OBJECT_STORAGE_BUCKET: 'atlas',
+        OBJECT_STORAGE_ENDPOINT: 'https://objects.invalid',
+        OBJECT_STORAGE_SECRET_ACCESS_KEY: 'reference-only',
+        RELEASE_COMMIT_SHA: '1234567890abcdef',
+        RELEASE_VERSION: '1.0.0',
+        TELEMETRY_POLICY_VERSION: 'telemetry-v1',
+        WORKER_HEALTH_FILE: '/tmp/atlas-worker-ready',
+        MARKET_DATA_PROVIDER: 'borsa-api',
+        BORSA_API_ENABLED: 'true',
+        BORSA_API_ALLOW_IN_PRODUCTION: 'true',
+      }),
+    ).toThrow('SANDBOX_INTEGRATION');
   });
 });

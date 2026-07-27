@@ -46,9 +46,17 @@ export const priceBars = pgTable(
     high: numeric('high').notNull(),
     low: numeric('low').notNull(),
     close: numeric('close').notNull(),
+    adjustedClose: numeric('adjusted_close'),
     volume: numeric('volume').notNull(),
     isClosed: boolean('is_closed').default(false).notNull(),
     sourceTimestamp: timestamp('source_timestamp', { withTimezone: true }),
+    availableAt: timestamp('available_at', { withTimezone: true }),
+    receivedAt: timestamp('received_at', { withTimezone: true }),
+    providerRevision: varchar('provider_revision', { length: 128 }),
+    qualityFlags: jsonb('quality_flags')
+      .$type<readonly string[]>()
+      .default([])
+      .notNull(),
     ingestedAt: timestamp('ingested_at', { withTimezone: true })
       .defaultNow()
       .notNull(),

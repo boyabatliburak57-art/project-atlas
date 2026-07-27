@@ -15,6 +15,7 @@
     "start": "node dist/main.js",
     "test": "pnpm --filter @atlas/types build && pnpm --filter @atlas/domain build && vitest run",
     "test:integration": "pnpm --filter @atlas/types build && pnpm --filter @atlas/domain build && vitest run --config vitest.integration.config.ts",
+    "test:live:borsa-api": "RUN_LIVE_BORSA_API_TESTS=true vitest run --config vitest.live.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "@atlas/database": "workspace:*",
     "@atlas/domain": "workspace:*",
     "@atlas/types": "workspace:*",
+    "borsa-api": "1.2.0",
     "bullmq": "5.80.1",
     "dotenv": "17.4.2",
     "drizzle-orm": "0.45.2",

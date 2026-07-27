@@ -1,5 +1,39 @@
 # Changelog
 
+## mobile-first-scope-change — 2026-07-28
+
+### Durum
+
+```text
+Status: SUPERSEDED_BY_MOBILE_SCOPE_CHANGE
+Reason: Mobile application became the primary product surface after the audit.
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```
+
+### Eklendi
+
+- Mobile transformation gap analysis ve TASK-100L parity audit contract'ı.
+- TASK-100A–TASK-100L ve TASK-100R kapsam, bağımlılık, kabul, test, security ve T3 uygulama
+  belgeleri.
+- Mobile-first görev bağımlılık grafiği ve Expo/OpenAPI shared-client mimari yönü.
+
+### Değişti
+
+- Mobile-first scope change introduced.
+- Previous TASK-100 audit marked as superseded by mobile scope change.
+- No production-readiness or staging decision changed.
+- Mobile application primary customer experience olarak konumlandırıldı.
+- Web desktop analytics, advanced workflows ve administration yüzeyi olarak korundu.
+- TASK-100 raporuna önceki kararı değiştirmeyen append-only supersession bildirimi eklendi.
+
+### Değişmedi
+
+- Bu değişiklikte `apps/mobile`, dependency, migration, API veya uygulama kodu oluşturulmadı.
+- Backend, database, worker, domain, security, audit ve mevcut web uygulaması korunur.
+- Gerçek provider/staging kanıtı olmadan production-ready iddiası üretilmedi.
+
 ## 0.11.0-data-governance-provider-launch-readiness — 2026-07-26
 
 ### Durum

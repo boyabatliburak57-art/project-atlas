@@ -60,11 +60,22 @@ export const providerBarSchema = z
     high: decimalStringSchema,
     low: decimalStringSchema,
     close: decimalStringSchema,
+    adjustedClose: decimalStringSchema.optional(),
     volume: nonNegativeDecimalStringSchema,
     isClosed: z.boolean(),
     sourceTimestamp: providerDateSchema.optional(),
     availableAt: providerDateSchema.optional(),
+    receivedAt: providerDateSchema.optional(),
     providerRevision: z.string().trim().min(1).max(128).optional(),
+    qualityFlags: z
+      .array(
+        z.enum([
+          'SOURCE_TIMESTAMP_UNAVAILABLE',
+          'DELAYED',
+          'UNOFFICIAL_SOURCE',
+        ]),
+      )
+      .optional(),
   })
   .superRefine((bar, context) => {
     if (bar.closeTime <= bar.openTime) {

@@ -1,0 +1,7 @@
+DROP VIEW "public"."current_price_bars";--> statement-breakpoint
+ALTER TABLE "price_bars" ADD COLUMN "adjusted_close" numeric;--> statement-breakpoint
+ALTER TABLE "price_bars" ADD COLUMN "available_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "price_bars" ADD COLUMN "received_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "price_bars" ADD COLUMN "provider_revision" varchar(128);--> statement-breakpoint
+ALTER TABLE "price_bars" ADD COLUMN "quality_flags" jsonb DEFAULT '[]'::jsonb NOT NULL;--> statement-breakpoint
+CREATE VIEW "public"."current_price_bars" AS (select distinct on ("price_bars"."instrument_id", "price_bars"."provider_id", "price_bars"."timeframe", "price_bars"."open_time") "id", "instrument_id", "provider_id", "timeframe", "open_time", "close_time", "open", "high", "low", "close", "adjusted_close", "volume", "is_closed", "source_timestamp", "available_at", "received_at", "provider_revision", "quality_flags", "ingested_at", "revision", "quality_status", "created_at", "updated_at" from "price_bars" order by "price_bars"."instrument_id", "price_bars"."provider_id", "price_bars"."timeframe", "price_bars"."open_time", "price_bars"."revision" desc);

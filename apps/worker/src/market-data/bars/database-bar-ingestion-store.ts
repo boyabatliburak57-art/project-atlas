@@ -29,6 +29,7 @@ interface PersistedBar {
   readonly high: string;
   readonly low: string;
   readonly close: string;
+  readonly adjustedClose: string | null;
   readonly volume: string;
   readonly isClosed: boolean;
   readonly revision: number;
@@ -218,6 +219,7 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
         high: priceBars.high,
         low: priceBars.low,
         close: priceBars.close,
+        adjustedClose: priceBars.adjustedClose,
         volume: priceBars.volume,
         isClosed: priceBars.isClosed,
         revision: priceBars.revision,
@@ -246,11 +248,16 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
         high: bar.high,
         low: bar.low,
         close: bar.close,
+        adjustedClose: bar.adjustedClose,
         volume: bar.volume,
         isClosed: bar.isClosed,
         ...(bar.sourceTimestamp === undefined
           ? {}
           : { sourceTimestamp: bar.sourceTimestamp }),
+        availableAt: bar.availableAt,
+        receivedAt: bar.receivedAt,
+        providerRevision: bar.providerRevision,
+        qualityFlags: bar.qualityFlags ?? [],
         revision: 1,
         qualityStatus: bar.isClosed ? 'accepted' : 'provisional',
       });
@@ -272,9 +279,14 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
           high: bar.high,
           low: bar.low,
           close: bar.close,
+          adjustedClose: bar.adjustedClose ?? null,
           volume: bar.volume,
           isClosed: bar.isClosed,
           sourceTimestamp: bar.sourceTimestamp ?? null,
+          availableAt: bar.availableAt ?? null,
+          receivedAt: bar.receivedAt ?? null,
+          providerRevision: bar.providerRevision ?? null,
+          qualityFlags: bar.qualityFlags ?? [],
           qualityStatus: bar.isClosed ? 'accepted' : 'provisional',
           ingestedAt: new Date(),
           updatedAt: new Date(),
@@ -306,11 +318,16 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
       high: bar.high,
       low: bar.low,
       close: bar.close,
+      adjustedClose: bar.adjustedClose,
       volume: bar.volume,
       isClosed: true,
       ...(bar.sourceTimestamp === undefined
         ? {}
         : { sourceTimestamp: bar.sourceTimestamp }),
+      availableAt: bar.availableAt,
+      receivedAt: bar.receivedAt,
+      providerRevision: bar.providerRevision,
+      qualityFlags: bar.qualityFlags ?? [],
       revision: existing.revision + 1,
       qualityStatus: 'corrected',
     });
@@ -352,6 +369,7 @@ export class DatabaseBarIngestionStore implements BarIngestionStore {
       existing.high === incoming.high &&
       existing.low === incoming.low &&
       existing.close === incoming.close &&
+      existing.adjustedClose === (incoming.adjustedClose ?? null) &&
       existing.volume === incoming.volume &&
       existing.isClosed === incoming.isClosed
     );

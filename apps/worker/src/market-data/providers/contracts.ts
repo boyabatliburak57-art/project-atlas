@@ -7,6 +7,7 @@ export const MARKET_DATA_TIMEFRAMES = [
   '4h',
   '1d',
   '1w',
+  '1mo',
 ] as const;
 
 export type MarketDataTimeframe = (typeof MARKET_DATA_TIMEFRAMES)[number];
@@ -46,11 +47,20 @@ export interface ProviderBarDto {
   readonly high: DecimalString;
   readonly low: DecimalString;
   readonly close: DecimalString;
+  readonly adjustedClose?: DecimalString | undefined;
   readonly volume: DecimalString;
   readonly isClosed: boolean;
   readonly sourceTimestamp?: Date | undefined;
   readonly availableAt?: Date | undefined;
+  readonly receivedAt?: Date | undefined;
   readonly providerRevision?: string | undefined;
+  readonly qualityFlags?:
+    | readonly (
+        | 'SOURCE_TIMESTAMP_UNAVAILABLE'
+        | 'DELAYED'
+        | 'UNOFFICIAL_SOURCE'
+      )[]
+    | undefined;
 }
 
 export interface FetchBarsRequest {

@@ -61,6 +61,17 @@ const environmentSchema = z.object({
   MARKET_DATA_PROVIDER_BASE_URL: z.url().optional(),
   MARKET_DATA_PROVIDER_CREDENTIAL_REF: z.string().min(1).max(256).optional(),
   MARKET_DATA_PROVIDER_LICENSE_ID: z.string().min(1).max(128).optional(),
+  MARKET_DATA_PROVIDER: z.string().trim().min(1).max(64).optional(),
+  BORSA_API_ENABLED: booleanEnvironmentSchema,
+  BORSA_API_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(60_000)
+    .default(10_000),
+  BORSA_API_MAX_CONCURRENCY: z.coerce.number().int().min(1).max(2).default(2),
+  BORSA_API_REQUESTS_PER_SECOND: z.coerce.number().positive().max(1).default(1),
+  BORSA_API_ALLOW_IN_PRODUCTION: booleanEnvironmentSchema,
   EMAIL_PROVIDER_MODE: z
     .enum(['disabled', 'sandbox', 'production'])
     .default('sandbox'),
@@ -134,6 +145,12 @@ type DeploymentEnvironmentKeys =
   | 'MARKET_DATA_PROVIDER_BASE_URL'
   | 'MARKET_DATA_PROVIDER_CREDENTIAL_REF'
   | 'MARKET_DATA_PROVIDER_LICENSE_ID'
+  | 'MARKET_DATA_PROVIDER'
+  | 'BORSA_API_ENABLED'
+  | 'BORSA_API_TIMEOUT_MS'
+  | 'BORSA_API_MAX_CONCURRENCY'
+  | 'BORSA_API_REQUESTS_PER_SECOND'
+  | 'BORSA_API_ALLOW_IN_PRODUCTION'
   | 'EMAIL_PROVIDER_MODE'
   | 'EMAIL_PROVIDER_BASE_URL'
   | 'EMAIL_PROVIDER_CREDENTIAL_REF'
@@ -227,6 +244,15 @@ export function parseEnvironment(
           `Invalid worker environment: ${missingEmailProviderFields.join(', ')}`,
         );
     }
+  }
+
+  if (
+    atlasEnvironment === 'production' &&
+    result.data.MARKET_DATA_PROVIDER === 'borsa-api'
+  ) {
+    throw new Error(
+      'Invalid worker environment: borsa-api is a SANDBOX_INTEGRATION and is not production eligible',
+    );
   }
 
   return result.data;

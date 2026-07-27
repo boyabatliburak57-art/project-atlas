@@ -2,6 +2,36 @@ Decision: GO_FOR_FINAL_STAGING_GATE
 
 # TASK-100 — Non-Staging Launch Completeness Audit
 
+## Current status
+
+```text
+Status: SUPERSEDED_BY_MOBILE_SCOPE_CHANGE
+
+Original Decision:
+GO_FOR_FINAL_STAGING_GATE
+
+Supersession Reason:
+The original TASK-100 audit evaluated the web, API and worker product surfaces.
+The mobile application later became the primary customer-facing product surface.
+Mobile feature parity, mobile security, accessibility, native integrations and
+mobile QA were not part of the original audit scope.
+
+Production Readiness:
+NO-GO
+
+Staging Gate:
+DEFERRED_EXTERNAL_GATE
+
+Production Launch:
+BLOCKED
+
+Required Re-Audit:
+TASK-100R after TASK-100L receives GO_FOR_TASK_100_REAUDIT.
+```
+
+The metadata above supersedes the audit only for current launch-readiness use. It does not change
+the original scope, evidence, results or decision preserved below.
+
 Audit date: 2026-07-26  
 Audited commit: `f91eefa4dafa2f8b916289cabfe816453e14a76e` plus the TASK-098 and TASK-099
 working-tree implementation under review  
@@ -203,3 +233,20 @@ remain external launch blockers. The repository is therefore:
 
 This decision authorizes only progression to the final staging evidence gate. Production launch
 remains blocked.
+
+## Post-audit scope supersession — 2026-07-28
+
+This append-only notice does not alter the evidence, counters or final decision recorded above for
+the scope audited on 2026-07-26. A later product-scope change made mobile the primary customer
+surface, so the audit does not cover the current intended product.
+
+```text
+Status: SUPERSEDED_BY_MOBILE_SCOPE_CHANGE
+Reason: Mobile application became the primary product surface after the audit.
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```
+
+TASK-100 will be re-run as TASK-100R only after TASK-100L produces
+`GO_FOR_TASK_100_REAUDIT`.

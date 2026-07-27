@@ -269,3 +269,63 @@ stub, replay-only veya sandbox adapter'ları gerçek production entegrasyonu ola
 TASK-100 yalnız `GO_FOR_FINAL_STAGING_GATE` veya `NO-GO_FOR_FINAL_STAGING_GATE` kararı verebilir;
 production GO veremez. Gerçek staging kanıtları TASK-080S/TASK-080P kapsamında ayrıca
 tamamlanmalıdır.
+
+## Mobile-First Product Transformation
+
+Project Atlas is being transformed into a mobile-first financial analytics platform. The mobile
+application will become the primary customer experience, while the existing web application will
+remain available for advanced desktop analytics and administration.
+
+Project Atlas; BIST odaklı piyasa analizi, scanner, alarm, portföy/risk yönetimi, finansal veri
+analizi ve strateji backtesting özellikleri sunan modern ve profesyonel bir mobil finans
+uygulamasıdır. Mobil yüzey günlük market takibi, scanner, alerts, portfolio/risk, Strategy Lab,
+reports, help ve settings sağlar. Web silinmez; büyük tablo/grafik deneyimleri, ileri strateji
+düzenleme, operasyon ve admin işlemleri için korunur. API ve workers tüm istemcilerin ortak backend
+platformudur.
+
+```text
+Product Strategy: MOBILE_FIRST
+Primary Customer Surface: MOBILE_APPLICATION
+Desktop Surface: ADVANCED_ANALYTICS_AND_ADMIN
+Backend Platform: SHARED_API_AND_WORKERS
+Status: SUPERSEDED_BY_MOBILE_SCOPE_CHANGE
+Reason: Mobile application became the primary product surface after the audit.
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```
+
+The previous TASK-100 audit remains a valid historical web/API/worker baseline but is superseded for
+final launch readiness until mobile feature parity and mobile re-audit are completed. Mobil
+uygulama kodu bu kapsam kayıt görevinde başlatılmamıştır. Zorunlu okuma:
+
+- `reports/mobile/mobile-transformation-gap-analysis.md`
+- `reports/mobile/mobile-scope-change-baseline.md`
+- `reports/mobile/mobile-transformation-risk-register.md`
+- `reports/mobile/task-100a-mobile-scope-change-result.md`
+- `reports/mobile/mobile-feature-parity-audit.md`
+- `tasks/TASK-100A-Mobile-Scope-Change-and-Audit-Supersession.md`
+- `tasks/TASK-100B-Mobile-Architecture-and-Monorepo-Setup.md`
+- `tasks/TASK-100C-Mobile-Design-System-and-Navigation.md`
+- `tasks/TASK-100D-Mobile-Authentication-Onboarding-and-Preferences.md`
+- `tasks/TASK-100E-Mobile-Market-Overview-Search-and-Symbol-Detail.md`
+- `tasks/TASK-100F-Mobile-Scanner-Watchlists-Alerts-and-Push.md`
+- `tasks/TASK-100G-Mobile-Portfolio-and-Risk.md`
+- `tasks/TASK-100H-Mobile-Strategy-Lab-Backtests-and-Experiments.md`
+- `tasks/TASK-100I-Mobile-Reports-Help-Support-and-Settings.md`
+- `tasks/TASK-100J-Mobile-Native-Services-Security-and-Offline.md`
+- `tasks/TASK-100K-Mobile-Accessibility-Performance-and-QA.md`
+- `tasks/TASK-100L-Mobile-Feature-Parity-Audit.md`
+- `tasks/TASK-100R-Non-Staging-Launch-Completeness-Reaudit.md`
+
+Uygulama sırası ve kapılar:
+
+```text
+TASK-100A -> TASK-100B -> TASK-100C -> TASK-100D -> TASK-100E
+-> TASK-100F -> TASK-100G -> TASK-100H -> TASK-100I -> TASK-100J
+-> TASK-100K -> TASK-100L [GO_FOR_TASK_100_REAUDIT] -> TASK-100R
+```
+
+TASK-100L GO olmadan TASK-100R çalıştırılmaz. TASK-100R yalnız
+`GO_FOR_FINAL_STAGING_GATE` veya `NO-GO_FOR_FINAL_STAGING_GATE` verebilir; production readiness
+`NO-GO`, staging gate `DEFERRED_EXTERNAL_GATE` ve production launch `BLOCKED` kalır.

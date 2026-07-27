@@ -293,3 +293,74 @@ Geçiş ve kanıt kuralları:
 - Credential, provider yetkisi, lisans/redistribution kapsamı ve gerçek health/contract kanıtı
   olmadan entegrasyon production-ready sayılmaz.
 - TASK-100 production GO veremez; yalnız final staging kapısına geçiş uygunluğunu denetler.
+
+## Mobile-First Product Transformation
+
+Ürün yüzeyleri:
+
+- Mobile: primary customer experience
+- Web: desktop analytics, advanced workflows and administration
+- API/workers: shared platform backend
+
+Durum:
+
+```text
+Milestone: Mobile-First Product Transformation
+Task Range: TASK-100A–TASK-100L
+Re-Audit: TASK-100R
+Product Strategy: MOBILE_FIRST
+Primary Customer Surface: MOBILE_APPLICATION
+Desktop Surface: ADVANCED_ANALYTICS_AND_ADMIN
+Backend Platform: SHARED_API_AND_WORKERS
+Status: SUPERSEDED_BY_MOBILE_SCOPE_CHANGE
+Reason: Mobile application became the primary product surface after the audit.
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```
+
+Zorunlu raporlar:
+
+- `reports/mobile/mobile-transformation-gap-analysis.md`
+- `reports/mobile/mobile-scope-change-baseline.md`
+- `reports/mobile/mobile-transformation-risk-register.md`
+- `reports/mobile/task-100a-mobile-scope-change-result.md`
+- `reports/mobile/mobile-feature-parity-audit.md`
+- `reports/non-staging-launch-completeness-audit.md` (append-only historical audit)
+
+Mobile architecture baseline:
+
+- `reports/mobile/mobile-transformation-gap-analysis.md#confirmed-mobile-architecture`
+
+Mobile audit:
+
+- `reports/mobile/mobile-feature-parity-audit.md`
+- `tasks/TASK-100L-Mobile-Feature-Parity-Audit.md`
+- `tasks/TASK-100R-Non-Staging-Launch-Completeness-Reaudit.md`
+
+Görevler:
+
+1. `tasks/TASK-100A-Mobile-Scope-Change-and-Audit-Supersession.md`
+2. `tasks/TASK-100B-Mobile-Architecture-and-Monorepo-Setup.md`
+3. `tasks/TASK-100C-Mobile-Design-System-and-Navigation.md`
+4. `tasks/TASK-100D-Mobile-Authentication-Onboarding-and-Preferences.md`
+5. `tasks/TASK-100E-Mobile-Market-Overview-Search-and-Symbol-Detail.md`
+6. `tasks/TASK-100F-Mobile-Scanner-Watchlists-Alerts-and-Push.md`
+7. `tasks/TASK-100G-Mobile-Portfolio-and-Risk.md`
+8. `tasks/TASK-100H-Mobile-Strategy-Lab-Backtests-and-Experiments.md`
+9. `tasks/TASK-100I-Mobile-Reports-Help-Support-and-Settings.md`
+10. `tasks/TASK-100J-Mobile-Native-Services-Security-and-Offline.md`
+11. `tasks/TASK-100K-Mobile-Accessibility-Performance-and-QA.md`
+12. `tasks/TASK-100L-Mobile-Feature-Parity-Audit.md`
+13. `tasks/TASK-100R-Non-Staging-Launch-Completeness-Reaudit.md`
+
+Bağımlılık grafiği:
+
+```text
+100A -> 100B -> 100C -> 100D -> 100E -> 100F -> 100G
+-> 100H -> 100I -> 100J -> 100K -> 100L(GO) -> 100R
+```
+
+TASK-100A açık kullanıcı komutu olmadan uygulama koduna geçilmez. TASK-100L'nin bütün zero-failure
+koşulları sağlanmadan TASK-100R çalıştırılmaz. Local, fake, fixture veya sandbox kanıtları staging
+ya da production kanıtına dönüştürülemez.
