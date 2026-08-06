@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Portfolio provider-required state
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=provider'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=provider'
+- assertVisible: { id: 'portfolio-provider-required' }
+- assertVisible: 'Portföy'

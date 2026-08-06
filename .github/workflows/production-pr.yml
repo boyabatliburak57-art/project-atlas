@@ -18,6 +18,9 @@ jobs:
     timeout-minutes: 60
     env:
       DATABASE_URL: postgresql://atlas:ci-only@127.0.0.1:5432/atlas_ci_test
+      EXPO_PUBLIC_API_BASE_URL: https://api.invalid.example/api/v1
+      EXPO_PUBLIC_APP_ENV: test
+      EXPO_PUBLIC_DEEP_LINK_SCHEME: atlas
       NEXT_PUBLIC_API_URL: http://127.0.0.1:3001/api/v1
       REDIS_URL: redis://127.0.0.1:6379
       TEST_DATABASE_URL: postgresql://atlas:ci-only@127.0.0.1:5432/atlas_ci_test
@@ -88,6 +91,13 @@ jobs:
         run: |
           pnpm --filter @atlas/api openapi:check
           sh scripts/production/migration-dry-run.sh
+
+      - name: Mobile architecture validation
+        run: |
+          pnpm --filter @atlas/mobile config:check
+          pnpm --filter @atlas/mobile run doctor
+          pnpm --filter @atlas/mobile test:integration
+          pnpm --filter @atlas/mobile test:e2e
 
       - name: PostgreSQL and Redis integration
         run: |

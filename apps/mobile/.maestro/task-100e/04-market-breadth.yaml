@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Market breadth
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- assertVisible: 'Değerlendirilen 540'
+- scrollUntilVisible:
+    { element: { id: 'market-breadth-evidence' }, direction: DOWN }
+- assertVisible: { id: 'market-breadth-evidence' }

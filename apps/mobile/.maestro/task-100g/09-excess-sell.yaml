@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Prevent invalid excess sell
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=validation'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=validation'
+- assertVisible: { id: 'portfolio-validation' }
+- assertVisible: 'Alış kaydı ekle'

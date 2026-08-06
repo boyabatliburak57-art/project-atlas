@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Privacy mode
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=privacy'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=privacy'
+- assertVisible: { id: 'portfolio-privacy' }
+- assertVisible: 'Bakiyeler gizli'

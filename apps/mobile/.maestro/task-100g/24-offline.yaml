@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Offline read-only and logout cleanup
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=overview&offline=1'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=overview&offline=1'
+- assertVisible: { id: 'portfolio-offline' }
+- assertVisible: 'Portföy'

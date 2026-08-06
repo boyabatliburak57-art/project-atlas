@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Search no result
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/search?fixture=1'
+- tapOn: { id: 'symbol-search-input' }
+- inputText: 'ZZZZZZ'
+- assertVisible: 'Sonuç bulunamadı.'

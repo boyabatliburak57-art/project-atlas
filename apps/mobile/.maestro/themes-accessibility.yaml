@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- openLink: 'atlas://component-catalog'
+- assertVisible: 'Component Catalog'
+- assertVisible: 'DEMO_UI_FIXTURE · NOT_LIVE_MARKET_DATA'
+- assertVisible: 'Çevrimdışı · salt okunur'

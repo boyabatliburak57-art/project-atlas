@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Risk overview
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=risk'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=risk'
+- assertVisible: { id: 'portfolio-risk' }
+- assertVisible: 'MAX DRAWDOWN'

@@ -167,3 +167,29 @@ by the repository-wide format gate. Re-run `pnpm format:check`, `pnpm validate:a
 `git diff --check` after the owner resolves or authorizes formatting of the unrelated provider
 evaluation guide. If all pass without changing the registered statuses, TASK-100B may become
 `READY_FOR_IMPLEMENTATION`.
+
+## Remediation — TASK-100A-R Repository Format Gate Remediation
+
+The original `NO_GO_FOR_TASK_100B` decision above is retained as the historical pre-remediation
+result. TASK-100A-R formatted only `guides/PROVIDER_VENDOR_EVALUATION_MATRIX.md`. Normalized semantic
+comparison found 0 changed text/cell lines; headings, 24 table rows including the header and 6
+blocker bullets were preserved.
+
+The repository-wide format gate now passes. Full evidence is recorded in
+`reports/mobile/task-100a-format-remediation.md`.
+
+```text
+Decision: GO_FOR_TASK_100B
+Audit Supersession: PASS
+Mobile Scope Registration: PASS
+Repository Format: PASS
+ADR Validation: PASS
+Git Diff Check: PASS
+Duplicate Task IDs: 0
+Unindexed Mobile Tasks: 0
+Mobile Code Changes: 0
+Dependency Changes: 0
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```

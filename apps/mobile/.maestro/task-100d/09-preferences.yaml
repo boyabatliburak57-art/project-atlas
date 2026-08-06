@@ -1,0 +1,18 @@
+appId: com.atlasfinance.mobile
+name: Preference update
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///preferences'
+- assertVisible: 'Temel tercihler'
+- assertVisible: 'SERVER_BACKED · VERSION 1'
+- scrollUntilVisible:
+    element:
+      text: 'Tercihleri kaydet'
+    direction: DOWN
+- tapOn: 'Tercihleri kaydet'
+- scrollUntilVisible:
+    element:
+      text: 'SERVER_BACKED · VERSION 2'
+    direction: UP
+- assertVisible: 'SERVER_BACKED · VERSION 2'

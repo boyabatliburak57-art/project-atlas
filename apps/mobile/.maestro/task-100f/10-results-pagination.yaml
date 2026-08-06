@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Scan results cursor pagination
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=results'
+- openLink: 'atlas://scanner?fixture=1&view=results'
+- assertVisible: { id: 'scan-results' }
+- scrollUntilVisible: { element: { id: 'results-next-page' }, direction: DOWN }
+- tapOn: { id: 'results-next-page' }

@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Pattern states
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- scrollUntilVisible: { element: { text: 'Patterns' }, direction: DOWN }
+- tapOn: 'Patterns'
+- scrollUntilVisible: { element: { id: 'patterns-evidence' }, direction: DOWN }
+- assertVisible: { id: 'patterns-evidence' }

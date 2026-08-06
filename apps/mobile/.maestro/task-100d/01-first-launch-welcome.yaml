@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: First launch and welcome
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Piyasayı sakin ve güvenilir bir çerçevede analiz edin.'
+    timeout: 120000
+- assertVisible: 'Giriş yap'
+- assertVisible: 'Hesap erişimi'

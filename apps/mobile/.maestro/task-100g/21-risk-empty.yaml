@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Risk not evaluable states
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=risk-empty'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=risk-empty'
+- assertVisible: { id: 'portfolio-risk-empty' }
+- assertVisible: 'NOT_EVALUABLE'

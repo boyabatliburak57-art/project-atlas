@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-100E insights visual evidence
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- scrollUntilVisible: { element: { text: 'Insights' }, direction: DOWN }
+- tapOn: 'Insights'
+- scrollUntilVisible: { element: { id: 'insights-evidence' }, direction: DOWN }
+- assertVisible: { id: 'insights-evidence' }

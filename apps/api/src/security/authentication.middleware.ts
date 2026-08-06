@@ -72,8 +72,21 @@ export class AuthenticationMiddleware implements NestMiddleware {
     request.authenticatedRoles = session.roles;
     request.authenticationAt = session.authenticationAt;
     request.authenticationMethod = method;
+    request.authenticatedEmailVerified = session.emailVerified;
+    if (!session.emailVerified && !verificationAllowed(request.path))
+      throw new ForbiddenException({
+        code: 'EMAIL_VERIFICATION_REQUIRED',
+        message: 'E-mail verification is required',
+      });
     next();
   }
+}
+
+function verificationAllowed(path: string): boolean {
+  return (
+    path.startsWith('/api/v1/auth/email-verification/') ||
+    path === '/api/v1/auth/logout'
+  );
 }
 
 export function parseCookies(

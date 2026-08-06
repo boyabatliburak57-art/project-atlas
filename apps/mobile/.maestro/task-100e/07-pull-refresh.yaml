@@ -1,0 +1,11 @@
+appId: com.atlasfinance.mobile
+name: Pull to refresh contract
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- swipe:
+    start: 50%, 20%
+    end: 50%, 75%
+    duration: 500
+- assertVisible: 'Piyasa Özeti'
+- assertVisible: 'DEMO_UI_FIXTURE · NOT_LIVE_MARKET_DATA'

@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- openLink: 'atlas://component-catalog'
+- extendedWaitUntil:
+    visible: 'Çevrimdışı · salt okunur'
+    timeout: 30000
+- assertVisible: 'İstek tamamlanamadı'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- assertNotVisible: 'raw stack'

@@ -1,5 +1,8 @@
 .next
 dist
+dist-ios
 node_modules
 pnpm-lock.yaml
 apps/web/next-env.d.ts
+apps/mobile/ios
+apps/mobile/expo-env.d.ts

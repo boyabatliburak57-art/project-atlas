@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Scan builder validation failure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=validation'
+- openLink: 'atlas://scanner?fixture=1&view=validation'
+- scrollUntilVisible:
+    { element: { id: 'builder-validation-error' }, direction: DOWN }
+- assertVisible: 'Koşul doğrulanamadı'

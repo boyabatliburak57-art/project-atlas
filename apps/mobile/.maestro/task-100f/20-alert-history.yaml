@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Alert enable disable and history
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=alert-triggered'
+- openLink: 'atlas://watchlists?fixture=1&view=alert-triggered'
+- assertVisible: { id: 'alerts-triggered' }
+- assertVisible: 'TRIGGERED'

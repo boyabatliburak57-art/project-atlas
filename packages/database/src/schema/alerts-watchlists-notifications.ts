@@ -500,6 +500,53 @@ export const notificationPreferences = pgTable(
   ],
 );
 
+export const pushDevices = pgTable(
+  'push_devices',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    ownerUserId: uuid('owner_user_id').notNull(),
+    installationId: varchar('installation_id', { length: 160 }).notNull(),
+    platform: varchar('platform', { length: 16 }).notNull(),
+    environment: varchar('environment', { length: 24 }).notNull(),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+    tokenCiphertext: text('token_ciphertext').notNull(),
+    permissionStatus: varchar('permission_status', { length: 24 }).notNull(),
+    appVersion: varchar('app_version', { length: 32 }).notNull(),
+    locale: varchar('locale', { length: 16 }).notNull(),
+    timezone: varchar('timezone', { length: 64 }).notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull(),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+    ...auditTimestamps,
+  },
+  (table) => [
+    uniqueIndex('push_devices_owner_installation_unique').on(
+      table.ownerUserId,
+      table.installationId,
+    ),
+    uniqueIndex('push_devices_environment_token_hash_unique').on(
+      table.environment,
+      table.tokenHash,
+    ),
+    index('push_devices_owner_revoked_idx').on(
+      table.ownerUserId,
+      table.revokedAt,
+    ),
+    check('push_devices_platform_check', sql`${table.platform} = 'ios'`),
+    check(
+      'push_devices_environment_check',
+      sql`${table.environment} in ('development', 'production')`,
+    ),
+    check(
+      'push_devices_permission_check',
+      sql`${table.permissionStatus} in ('notDetermined', 'granted', 'denied', 'provisional', 'unavailable')`,
+    ),
+    check(
+      'push_devices_token_hash_check',
+      sql`length(${table.tokenHash}) = 64`,
+    ),
+  ],
+);
+
 export const notificationDeliveries = pgTable(
   'notification_deliveries',
   {

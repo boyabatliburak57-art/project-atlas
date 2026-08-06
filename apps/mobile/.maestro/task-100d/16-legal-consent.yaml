@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Legal consent and document version
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///legal'
+- assertVisible: 'Yasal belgeler'
+- assertVisible: 'LEGAL_REVIEW_REQUIRED · NOT_FOR_PRODUCTION_PUBLICATION'

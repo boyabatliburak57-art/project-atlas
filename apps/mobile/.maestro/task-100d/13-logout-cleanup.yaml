@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Logout and account switch cleanup
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas://verification'
+- assertVisible: 'Hesap değiştir'
+- tapOn: 'Hesap değiştir'
+- assertVisible: 'Giriş yap'

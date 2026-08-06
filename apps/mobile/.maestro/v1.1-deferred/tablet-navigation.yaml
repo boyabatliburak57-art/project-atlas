@@ -1,0 +1,11 @@
+appId: com.atlasfinance.mobile
+# status: DEFERRED_V1_1
+# releaseGate: false
+---
+- launchApp
+- assertVisible: 'Tablet navigation'
+- tapOn: 'Home'
+- tapOn: 'Markets'
+- tapOn: 'Search'
+- tapOn: 'Portfolio'
+- tapOn: 'More'

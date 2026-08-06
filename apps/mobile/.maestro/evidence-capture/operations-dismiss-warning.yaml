@@ -1,0 +1,5 @@
+appId: com.atlasfinance.mobile
+name: Dismiss development warning before native capture
+---
+- openLink: 'atlas://scanner?fixture=1&view=saved'
+- tapOn: { point: '92%,94%' }

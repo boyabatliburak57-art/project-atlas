@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Scanner saved scans
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=saved'
+- openLink: 'atlas://scanner?fixture=1&view=saved'
+- assertVisible: { id: 'saved-scans-list' }
+- assertVisible: 'Momentum takibi'

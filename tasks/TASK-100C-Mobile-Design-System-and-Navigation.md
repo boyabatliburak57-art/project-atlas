@@ -1,6 +1,14 @@
 # TASK-100C — Mobile Design System and Navigation
 
-**Durum:** BLOCKED_BY_TASK-100B  
+## TASK-100C-R5 iOS-only v1 scope supersession
+
+Mobile v1 validates only iPhone 17 on iOS 26.5. Small/large iPhone, Android and tablet
+implementation, native validation, accessibility, visual regression and E2E are deferred to
+mobile v1.1. Deferred results must not be reported as PASS or production-supported. This section
+supersedes conflicting multi-phone, Android and tablet v1 criteria below without deleting their
+historical task context.
+
+**Durum:** READY_FOR_IMPLEMENTATION
 **Bağımlılıklar:** TASK-100B
 
 ## Amaç

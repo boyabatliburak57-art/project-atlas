@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Indicator selection
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- scrollUntilVisible: { element: { text: 'SMA' }, direction: DOWN }
+- tapOn: 'SMA'
+- tapOn: 'RSI'
+- assertVisible: 'Backend authoritative · En fazla 6 · Yetersiz veri sıfır gösterilmez.'

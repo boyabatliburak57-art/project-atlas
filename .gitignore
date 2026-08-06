@@ -5,7 +5,11 @@
 .next/
 coverage/
 dist/
+dist-ios/
 node_modules/
+apps/mobile/ios/Pods/
+apps/mobile/ios/build/
+.expo/
 .turbo/
 *.log
 *.tsbuildinfo

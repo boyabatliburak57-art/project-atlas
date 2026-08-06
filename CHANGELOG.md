@@ -1,5 +1,29 @@
 # Changelog
 
+## task-100f-mobile-operations — 2026-08-06
+
+- Added iOS scanner, saved-scan revisions, cursor results/history, watchlists and price/indicator/
+  saved-scan alert surfaces with provider-authoritative fail-closed behavior.
+- Added contextual push permission, owner-scoped encrypted device registration, rotation/revocation,
+  minimal payloads, allowlisted deep links, deduplication, quiet hours and notification center.
+- Added clean 24/24 Maestro evidence and 20 new native screenshots with independent zero-diff result.
+- Production APNs remains externally configured; live push is not validated. Provider and e-mail
+  external statuses, VoiceOver waiver, Android/tablet deferral and production/staging decisions did
+  not change.
+
+## mobile-v1-ios-only-scope — 2026-07-31
+
+- Mobile v1 release scope changed to iOS phones only.
+- Android phone and tablet support moved to mobile v1.1.
+- The supported iOS native validation profile is iPhone 17 on iOS 26.5.
+- No production-readiness or staging decision changed.
+
+## mobile-v1-phone-only-scope — 2026-07-28
+
+- Mobile v1 release scope narrowed to iOS and Android phones.
+- Tablet support and tablet-native validation moved to mobile v1.1.
+- No production-readiness or staging decision changed.
+
 ## mobile-first-scope-change — 2026-07-28
 
 ### Durum
@@ -14,6 +38,11 @@ Production Launch: BLOCKED
 
 ### Eklendi
 
+- Expo SDK 57 / React Native 0.86 mobile monorepo scaffold, route shell and native adapter
+  foundations.
+- Shared typed API client, design tokens, financial formatting and provider-neutral telemetry
+  packages.
+- ADR-026 mobile architecture decision, mobile test/E2E contract and CI validation gates.
 - Mobile transformation gap analysis ve TASK-100L parity audit contract'ı.
 - TASK-100A–TASK-100L ve TASK-100R kapsam, bağımlılık, kabul, test, security ve T3 uygulama
   belgeleri.

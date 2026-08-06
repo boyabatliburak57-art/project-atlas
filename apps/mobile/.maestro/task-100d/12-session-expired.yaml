@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Session expiration and reauthentication
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas://session-expired'
+- assertVisible: 'Oturum süresi doldu'
+- assertVisible: 'Güvenliğiniz için yeniden giriş yapın.'

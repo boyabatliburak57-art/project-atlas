@@ -1,0 +1,16 @@
+appId: com.atlasfinance.mobile
+name: Forgot and reset password contract
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas://forgot-password'
+- assertVisible: 'Şifremi unuttum'
+- tapOn:
+    id: 'auth-email'
+- inputText: 'mobile@example.test'
+- tapOn: 'Sıfırlama bağlantısı iste'
+- extendedWaitUntil:
+    visible: 'Hesap uygunsa şifre sıfırlama talimatı gönderilecektir.'
+    timeout: 30000
+- openLink: 'atlas://reset-password?token=invalid-token-value-that-is-long-enough-0000'
+- assertVisible: 'Yeni şifre'

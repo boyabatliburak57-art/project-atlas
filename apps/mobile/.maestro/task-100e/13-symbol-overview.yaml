@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Symbol detail overview
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- assertVisible: 'Türk Hava Yolları · BIST'
+- scrollUntilVisible:
+    { element: { text: 'Temel göstergeler' }, direction: DOWN }
+- assertVisible: 'Temel göstergeler'

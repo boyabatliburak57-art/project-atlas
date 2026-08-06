@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Home provider required
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- assertNotVisible: '10.742,30'

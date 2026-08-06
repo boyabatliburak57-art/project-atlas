@@ -8,7 +8,15 @@ import { Test } from '@nestjs/testing';
 import { createCoreIndicatorRegistry } from '@atlas/domain';
 import type { Request } from 'express';
 import request from 'supertest';
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 import {
   AUTHENTICATED_USER_RESOLVER,
@@ -141,6 +149,8 @@ describe('Symbol detail and chart API', () => {
   let cache: SymbolResponseCache;
 
   beforeAll(async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-07-01T12:00:00.000Z'));
     reader = new FixtureReader();
     cache = new SymbolResponseCache(
       new ConfigService({ MARKET_RESPONSE_CACHE_TTL_MS: 5_000 }),
@@ -180,7 +190,10 @@ describe('Symbol detail and chart API', () => {
     cache.clear();
   });
 
-  afterAll(() => app.close());
+  afterAll(async () => {
+    await app.close();
+    vi.useRealTimers();
+  });
 
   const api = () => request(server);
   const range = {

@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-100E company visual evidence
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=Company'
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=Company'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-evidence' },
+      direction: DOWN,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'company-evidence' }

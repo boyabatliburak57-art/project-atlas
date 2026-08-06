@@ -144,11 +144,14 @@ export class AuthController {
   }
 
   private response(request: Request, session: IssuedSession) {
+    const mobileClient = request.get('x-atlas-client') === 'mobile';
     return {
       data: {
         expiresAt: session.expiresAt.toISOString(),
         roles: session.roles,
         userId: session.userId,
+        emailVerificationRequired: session.emailVerified === false,
+        ...(mobileClient ? { sessionToken: session.token } : {}),
       },
       meta: { requestId: getRequestId(request) },
     };

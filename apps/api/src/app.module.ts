@@ -43,6 +43,12 @@ import { AdminOperationsService } from './operations/admin-operations.service';
 import { DataOperationsController } from './data-operations/data-operations.controller';
 import { DataOperationsService } from './data-operations/data-operations.service';
 import { AuthController } from './security/auth.controller';
+import { EmailVerificationController } from './security/email-verification.controller';
+import { EmailVerificationService } from './security/email-verification.service';
+import {
+  EMAIL_VERIFICATION_DELIVERY,
+  SandboxEmailVerificationDelivery,
+} from './security/email-verification-delivery';
 import {
   AccountDeletionAdminController,
   AccountDeletionController,
@@ -63,6 +69,16 @@ import {
 import { PostgresNotificationCenterStore } from './notifications/notifications.infrastructure';
 import { NOTIFICATION_CENTER_STORE } from './notifications/notifications.ports';
 import { NotificationsService } from './notifications/notifications.service';
+import { PushDevicesController } from './notifications/push-devices.controller';
+import {
+  AesPushTokenProtector,
+  PostgresPushDeviceStore,
+} from './notifications/push-devices.infrastructure';
+import {
+  PUSH_DEVICE_STORE,
+  PUSH_TOKEN_PROTECTOR,
+} from './notifications/push-devices.ports';
+import { PushDevicesService } from './notifications/push-devices.service';
 import { EmailWebhookController } from './notifications/email-webhook.controller';
 import { EmailWebhookService } from './notifications/email-webhook.service';
 import {
@@ -213,6 +229,7 @@ import {
   controllers: [
     HealthController,
     AuthController,
+    EmailVerificationController,
     AccountDeletionController,
     AccountDeletionAdminController,
     IndicatorCatalogController,
@@ -224,6 +241,7 @@ import {
     AlertsController,
     NotificationsController,
     NotificationPreferencesController,
+    PushDevicesController,
     EmailWebhookController,
     LegalController,
     ConsentHistoryController,
@@ -264,6 +282,12 @@ import {
     HealthService,
     TelemetryService,
     AuthSessionService,
+    EmailVerificationService,
+    SandboxEmailVerificationDelivery,
+    {
+      provide: EMAIL_VERIFICATION_DELIVERY,
+      useExisting: SandboxEmailVerificationDelivery,
+    },
     AccountDeletionService,
     AuthenticationMiddleware,
     AbusePreventionMiddleware,
@@ -287,6 +311,8 @@ import {
     PostgresAlertStore,
     PostgresAlertDryRunEvaluator,
     PostgresNotificationCenterStore,
+    PostgresPushDeviceStore,
+    AesPushTokenProtector,
     PostgresPortfolioReadModel,
     InMemoryPortfolioCommandGuard,
     PostgresPortfolioImportStore,
@@ -335,6 +361,8 @@ import {
       provide: NOTIFICATION_CENTER_STORE,
       useExisting: PostgresNotificationCenterStore,
     },
+    { provide: PUSH_DEVICE_STORE, useExisting: PostgresPushDeviceStore },
+    { provide: PUSH_TOKEN_PROTECTOR, useExisting: AesPushTokenProtector },
     {
       provide: PORTFOLIO_APPLICATION,
       inject: [ApiDatabase],
@@ -436,6 +464,7 @@ import {
     WatchlistsService,
     AlertsService,
     NotificationsService,
+    PushDevicesService,
     EmailWebhookService,
     LegalService,
     DemoService,

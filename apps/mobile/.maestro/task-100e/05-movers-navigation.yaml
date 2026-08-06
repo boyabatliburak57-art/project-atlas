@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: Gainers and losers navigation
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- scrollUntilVisible:
+    element: { text: 'Mover THYAO' }
+    direction: DOWN
+    visibilityPercentage: 50
+    centerElement: true
+- tapOn: 'Mover THYAO'
+- assertVisible: { id: 'symbol-detail' }

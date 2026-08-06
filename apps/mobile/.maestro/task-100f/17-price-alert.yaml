@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: Price alert create
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=alert-create'
+- openLink: 'atlas://watchlists?fixture=1&view=alert-create'
+- assertVisible: { id: 'alert-builder' }
+- assertVisible: 'PRICE'
+- tapOn: { id: 'save-alert' }
+- assertVisible: { id: 'alerts-active' }

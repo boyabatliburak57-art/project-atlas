@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Run scan deterministic fixture
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=progress'
+- openLink: 'atlas://scanner?fixture=1&view=progress'
+- assertVisible: { id: 'scan-progress' }
+- assertVisible: 'RUNNING · QUEUED WORKER'

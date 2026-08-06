@@ -15,8 +15,8 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the ninety-three scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(93);
+  it('creates the ninety-five scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(95);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
   });
 

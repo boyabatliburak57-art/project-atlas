@@ -102,6 +102,7 @@ describe('security runtime primitives', () => {
   it('issues Secure, HttpOnly and SameSite cookies in staging', async () => {
     const session: IssuedSession = {
       authenticationAt: new Date(),
+      emailVerified: true,
       csrfToken: 'csrf-token',
       csrfTokenHash: hashToken('csrf-token'),
       expiresAt: new Date(Date.now() + 60_000),
@@ -151,5 +152,48 @@ describe('security runtime primitives', () => {
       name: 'atlas_csrf',
       options: { httpOnly: false, sameSite: 'strict', secure: true },
     });
+  });
+
+  it('returns a bearer credential only to the explicit mobile client', async () => {
+    const session: IssuedSession = {
+      authenticationAt: new Date(),
+      emailVerified: true,
+      csrfToken: 'csrf-token',
+      csrfTokenHash: hashToken('csrf-token'),
+      expiresAt: new Date(Date.now() + 60_000),
+      id: 'session-id',
+      roles: ['user'],
+      token: 'session-token',
+      userId: 'user-id',
+    };
+    const controller = new AuthController(
+      {
+        login: vi.fn().mockResolvedValue(session),
+      } as unknown as AuthSessionService,
+      new ConfigService({
+        ATLAS_ENV: 'test',
+        AUTH_COOKIE_NAME: 'atlas_session',
+        AUTH_CSRF_COOKIE_NAME: 'atlas_csrf',
+      }),
+    );
+    const request = {
+      headers: { 'user-agent': 'test', 'x-atlas-client': 'mobile' },
+      ip: '127.0.0.1',
+      requestId: 'request-id',
+      socket: {},
+      get: (name: string) =>
+        name.toLowerCase() === 'x-atlas-client'
+          ? 'mobile'
+          : name.toLowerCase() === 'user-agent'
+            ? 'test'
+            : undefined,
+    } as unknown as Request;
+    const response = { cookie: vi.fn() } as unknown as Response;
+    await expect(
+      controller.login(request, response, {
+        email: 'user@example.test',
+        password: 'irrelevant',
+      }),
+    ).resolves.toMatchObject({ data: { sessionToken: 'session-token' } });
   });
 });

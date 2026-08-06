@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Scanner provider-required state
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?view=provider'
+- openLink: 'atlas://scanner?view=provider'
+- assertVisible: { id: 'scanner-provider-required' }
+- assertVisible: 'Veri sağlayıcısı gerekli'

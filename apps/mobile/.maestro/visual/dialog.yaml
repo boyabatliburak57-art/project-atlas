@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- openLink: 'atlas://component-catalog'
+- extendedWaitUntil:
+    visible: 'Component Catalog'
+    timeout: 30000
+- tapOn:
+    id: 'catalog-open-dialog'
+- assertVisible: 'İşlemi onayla'

@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: Onboarding full completion
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///(onboarding)'
+- assertVisible: 'Başlangıç ayarları'
+- repeat:
+    times: 7
+    commands:
+      - tapOn: 'Kaydet ve devam et'
+- assertVisible: 'Onboarding özeti'
+- tapOn: 'Onboarding’i tamamla'
+- assertVisible: 'Home foundation'

@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Scan builder basic condition
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- assertVisible: { id: 'scan-builder' }
+- assertVisible: 'RSI(14)'
+- assertVisible: 'Close'

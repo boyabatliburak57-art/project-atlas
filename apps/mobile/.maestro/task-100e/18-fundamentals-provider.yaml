@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Fundamentals provider required
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=0'
+- openLink: 'atlas://symbol/THYAO?fixture=0'
+- assertVisible: { id: 'symbol-provider-required' }
+- assertNotVisible: 'Gelir · 2026/06'

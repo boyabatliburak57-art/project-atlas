@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Add cash movement
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=cash'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=cash'
+- assertVisible: { id: 'portfolio-cash' }
+- assertVisible: 'Nakit hareketi ekle'

@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Onboarding optional step skip
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///(onboarding)'
+- tapOn: 'Kaydet ve devam et'
+- tapOn: 'Bu adımı geç'
+- assertVisible: 'Benchmark ve kullanım profili'

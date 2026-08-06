@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Fundamentals available fixture
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=Financials'
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=Financials'
+- scrollUntilVisible:
+    { element: { id: 'fundamentals-evidence' }, direction: DOWN }
+- assertVisible: { id: 'fundamentals-evidence' }

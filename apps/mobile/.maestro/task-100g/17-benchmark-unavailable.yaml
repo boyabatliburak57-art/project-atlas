@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Benchmark unavailable
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=benchmark'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=benchmark'
+- assertVisible: { id: 'portfolio-benchmark' }
+- assertVisible: 'BENCHMARK_UNAVAILABLE'

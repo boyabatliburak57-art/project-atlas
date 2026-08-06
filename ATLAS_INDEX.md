@@ -1,5 +1,14 @@
 # Atlas Doküman İndeksi
 
+## Mobile v1 platform and form factor
+
+- Platform: `IOS_ONLY`
+- Form factor: `PHONE_ONLY`
+- Required profile: iPhone 17 on iOS 26.5
+- Android: `DEFERRED_V1_1_NOT_RELEASE_GATED`
+- Tablet and NavigationRail: `DEFERRED_V1_1_NOT_RELEASE_GATED`
+- Decision: `reports/mobile/mobile-v1-platform-scope-decision.md`
+
 ## v0.4 zorunlu okuma
 
 - `docs/DOC-011-Scanner-Runtime-Requirements.md`
@@ -325,12 +334,16 @@ Zorunlu raporlar:
 - `reports/mobile/mobile-scope-change-baseline.md`
 - `reports/mobile/mobile-transformation-risk-register.md`
 - `reports/mobile/task-100a-mobile-scope-change-result.md`
+- `reports/mobile/mobile-monorepo-architecture.md`
+- `reports/mobile/mobile-dependency-and-compatibility-matrix.md`
+- `reports/mobile/task-100b-mobile-architecture-result.md`
 - `reports/mobile/mobile-feature-parity-audit.md`
 - `reports/non-staging-launch-completeness-audit.md` (append-only historical audit)
 
 Mobile architecture baseline:
 
 - `reports/mobile/mobile-transformation-gap-analysis.md#confirmed-mobile-architecture`
+- `architecture/ADR-026-Mobile-Expo-Architecture-and-Shared-Client.md`
 
 Mobile audit:
 
@@ -353,6 +366,11 @@ Görevler:
 11. `tasks/TASK-100K-Mobile-Accessibility-Performance-and-QA.md`
 12. `tasks/TASK-100L-Mobile-Feature-Parity-Audit.md`
 13. `tasks/TASK-100R-Non-Staging-Launch-Completeness-Reaudit.md`
+
+TASK-100F evidence: `reports/mobile/task-100f-scanner-watchlist-alert-result.md`,
+`reports/mobile/task-100f-maestro-ios-result.md`,
+`reports/mobile/task-100f-native-visual-result.md` and
+`reports/mobile/mobile-push-security-review.md`.
 
 Bağımlılık grafiği:
 

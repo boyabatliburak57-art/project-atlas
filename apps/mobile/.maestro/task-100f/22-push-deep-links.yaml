@@ -1,0 +1,11 @@
+appId: com.atlasfinance.mobile
+name: Push deep links to owned destinations
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- assertVisible: 'THYAO'
+- openLink: 'atlas://watchlists?fixture=1&view=alert-active'
+- assertVisible: { id: 'alerts-active' }
+- openLink: 'atlas://scanner?fixture=1&view=results'
+- assertVisible: { id: 'scan-results' }

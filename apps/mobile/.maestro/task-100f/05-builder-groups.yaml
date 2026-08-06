@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Scan builder AND OR group
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- tapOn: { id: 'toggle-combinator' }
+- assertVisible: 'OR'

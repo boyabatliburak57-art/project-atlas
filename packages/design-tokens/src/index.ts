@@ -1,0 +1,171 @@
+export const palette = {
+  navy950: '#071426',
+  navy900: '#0B1F3A',
+  navy800: '#12315A',
+  primary700: '#0F4FD8',
+  primary600: '#1565FF',
+  primary500: '#377DFF',
+  primary100: '#E8F0FF',
+  positive700: '#087A58',
+  positive600: '#0F9D72',
+  positive100: '#DCF5EA',
+  positive: '#0F9D72',
+  negative700: '#B62F3B',
+  negative600: '#D64550',
+  negative100: '#FCE4E7',
+  negative: '#D64550',
+  warning700: '#A96E0C',
+  warning600: '#D99A21',
+  warning100: '#FFF1D6',
+  background: '#F5F7FA',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#F0F3F7',
+  border: '#E3E8EF',
+  textPrimary: '#152033',
+  textSecondary: '#667085',
+  textMuted: '#98A2B3',
+  textInverse: '#FFFFFF',
+  darkBackground: '#071426',
+  darkSurface: '#10233D',
+  darkSurfaceSecondary: '#162D49',
+  darkBorder: '#29405E',
+  darkTextPrimary: '#F5F7FA',
+  darkTextSecondary: '#C4CEDB',
+  neutral: '#667085',
+  stale: '#A96E0C',
+  partial: '#7656B7',
+  demo: '#496A8A',
+} as const;
+export const spacing = {
+  0: 0,
+  2: 2,
+  4: 4,
+  8: 8,
+  12: 12,
+  16: 16,
+  20: 20,
+  24: 24,
+  32: 32,
+  40: 40,
+  48: 48,
+  64: 64,
+} as const;
+export const radius = {
+  small: 8,
+  button: 12,
+  medium: 12,
+  card: 16,
+  large: 16,
+  sheet: 24,
+  full: 999,
+} as const;
+export const borders = { hairline: 1, emphasized: 2 } as const;
+export const opacity = {
+  disabled: 0.42,
+  secondary: 0.72,
+  overlay: 0.48,
+} as const;
+export const iconSizes = {
+  small: 16,
+  medium: 20,
+  large: 24,
+  hero: 32,
+} as const;
+export const touchTargets = { ios: 44, android: 48, minimum: 48 } as const;
+export const breakpoints = {
+  compactPhone: 0,
+  standardPhone: 360,
+  largePhone: 430,
+  tabletPortrait: 768,
+  tabletLandscape: 1024,
+} as const;
+export const layoutWidths = {
+  content: 680,
+  wide: 1120,
+  rail: 88,
+  sidebar: 280,
+} as const;
+export const typography = {
+  family: 'system',
+  styles: {
+    displayLarge: { fontSize: 36, lineHeight: 44, fontWeight: '700' },
+    displayMedium: { fontSize: 30, lineHeight: 38, fontWeight: '700' },
+    titleLarge: { fontSize: 24, lineHeight: 32, fontWeight: '700' },
+    titleMedium: { fontSize: 20, lineHeight: 28, fontWeight: '600' },
+    titleSmall: { fontSize: 17, lineHeight: 24, fontWeight: '600' },
+    bodyLarge: { fontSize: 17, lineHeight: 26, fontWeight: '400' },
+    bodyMedium: { fontSize: 15, lineHeight: 22, fontWeight: '400' },
+    bodySmall: { fontSize: 13, lineHeight: 19, fontWeight: '400' },
+    labelLarge: { fontSize: 15, lineHeight: 20, fontWeight: '600' },
+    labelMedium: { fontSize: 13, lineHeight: 18, fontWeight: '600' },
+    labelSmall: { fontSize: 11, lineHeight: 16, fontWeight: '600' },
+    financialLarge: { fontSize: 28, lineHeight: 34, fontWeight: '700' },
+    financialMedium: { fontSize: 20, lineHeight: 26, fontWeight: '700' },
+    financialSmall: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
+    tabularNumber: { fontVariant: ['tabular-nums'] },
+  },
+} as const;
+export const motion = {
+  instant: 0,
+  fast: 120,
+  normal: 200,
+  slow: 320,
+  reducedDurationMs: 0,
+  standardDurationMs: 200,
+} as const;
+export const elevation = { base: 0, raised: 2, overlay: 8, modal: 16 } as const;
+export const shadows = {
+  card: { opacity: 0.06, radius: 8, offsetY: 2 },
+  overlay: { opacity: 0.12, radius: 16, offsetY: 8 },
+} as const;
+export const chartColors = {
+  primary: palette.primary600,
+  positive: palette.positive600,
+  negative: palette.negative600,
+  benchmark: '#6B7CFF',
+  volume: '#8CA0B8',
+  gridLight: '#E3E8EF',
+  gridDark: '#29405E',
+} as const;
+export const financial = {
+  positive: palette.positive600,
+  negative: palette.negative600,
+  neutral: palette.neutral,
+  warning: palette.warning600,
+  stale: palette.stale,
+  partial: palette.partial,
+  notEvaluable: palette.textMuted,
+  marketOpen: palette.positive600,
+  marketClosed: palette.neutral,
+  delayed: palette.warning600,
+  demo: palette.demo,
+} as const;
+export const lightTheme = {
+  mode: 'light',
+  background: palette.background,
+  surface: palette.surface,
+  surfaceSecondary: palette.surfaceSecondary,
+  border: palette.border,
+  textPrimary: palette.textPrimary,
+  textSecondary: palette.textSecondary,
+  textMuted: palette.textMuted,
+  primary: palette.primary600,
+  inverse: palette.textInverse,
+  financial,
+  chartGrid: chartColors.gridLight,
+} as const;
+export const darkTheme = {
+  mode: 'dark',
+  background: palette.darkBackground,
+  surface: palette.darkSurface,
+  surfaceSecondary: palette.darkSurfaceSecondary,
+  border: palette.darkBorder,
+  textPrimary: palette.darkTextPrimary,
+  textSecondary: palette.darkTextSecondary,
+  textMuted: palette.textMuted,
+  primary: palette.primary500,
+  inverse: palette.navy950,
+  financial,
+  chartGrid: chartColors.gridDark,
+} as const;
+export type AtlasTheme = typeof lightTheme | typeof darkTheme;

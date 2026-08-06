@@ -1,5 +1,10 @@
 # TASK-100L — Mobile Feature Parity Audit
 
+## Supported v1 audit scope
+
+TASK-100L audits only the supported iPhone 17 / iOS 26.5 profile. Android, small/large iPhone and
+tablet parity is `DEFERRED_V1_1_NOT_RELEASE_GATED` and cannot establish v1 production support.
+
 **Durum:** BLOCKED_BY_TASK-100K  
 **Bağımlılıklar:** TASK-100K
 

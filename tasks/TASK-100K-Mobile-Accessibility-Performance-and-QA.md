@@ -1,5 +1,11 @@
 # TASK-100K — Mobile Accessibility, Performance and QA
 
+## TASK-100C-R5 iOS-only v1 scope supersession
+
+Mobile v1 QA gates apply only to iPhone 17 on iOS 26.5. TalkBack, Android native validation,
+Maestro, screenshots and failure states; small/large iPhone; and all tablet native,
+accessibility, E2E, visual, NavigationRail and hardware-keyboard gates are deferred to v1.1.
+
 **Durum:** BLOCKED_BY_TASK-100J  
 **Bağımlılıklar:** TASK-100J
 

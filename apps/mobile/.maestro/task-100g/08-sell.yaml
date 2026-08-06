@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Add sell record
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=sell'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=sell'
+- assertVisible: { id: 'portfolio-sell' }
+- assertVisible: 'Satış kaydı ekle'

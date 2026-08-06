@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Chart timeframe switch
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- tapOn: '1Y'
+- assertVisible: 'Fiyat grafiği · 1Y'

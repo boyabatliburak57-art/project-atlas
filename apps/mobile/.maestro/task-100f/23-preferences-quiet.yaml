@@ -1,0 +1,11 @@
+appId: com.atlasfinance.mobile
+name: Notification preferences and quiet hours
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=preferences'
+- openLink: 'atlas://watchlists?fixture=1&view=preferences'
+- assertVisible: { id: 'notification-preferences' }
+- scrollUntilVisible:
+    { element: { text: 'Sessiz saatleri düzenle' }, direction: DOWN }
+- tapOn: 'Sessiz saatleri düzenle'
+- assertVisible: { id: 'quiet-hours' }

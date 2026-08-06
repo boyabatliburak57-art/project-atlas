@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Push permission granted denied contract
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=push'
+- openLink: 'atlas://watchlists?fixture=1&view=push'
+- assertVisible: { id: 'push-prepermission' }
+- tapOn: 'Şimdi değil'
+- assertVisible: { id: 'push-denied' }

@@ -110,7 +110,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the ninety-three domain tables', async () => {
+  it('clean-migrates exactly the ninety-five domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -141,6 +141,7 @@ describe('PostgreSQL migrations', () => {
       'data_providers',
       'data_quality_findings',
       'data_quality_issues',
+      'email_verification_tokens',
       'feature_flag_versions',
       'feature_flags',
       'fundamental_metric_snapshots',
@@ -182,6 +183,7 @@ describe('PostgreSQL migrations', () => {
       'provider_data_revisions',
       'provider_ingestion_runs',
       'provider_instrument_mappings',
+      'push_devices',
       'recovery_drills',
       'release_records',
       'research_experiment_runs',
@@ -1047,6 +1049,21 @@ describe('PostgreSQL migrations', () => {
   });
 
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const pushDevicesRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0024_push_devices.down.sql'),
+      'utf8',
+    );
+    await pool.query(pushDevicesRollbackSql);
+    const emailVerificationRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0023_email_verification.down.sql'),
+      'utf8',
+    );
+    await pool.query(emailVerificationRollbackSql);
+    const marketDataRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0022_glorious_guardian.down.sql'),
+      'utf8',
+    );
+    await pool.query(marketDataRollbackSql);
     const supportRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0021_lazy_leo.down.sql'),
       'utf8',
@@ -1221,7 +1238,7 @@ describe('PostgreSQL migrations', () => {
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 20
+        limit 23
       )
     `);
     await runMigrations(db);

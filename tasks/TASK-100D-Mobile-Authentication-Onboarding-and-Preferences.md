@@ -1,6 +1,11 @@
 # TASK-100D — Mobile Authentication, Onboarding and Preferences
 
-**Durum:** BLOCKED_BY_TASK-100C  
+## Mobile v1 platform gate
+
+TASK-100D targets `IOS_ONLY`, `PHONE_ONLY`, with iPhone 17 on iOS 26.5 as the sole required
+native profile. Android and tablet work is `DEFERRED_V1_1_NOT_RELEASE_GATED`.
+
+**Durum:** IMPLEMENTED_WITH_OPEN_NATIVE_AND_API_GATES
 **Bağımlılıklar:** TASK-100B, TASK-100C
 
 ## Amaç
@@ -10,7 +15,9 @@ Güvenli mobil oturum, welcome ve resumable onboarding/preferences deneyimini ta
 ## Mevcut durum
 
 Server session rotation/revocation, preferences, consent, legal ve demo reset vardır. Native secure
-storage, biometric unlock ve mobil onboarding yoktur.
+storage, biometric local unlock, authentication surfaces and resumable mobile onboarding are
+implemented. Authoritative e-mail verification remains an API gap; TASK-100D native Maestro and
+visual evidence remain open and therefore TASK-100E is not yet gated.
 
 ## Kapsam
 

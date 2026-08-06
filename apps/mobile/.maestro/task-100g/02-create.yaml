@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Create portfolio
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=create'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=create'
+- assertVisible: { id: 'portfolio-create' }
+- assertVisible: 'Portföy oluştur'

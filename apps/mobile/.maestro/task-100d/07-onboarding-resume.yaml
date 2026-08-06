@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Onboarding interruption contract
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///(onboarding)'
+- tapOn: 'Kaydet ve devam et'
+- assertVisible: 'Dil, saat dilimi ve piyasa'
+- assertVisible: 'Daha sonra devam et'

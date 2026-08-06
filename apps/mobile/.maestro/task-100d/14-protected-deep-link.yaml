@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Protected deep link continuation
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas://symbol/THYAO'
+- assertVisible: 'Symbol Detail'
+- back
+- assertVisible: 'Symbol Detail'

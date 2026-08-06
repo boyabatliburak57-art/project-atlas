@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: Watchlist add and remove symbol contract
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=detail'
+- openLink: 'atlas://watchlists?fixture=1&view=detail'
+- assertVisible: 'THYAO'
+- scrollUntilVisible:
+    { element: { id: 'watchlist-add-symbol' }, direction: DOWN }
+- tapOn: { id: 'watchlist-add-symbol' }

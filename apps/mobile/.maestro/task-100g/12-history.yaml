@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Transaction history and filter
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=transactions'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=transactions'
+- assertVisible: { id: 'portfolio-transactions' }
+- assertVisible: 'İşlem geçmişi'

@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Saved scan alert create
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=alert-create'
+- openLink: 'atlas://watchlists?fixture=1&view=alert-create'
+- tapOn: 'SAVED_SCAN'
+- assertVisible: { id: 'saved-scan-alert-condition' }
+- assertVisible: { id: 'alert-provider-contract' }

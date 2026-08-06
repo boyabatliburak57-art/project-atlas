@@ -1,0 +1,12 @@
+appId: com.atlasfinance.mobile
+name: Biometric available contract
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///(onboarding)'
+- repeat:
+    times: 6
+    commands:
+      - tapOn: 'Kaydet ve devam et'
+- assertVisible: 'Biyometri ve demo içerik'
+- assertVisible: 'Face ID’yi daha sonra etkinleştir'

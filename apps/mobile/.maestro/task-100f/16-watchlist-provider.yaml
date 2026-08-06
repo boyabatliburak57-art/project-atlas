@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Watchlist summary provider-required
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=provider'
+- openLink: 'atlas://watchlists?fixture=1&view=provider'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- assertVisible: 'PROVIDER_REQUIRED'

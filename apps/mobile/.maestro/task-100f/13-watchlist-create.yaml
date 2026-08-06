@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Watchlist create
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=lists'
+- openLink: 'atlas://watchlists?fixture=1&view=lists'
+- assertVisible: { id: 'watchlist-list' }
+- tapOn: 'Yeni liste'
+- assertVisible: { id: 'watchlist-detail' }

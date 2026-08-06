@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Save scan revision
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- scrollUntilVisible: { element: { id: 'save-scan' }, direction: DOWN }
+- tapOn: { id: 'save-scan' }
+- assertVisible: { id: 'saved-scans-list' }

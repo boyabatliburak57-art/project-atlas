@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Add dividend record
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=dividend'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=dividend'
+- assertVisible: { id: 'portfolio-dividend' }
+- assertVisible: 'Temettü kaydı ekle'

@@ -20,6 +20,12 @@ export const securityUsers = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     email: varchar('email', { length: 320 }).notNull(),
     normalizedEmail: varchar('normalized_email', { length: 320 }).notNull(),
+    emailVerifiedAt: timestamp('email_verified_at', {
+      withTimezone: true,
+    }).defaultNow(),
+    emailVerificationVersion: integer('email_verification_version')
+      .default(1)
+      .notNull(),
     passwordHash: text('password_hash').notNull(),
     accountStatus: varchar('account_status', { length: 24 })
       .default('active')
@@ -50,6 +56,47 @@ export const securityUsers = pgTable(
     check(
       'security_users_roles_size_check',
       sql`octet_length(${table.roles}::text) <= 4096`,
+    ),
+  ],
+);
+
+export const emailVerificationTokens = pgTable(
+  'email_verification_tokens',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => securityUsers.id, { onDelete: 'cascade' }),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull(),
+    emailVerificationVersion: integer('email_verification_version').notNull(),
+    purpose: varchar('purpose', { length: 32 })
+      .default('EMAIL_VERIFICATION')
+      .notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    consumedAt: timestamp('consumed_at', { withTimezone: true }),
+    revokedAt: timestamp('revoked_at', { withTimezone: true }),
+    requestedFromContext: varchar('requested_from_context', { length: 64 })
+      .default('authenticated')
+      .notNull(),
+    deliveryAttemptId: uuid('delivery_attempt_id'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    unique('email_verification_tokens_hash_unique').on(table.tokenHash),
+    index('email_verification_tokens_user_active_idx').on(
+      table.userId,
+      table.revokedAt,
+      table.expiresAt,
+    ),
+    check(
+      'email_verification_tokens_purpose_check',
+      sql`${table.purpose} = 'EMAIL_VERIFICATION'`,
+    ),
+    check(
+      'email_verification_tokens_expiry_check',
+      sql`${table.expiresAt} > ${table.createdAt}`,
     ),
   ],
 );
@@ -303,6 +350,7 @@ export const releaseRecords = pgTable(
 
 export const securitySchema = {
   authSessions,
+  emailVerificationTokens,
   featureFlags,
   featureFlagVersions,
   operationalAuditEvents,

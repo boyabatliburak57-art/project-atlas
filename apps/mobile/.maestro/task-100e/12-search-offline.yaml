@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Search provider and error state
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/search'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- assertNotVisible: 'THYAO'

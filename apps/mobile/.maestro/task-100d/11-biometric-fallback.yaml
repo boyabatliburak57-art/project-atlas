@@ -1,0 +1,12 @@
+appId: com.atlasfinance.mobile
+name: Biometric unavailable fallback
+---
+- launchApp:
+    clearState: true
+- openLink: 'atlas:///preferences'
+- scrollUntilVisible:
+    element:
+      text: 'Biyometrik giriş'
+    direction: DOWN
+- assertVisible: 'Biyometrik giriş'
+- assertVisible: 'Kapalı'

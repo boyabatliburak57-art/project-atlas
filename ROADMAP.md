@@ -1,5 +1,19 @@
 # Project Atlas Roadmap
 
+## Mobile v1.1 — Android and Tablet Expansion
+
+- Android productionization, Maestro E2E and failure-state validation
+- TalkBack accessibility and Android visual regression
+- Android notification and deep-link validation
+- Small and large phone profile validation
+- Native tablet validation
+- NavigationRail productionization
+- Tablet portrait and landscape layouts
+- Tablet VoiceOver/TalkBack and hardware keyboard navigation
+- Tablet split-view workflows
+- Tablet visual regression and E2E
+- Android and tablet store support
+
 ## Mobile-First Product Transformation
 
 ```text

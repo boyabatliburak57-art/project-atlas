@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Sector performance
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/markets?fixture=1'
+- tapOn: 'Sectors'
+- assertVisible: 'Teknoloji'
+- assertVisible: 'Banka'

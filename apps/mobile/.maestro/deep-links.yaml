@@ -1,0 +1,20 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- extendedWaitUntil:
+    visible: 'Atlas mobile foundation'
+    timeout: 120000
+- openLink: 'atlas://symbol/THYAO'
+- extendedWaitUntil:
+    visible: 'Symbol Detail'
+    timeout: 30000
+- back
+- openLink: 'atlas://scanner'
+- extendedWaitUntil:
+    visible: 'Scanner'
+    timeout: 30000
+- back
+- openLink: 'atlas://invalid'
+- extendedWaitUntil:
+    visible: 'Route unavailable'
+    timeout: 30000

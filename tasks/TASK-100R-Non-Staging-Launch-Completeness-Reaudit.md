@@ -1,5 +1,16 @@
 # TASK-100R — Non-Staging Launch Completeness Re-audit
 
+```text
+Supported Mobile Platform: IOS_ONLY
+Supported Mobile Form Factor: PHONE_ONLY
+Required Native Profile: IPHONE_17_IOS_26_5
+Android Support: DEFERRED_TO_V1_1
+Tablet Support: DEFERRED_TO_V1_1
+```
+
+Android and tablet validation are not mobile v1 release gates. Existing code remains
+experimental and does not establish production support.
+
 **Durum:** BLOCKED_BY_TASK-100L_GO  
 **Bağımlılıklar:** TASK-100L = GO_FOR_TASK_100_REAUDIT
 

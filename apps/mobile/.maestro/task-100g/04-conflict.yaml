@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Rename and conflict handling
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=conflict'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=conflict'
+- assertVisible: { id: 'portfolio-conflict' }
+- assertVisible: 'PORTFOLIO_VERSION_CONFLICT'

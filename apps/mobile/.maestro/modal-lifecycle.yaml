@@ -1,0 +1,23 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- openLink: 'atlas://component-catalog'
+- extendedWaitUntil:
+    visible: 'Component Catalog'
+    timeout: 30000
+- tapOn:
+    id: 'catalog-open-bottom-sheet'
+- assertVisible: 'Filtre seçenekleri'
+- assertVisible: 'Sheet ilk kontrolü'
+- tapOn: 'Kapat'
+- assertVisible:
+    id: 'catalog-open-bottom-sheet'
+- tapOn:
+    id: 'catalog-open-dialog'
+- assertVisible: 'İşlemi onayla'
+- assertVisible: 'Vazgeç'
+- assertVisible: 'Test işlemini onayla'
+- tapOn: 'Vazgeç'
+- assertVisible:
+    id: 'catalog-open-dialog'
+- assertNotVisible: 'İşlem sürüyor'

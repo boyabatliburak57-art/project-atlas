@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Indicator alert create
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=alert-create'
+- openLink: 'atlas://watchlists?fixture=1&view=alert-create'
+- tapOn: 'INDICATOR'
+- assertVisible: 'RSI(14)'
+- assertVisible: 'crosses above'

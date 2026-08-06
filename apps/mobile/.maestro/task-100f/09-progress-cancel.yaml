@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Scan progress and cancel
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=progress'
+- openLink: 'atlas://scanner?fixture=1&view=progress'
+- tapOn: { id: 'cancel-scan' }
+- assertVisible: { id: 'scan-history' }
+- assertVisible: { id: 'history-cancelled' }

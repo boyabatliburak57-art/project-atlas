@@ -42,12 +42,14 @@ export interface AuthenticatedSession {
   readonly id: string;
   readonly roles: readonly string[];
   readonly userId: string;
+  readonly emailVerified: boolean;
 }
 
 export interface IssuedSession extends AuthenticatedSession {
   readonly csrfToken: string;
   readonly expiresAt: Date;
   readonly token: string;
+  readonly emailVerified: boolean;
 }
 
 @Injectable()
@@ -106,6 +108,7 @@ export class AuthSessionService {
       id: row.session.id,
       roles: parseRoles(row.user.roles),
       userId: row.user.id,
+      emailVerified: row.user.emailVerifiedAt !== null,
     };
   }
 
@@ -333,6 +336,7 @@ export class AuthSessionService {
       roles: parseRoles(user.roles),
       token,
       userId: user.id,
+      emailVerified: user.emailVerifiedAt !== null,
     };
   }
 }

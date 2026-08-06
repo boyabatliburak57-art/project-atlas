@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- openLink: 'atlas://scanner'
+- extendedWaitUntil:
+    visible: 'Scanner'
+    timeout: 30000

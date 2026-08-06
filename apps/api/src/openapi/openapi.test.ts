@@ -38,6 +38,15 @@ describe('OpenAPI document', () => {
     expect(
       document.paths['/api/v1/auth/password-reset/confirm']?.post,
     ).toBeDefined();
+    expect(
+      document.paths['/api/v1/auth/email-verification/status']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/auth/email-verification/resend']?.post,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/auth/email-verification/confirm']?.post,
+    ).toBeDefined();
     expect(document.paths['/api/v1/account/deletion']?.post).toBeDefined();
     expect(
       document.paths['/api/v1/admin/account/deletion/{id}/cancel']?.post,

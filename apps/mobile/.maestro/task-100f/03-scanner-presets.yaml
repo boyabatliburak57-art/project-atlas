@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Scanner preset selection
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=presets'
+- openLink: 'atlas://scanner?fixture=1&view=presets'
+- assertVisible: { id: 'scanner-presets' }
+- tapOn: { id: 'preset-momentum' }
+- assertVisible: { id: 'scan-builder' }

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Share deep link and back navigation
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- assertVisible: 'Paylaş'
+- back
+- assertVisible: 'THYAO'

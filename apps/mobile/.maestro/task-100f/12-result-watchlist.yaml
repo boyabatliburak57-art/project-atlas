@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: Result add to watchlist
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=results'
+- openLink: 'atlas://scanner?fixture=1&view=results'
+- scrollUntilVisible:
+    { element: { text: 'İzleme listesine ekle' }, direction: DOWN }
+- tapOn: 'İzleme listesine ekle'
+- assertVisible: { id: 'watchlist-detail' }

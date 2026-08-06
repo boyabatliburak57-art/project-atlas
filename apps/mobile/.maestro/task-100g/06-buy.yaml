@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Add buy record
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=buy'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=buy'
+- assertVisible: { id: 'portfolio-buy' }
+- assertVisible: 'Alış kaydı ekle'

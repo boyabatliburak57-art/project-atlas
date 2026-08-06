@@ -162,6 +162,20 @@
       "when": 1785107128022,
       "tag": "0022_glorious_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1785506400000,
+      "tag": "0023_email_verification",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1786021200000,
+      "tag": "0024_push_devices",
+      "breakpoints": true
     }
   ]
 }

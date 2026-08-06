@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Search company name
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/search?fixture=1'
+- tapOn: { id: 'symbol-search-input' }
+- inputText: 'Aselsan'
+- assertVisible: { id: 'search-result-ASELS' }

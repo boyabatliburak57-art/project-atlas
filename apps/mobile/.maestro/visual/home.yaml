@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp
+- openLink: 'atlas://home'
+- extendedWaitUntil:
+    visible: 'Home foundation'
+    timeout: 30000

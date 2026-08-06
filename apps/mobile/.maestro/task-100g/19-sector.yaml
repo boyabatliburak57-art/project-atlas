@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Sector allocation partial state
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=sector'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=sector'
+- assertVisible: { id: 'portfolio-sector' }
+- assertVisible: 'Sektör dağılımı'

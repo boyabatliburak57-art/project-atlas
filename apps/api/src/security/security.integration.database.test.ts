@@ -5,6 +5,7 @@ import type { Server } from 'node:http';
 import {
   authSessions,
   createDatabase,
+  emailVerificationTokens,
   operationalAuditEvents,
   runMigrations,
   securityRateLimitBuckets,
@@ -23,17 +24,20 @@ import { TelemetryService } from '../observability/telemetry.service';
 import { ApiDatabase } from '../scanner/scanner-runtime.infrastructure';
 import { AbusePreventionMiddleware } from './abuse-prevention.middleware';
 import { AuthSessionService } from './auth-session.service';
+import { EMAIL_VERIFICATION_DELIVERY } from './email-verification-delivery';
 import { hashPassword } from './security-crypto';
 
 const regularUserId = '00000000-0000-4000-8000-000000007501';
 const adminUserId = '00000000-0000-4000-8000-000000007502';
 const deletionUserId = '00000000-0000-4000-8000-000000007503';
+const unverifiedUserId = '00000000-0000-4000-8000-000000007504';
 const password = 'Secure-Password-2026!';
 
 describe('production security authority', () => {
   const { db, pool } = createDatabase(requireTestDatabaseUrl());
   let application: INestApplication;
   let sessions: AuthSessionService;
+  let verificationToken = '';
 
   beforeAll(async () => {
     await pool.query('drop schema if exists public cascade');
@@ -63,10 +67,25 @@ describe('production security authority', () => {
         passwordHash,
         roles: [],
       },
+      {
+        email: 'pending@example.test',
+        emailVerifiedAt: null,
+        id: unverifiedUserId,
+        normalizedEmail: 'pending@example.test',
+        passwordHash,
+        roles: [],
+      },
     ]);
     const module = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(ApiDatabase)
       .useValue({ database: db, pool })
+      .overrideProvider(EMAIL_VERIFICATION_DELIVERY)
+      .useValue({
+        deliver: (input: { readonly token: string }) => {
+          verificationToken = input.token;
+          return Promise.resolve();
+        },
+      })
       .compile();
     application = module.createNestApplication({ logger: false });
     configureApplication(application);
@@ -94,6 +113,57 @@ describe('production security authority', () => {
     });
     await sessions.logout(rotated.token);
     await expect(sessions.authenticate(rotated.token)).resolves.toBeNull();
+  });
+
+  it('enforces hash-at-rest, resend cooldown, verification guard and single-use confirmation', async () => {
+    const pending = await sessions.login(
+      { email: 'pending@example.test', password },
+      { ip: '127.0.0.1', userAgent: 'verification-security-test' },
+    );
+    expect(pending.emailVerified).toBe(false);
+    await request(application.getHttpServer() as Server)
+      .get('/api/v1/me/preferences')
+      .set('authorization', `Bearer ${pending.token}`)
+      .expect(403);
+    await request(application.getHttpServer() as Server)
+      .post('/api/v1/auth/email-verification/resend')
+      .set('authorization', `Bearer ${pending.token}`)
+      .send({})
+      .expect(202);
+    expect(verificationToken).toHaveLength(43);
+    const persisted = await db.select().from(emailVerificationTokens);
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]?.tokenHash).toMatch(/^[a-f0-9]{64}$/u);
+    expect(persisted[0]?.tokenHash).not.toContain(verificationToken);
+    await request(application.getHttpServer() as Server)
+      .post('/api/v1/auth/email-verification/resend')
+      .set('authorization', `Bearer ${pending.token}`)
+      .send({})
+      .expect(429);
+    const regular = await sessions.login(
+      { email: 'regular@example.test', password },
+      { ip: '127.0.0.1', userAgent: 'verification-idor-test' },
+    );
+    await request(application.getHttpServer() as Server)
+      .post('/api/v1/auth/email-verification/confirm')
+      .set('authorization', `Bearer ${regular.token}`)
+      .send({ token: verificationToken })
+      .expect(401);
+    await request(application.getHttpServer() as Server)
+      .post('/api/v1/auth/email-verification/confirm')
+      .set('authorization', `Bearer ${pending.token}`)
+      .send({ token: verificationToken })
+      .expect(200);
+    await request(application.getHttpServer() as Server)
+      .post('/api/v1/auth/email-verification/confirm')
+      .set('authorization', `Bearer ${pending.token}`)
+      .send({ token: verificationToken })
+      .expect(200);
+    const updated = await db
+      .select()
+      .from(securityUsers)
+      .where(eq(securityUsers.id, unverifiedUserId));
+    expect(updated[0]?.emailVerifiedAt).toBeInstanceOf(Date);
   });
 
   it('enforces concurrent-session policy and disabled accounts', async () => {

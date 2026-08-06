@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Switch portfolio
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=selector'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=selector'
+- assertVisible: { id: 'portfolio-selector' }
+- assertVisible: 'Portföy seç'

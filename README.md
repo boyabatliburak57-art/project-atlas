@@ -1,5 +1,9 @@
 # Project Atlas
 
+Project Atlas mobile v1 supports iOS phones only. The required native profile is iPhone 17 on
+iOS 26.5. Android phones and tablet experiences are planned for mobile v1.1 and are not part of
+the mobile v1 production-support claim.
+
 Project Atlas, Borsa İstanbul (BIST) paylarını teknik ve temel verilerle tarayan; hazır ve kullanıcı tanımlı taramalar, alarm, izleme listesi, portföy ve ileride backtest yetenekleri sunacak modüler bir web uygulamasıdır.
 
 ## İlk sürüm kapsamı
@@ -303,6 +307,9 @@ uygulama kodu bu kapsam kayıt görevinde başlatılmamıştır. Zorunlu okuma:
 - `reports/mobile/mobile-scope-change-baseline.md`
 - `reports/mobile/mobile-transformation-risk-register.md`
 - `reports/mobile/task-100a-mobile-scope-change-result.md`
+- `reports/mobile/mobile-monorepo-architecture.md`
+- `reports/mobile/mobile-dependency-and-compatibility-matrix.md`
+- `reports/mobile/task-100b-mobile-architecture-result.md`
 - `reports/mobile/mobile-feature-parity-audit.md`
 - `tasks/TASK-100A-Mobile-Scope-Change-and-Audit-Supersession.md`
 - `tasks/TASK-100B-Mobile-Architecture-and-Monorepo-Setup.md`

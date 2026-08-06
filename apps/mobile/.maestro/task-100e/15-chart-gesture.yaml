@@ -1,0 +1,11 @@
+appId: com.atlasfinance.mobile
+name: Chart pan zoom and crosshair
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://symbol/THYAO?fixture=1'
+- swipe:
+    start: 80%, 45%
+    end: 30%, 45%
+    duration: 600
+- tapOn: 'Önceki veri noktası'
+- assertVisible: 'Sonraki veri noktası'

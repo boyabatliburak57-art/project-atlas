@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Empty portfolio onboarding state
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=empty'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=empty'
+- assertVisible: { id: 'portfolio-empty' }
+- assertVisible: 'Henüz portföy yok'

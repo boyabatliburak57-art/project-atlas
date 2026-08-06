@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'Atlas mobile foundation'
+- tapOn: 'Continue to foundation'
+- assertVisible: 'Authentication foundation'
+- tapOn: 'Continue to onboarding foundation'
+- assertVisible: 'Onboarding foundation'
+- tapOn: 'Open Home foundation'
+- assertVisible: 'Home foundation'
+- openLink: 'atlas://admin'
+- assertNotVisible: 'Admin foundation'

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Watchlist rename conflict contract
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=detail'
+- openLink: 'atlas://watchlists?fixture=1&view=detail'
+- assertVisible: { id: 'watchlist-version-contract' }
+- assertVisible: { id: 'watchlist-private' }

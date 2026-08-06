@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Partial section failure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1&state=partial'
+- scrollUntilVisible:
+    { element: { text: 'PARTIAL · 2 SECTION UNAVAILABLE' }, direction: DOWN }
+- assertVisible: 'PARTIAL · 2 SECTION UNAVAILABLE'

@@ -99,3 +99,10 @@ dedupe, quiet hours, channel preferences ve typed deep links'i owner-scoped Open
 contracts ile kur. Push tap hedefini serverda yeniden yetkilendir. Sandbox e-maili production
 gösterme. Unit/integration/E2E/visual/a11y, token ownership, IDOR ve leakage testlerini raporla.
 ```
+
+## Completion evidence — 2026-08-06
+
+`GO_FOR_TASK_100G`: iOS scanner/watchlists/alerts/push client contracts passed 24/24 Maestro flows,
+20 new native screenshots and the independent 68-image visual diff. Production APNs is
+`EXTERNAL_CONFIGURATION_REQUIRED`; live push is `NOT_VALIDATED`. Provider credentials remain
+required, VoiceOver remains the accepted TASK-100K waiver, and Android/tablet remain deferred.

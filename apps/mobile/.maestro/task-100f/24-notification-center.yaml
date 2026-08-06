@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Notification center read unread and cleanup
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://watchlists?fixture=1&view=notifications'
+- openLink: 'atlas://watchlists?fixture=1&view=notifications'
+- assertVisible: { id: 'notification-center' }
+- assertVisible: '2 UNREAD'
+- tapOn: { id: 'mark-all-read' }
