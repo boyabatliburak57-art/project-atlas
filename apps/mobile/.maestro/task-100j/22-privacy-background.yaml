@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Privacy mode background
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=offline-portfolio'
+- assertVisible: 'Bakiye ve kâr/zarar privacy mode ile maskelendi.'
+- openLink: 'atlas://security?fixture=1&view=privacy-cover'
+- assertVisible: 'Hassas içerik uygulama değiştiricide gizlendi.'

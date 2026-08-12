@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Cancel run
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=progress'
+- openLink: 'atlas://strategies?fixture=1&view=progress'
+- assertVisible: { id: 'strategy-progress' }
+- assertVisible: 'Çalışmayı iptal et'

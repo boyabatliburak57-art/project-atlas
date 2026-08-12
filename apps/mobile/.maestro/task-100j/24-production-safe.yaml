@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Production debug-safe contract
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=network-unavailable'
+- assertVisible: 'NO MUTATION REPLAY'
+- assertVisible: 'Provider durumu ile cihaz bağlantısı birbirine karıştırılmaz.'

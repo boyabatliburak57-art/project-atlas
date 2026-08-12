@@ -3,6 +3,7 @@ name: Legal consent and document version
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///legal'
 - assertVisible: 'Yasal belgeler'
 - assertVisible: 'LEGAL_REVIEW_REQUIRED · NOT_FOR_PRODUCTION_PUBLICATION'

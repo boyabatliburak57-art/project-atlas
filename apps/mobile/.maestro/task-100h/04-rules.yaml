@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Rule builder
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=rules'
+- openLink: 'atlas://strategies?fixture=1&view=rules'
+- assertVisible: { id: 'strategy-rules' }
+- assertVisible: 'Giriş kuralları'

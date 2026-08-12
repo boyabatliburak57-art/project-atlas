@@ -14,7 +14,7 @@ const visualRoot = resolve(import.meta.dirname, '../src/test/visual');
 const profile = 'iphone-17-ios-26.5';
 const baselineDir = resolve(visualRoot, 'baselines', profile);
 const candidateDir = resolve(visualRoot, 'current', profile);
-const requiredScreenshotCount = 88;
+const requiredScreenshotCount = 156;
 
 function pngFiles(directory) {
   if (!existsSync(directory)) return [];

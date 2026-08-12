@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Portfolio report generation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=portfolio'
+- assertVisible: { id: 'operations-portfolio' }
+- assertVisible: 'Bölümler'

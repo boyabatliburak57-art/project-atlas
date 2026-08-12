@@ -11,6 +11,7 @@ import { z } from 'zod';
 
 import { NavigationRepository } from '../navigation/navigation.repository';
 import { ReportsRepository } from './reports.repository';
+import { ReportsDispatcher } from './reports.dispatcher';
 
 const REPORT_TYPES = [
   'portfolio',
@@ -25,8 +26,9 @@ const createSchema = z
   .object({
     reportType: z.enum(REPORT_TYPES),
     sourceId: z.string().uuid().nullable().optional(),
-    format: z.enum(['csv', 'json']).default('csv'),
+    format: z.enum(['pdf', 'csv', 'json']).default('pdf'),
     dataCutoffAt: z.string().datetime().optional(),
+    idempotencyKey: z.string().min(16).max(128).optional(),
   })
   .strict();
 const listSchema = z
@@ -43,6 +45,7 @@ export class ReportsService {
     private readonly repository: ReportsRepository,
     private readonly activity: NavigationRepository,
     config: ConfigService,
+    private readonly dispatcher: ReportsDispatcher,
   ) {
     this.tokenKey = config.getOrThrow<string>('AUTH_SESSION_HMAC_KEY');
   }
@@ -76,46 +79,40 @@ export class ReportsService {
       : now;
     if (dataCutoffAt > now)
       throw invalid('Data cutoff cannot be in the future');
-    const payload = createArtifact({
-      dataCutoffAt,
-      format: command.format,
-      generatedAt: now,
-      reportType: command.reportType,
-      sourceId,
-    });
-    if (payload.byteLength > 1024 * 1024)
-      throw invalid('Generated report exceeds the size limit');
     const requestHash = createHash('sha256')
       .update(
-        JSON.stringify({
-          command,
-          dataCutoffAt: dataCutoffAt.toISOString(),
-          userId,
-        }),
+        command.idempotencyKey === undefined
+          ? JSON.stringify({
+              command,
+              dataCutoffAt: dataCutoffAt.toISOString(),
+              userId,
+            })
+          : `${userId}\u0000${command.idempotencyKey}`,
       )
       .digest('hex');
     const row = await this.repository.create({
-      artifactPayload: payload,
-      byteSize: payload.byteLength,
-      contentType:
-        command.format === 'csv'
-          ? 'text/csv; charset=utf-8'
-          : 'application/json',
       dataCutoffAt,
       expiresAt: new Date(now.getTime() + 7 * 86_400_000),
-      generatedAt: now,
       methodology: methodology(command.reportType),
       ownerUserId: userId,
       reportType: command.reportType,
       requestHash,
       sourceId,
-      sourceRevisions: { schema: 'report-v1', sourceRevision: 'current' },
+      sourceRevisions: {
+        format: command.format,
+        schema: 'report-v1',
+        sourceRevision: 'current',
+      },
       sourceType: command.reportType,
-      status: 'ready',
-      storageKey: `reports/${userId}/${requestHash}.${command.format}`,
+      status: 'queued',
       warnings: [],
     });
-    await this.audit(userId, row.id, 'report.generated', 'completed', now);
+    await this.audit(userId, row.id, 'report.queued', 'queued', now);
+    await this.dispatcher.dispatch({
+      correlationId: requestHash.slice(0, 32),
+      ownerUserId: userId,
+      reportId: row.id,
+    });
     return publicReport(row);
   }
 
@@ -274,34 +271,6 @@ export class ReportsService {
   }
 }
 
-function createArtifact(input: {
-  reportType: string;
-  sourceId: string | null;
-  format: 'csv' | 'json';
-  dataCutoffAt: Date;
-  generatedAt: Date;
-}) {
-  const record = {
-    reportType: input.reportType,
-    sourceId: input.sourceId ?? 'current-user',
-    generatedAt: input.generatedAt.toISOString(),
-    dataCutoffAt: input.dataCutoffAt.toISOString(),
-    methodologyVersion: 'report-v1',
-    sourceRevision: 'current',
-    warnings: '',
-    partialOrStale: false,
-    notEvaluableReason: '',
-  };
-  if (input.format === 'json')
-    return Buffer.from(JSON.stringify(record, null, 2));
-  const keys = Object.keys(record);
-  return Buffer.from(
-    `${keys.map(csvCell).join(',')}\r\n${keys
-      .map((key) => csvCell(String(record[key as keyof typeof record])))
-      .join(',')}\r\n`,
-  );
-}
-
 export function csvCell(value: string) {
   const safe = /^[=+\-@]/u.test(value) ? `'${value}` : value;
   return `"${safe.replaceAll('"', '""')}"`;
@@ -322,7 +291,11 @@ function methodology(reportType: string) {
 }
 
 function filename(type: string, id: string, contentType: string | null) {
-  const extension = contentType?.startsWith('text/csv') ? 'csv' : 'json';
+  const extension = contentType?.startsWith('application/pdf')
+    ? 'pdf'
+    : contentType?.startsWith('text/csv')
+      ? 'csv'
+      : 'json';
   return `atlas-${type}-${id.slice(0, 8)}.${extension}`;
 }
 

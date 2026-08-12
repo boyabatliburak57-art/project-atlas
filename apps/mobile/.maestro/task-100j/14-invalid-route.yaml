@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Invalid deep-link route
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=invalid-link'
+- assertVisible: 'ROUTE NOT ALLOWLISTED'
+- assertVisible: 'Ana ekrana dön'

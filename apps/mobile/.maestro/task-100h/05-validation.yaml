@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Rule validation
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=validation'
+- openLink: 'atlas://strategies?fixture=1&view=validation'
+- assertVisible: { id: 'strategy-validation' }
+- assertVisible: 'BACKTEST_PERIOD_INVALID'

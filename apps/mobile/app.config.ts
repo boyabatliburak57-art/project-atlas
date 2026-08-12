@@ -9,12 +9,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'atlas-mobile',
   scheme,
   version: '0.1.0',
-  orientation: 'default',
-  platforms: ['ios', 'android'],
+  orientation: 'portrait',
+  platforms: ['ios'],
   userInterfaceStyle: 'automatic',
   ios: {
     bundleIdentifier: 'com.atlasfinance.mobile',
     supportsTablet: false,
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+      LSSupportsOpeningDocumentsInPlace: false,
+      NSFaceIDUsageDescription:
+        'Atlas, yalnızca etkinleştirdiğiniz yerel uygulama kilidini açmak için Face ID kullanır.',
+      NSAppTransportSecurity: {
+        NSAllowsArbitraryLoads: false,
+        NSAllowsLocalNetworking: appEnvironment !== 'production',
+      },
+      UIFileSharingEnabled: false,
+    },
   },
   android: {
     package: 'com.atlasfinance.mobile',
@@ -36,5 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     appEnvironment,
     identifierStatus: 'PLACEHOLDER_NOT_STORE_APPROVED',
+    backgroundRefresh: 'NOT_REQUIRED_FOR_V1',
+    universalLinks: 'EXTERNAL_CONFIGURATION_REQUIRED',
   },
 });

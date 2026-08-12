@@ -3,6 +3,7 @@ name: Biometric available contract
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
 - repeat:
     times: 6

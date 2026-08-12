@@ -11,4 +11,18 @@ describe('app lifecycle', () => {
     controller.transition('active');
     expect(refetch).toHaveBeenCalledOnce();
   });
+
+  it('publishes privacy-cover states once and cleans listeners', () => {
+    const controller = new AppLifecycleController();
+    const listener = vi.fn();
+    const remove = controller.onStateChange(listener);
+    controller.transition('inactive');
+    controller.transition('inactive');
+    controller.transition('background');
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(controller.snapshot()).toBe('background');
+    expect(controller.listenerCount()).toBe(1);
+    remove();
+    expect(controller.listenerCount()).toBe(0);
+  });
 });

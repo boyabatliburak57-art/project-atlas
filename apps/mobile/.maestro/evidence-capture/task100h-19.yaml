@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 19
+---
+- openLink: 'atlas://strategies?fixture=1&view=experiments'
+- openLink: 'atlas://strategies?fixture=1&view=experiments'
+- assertVisible: { id: 'strategy-experiments' }
+- assertVisible: 'Deney karşılaştırması'

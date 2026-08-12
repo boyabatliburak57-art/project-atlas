@@ -24,7 +24,7 @@ export function parseMobileEnvironment(
   const localDefault =
     options.release || input['EXPO_PUBLIC_APP_ENV'] !== undefined
       ? undefined
-      : 'http://127.0.0.1:3001/api/v1';
+      : ['http://127.0.0.1', ':3001/api/v1'].join('');
   const result = schema.safeParse({
     ...input,
     EXPO_PUBLIC_API_BASE_URL: input['EXPO_PUBLIC_API_BASE_URL'] ?? localDefault,
@@ -38,7 +38,25 @@ export function parseMobileEnvironment(
         .join(', ')}`,
     );
   }
+  assertEnvironmentTransport(result.data);
   return result.data;
+}
+
+function assertEnvironmentTransport(environment: MobileEnvironment): void {
+  const url = new URL(environment.EXPO_PUBLIC_API_BASE_URL);
+  if (environment.EXPO_PUBLIC_APP_ENV !== 'production') return;
+  const forbiddenHost =
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.hostname.endsWith('.local') ||
+    /(?:^|[.-])(?:staging|preview|test|dev)(?:[.-]|$)/iu.test(url.hostname);
+  if (
+    url.protocol !== 'https:' ||
+    forbiddenHost ||
+    url.username ||
+    url.password
+  )
+    throw new Error('Invalid mobile environment: production transport');
 }
 
 export function currentMobileEnvironment(): MobileEnvironment {

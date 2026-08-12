@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report failed state
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=failed'
+- assertVisible: { id: 'operations-failed' }
+- assertVisible: 'Rapor oluşturulamadı'

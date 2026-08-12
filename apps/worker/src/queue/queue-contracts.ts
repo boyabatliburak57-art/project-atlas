@@ -34,6 +34,10 @@ export function createHeartbeatJobId(
   return `worker-heartbeat-${bucket}`;
 }
 
+export function createReportGenerationJobId(reportId: string): string {
+  return stableJobId('report-generation', [reportId]);
+}
+
 function stableJobId(prefix: string, parts: readonly string[]): string {
   const digest = createHash('sha256')
     .update(parts.join('\u0000'))

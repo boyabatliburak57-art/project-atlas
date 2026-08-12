@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Configure backtest
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=config'
+- openLink: 'atlas://strategies?fixture=1&view=config'
+- assertVisible: { id: 'strategy-config' }
+- assertVisible: 'Backtest yapılandır'

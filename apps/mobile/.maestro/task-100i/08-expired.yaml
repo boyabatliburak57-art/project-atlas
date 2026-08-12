@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report expired regenerate
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=expired'
+- assertVisible: { id: 'operations-expired' }
+- assertVisible: 'Raporu yeniden oluştur'

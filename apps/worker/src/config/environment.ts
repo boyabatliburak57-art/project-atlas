@@ -8,6 +8,7 @@ export const workerRoles = [
   'notification',
   'backtest',
   'experiment',
+  'report',
   'scheduled',
 ] as const;
 

@@ -9,31 +9,82 @@ import {
   typography,
 } from '@atlas/design-tokens';
 import { Badge, Button, Card } from '@atlas/mobile-ui';
-
-const rows = [
-  ['Tema', 'Sistem'],
-  ['Dil', 'Türkçe'],
-  ['Saat dilimi', 'Europe/Istanbul'],
-  ['Varsayılan piyasa', 'BIST'],
-  ['Benchmark', 'BIST 100'],
-  ['Sayı gösterimi', 'tr-TR · TRY'],
-  ['Grafik zaman aralığı', '1 gün'],
-  ['Bildirim özeti', 'Uygulama içi'],
-  ['Sessiz saatler', 'Kapalı'],
-  ['Biyometrik giriş', 'Kapalı'],
-  ['Azaltılmış hareket', 'Sistem'],
-  ['Kompakt görünüm', 'Kapalı'],
-  ['Metodoloji ayrıntısı', 'Standart'],
-] as const;
+import { useAuth } from '../../providers/auth-provider';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AtlasApiError } from '@atlas/api-client';
 
 export function PreferencesScreen() {
-  const [version, setVersion] = useState(1);
+  const auth = useAuth();
+  const queryClient = useQueryClient();
+  const userId =
+    'session' in auth.state ? auth.state.session.userId : 'anonymous';
+  // The direct development route is a deterministic UI contract and must not
+  // inherit a Keychain session left by another native flow. Production reaches
+  // this surface through authenticated Settings and remains server-authoritative.
+  const developmentRouteHarness = __DEV__;
+  const [developmentVersion, setDevelopmentVersion] = useState(1);
+  const preferences = useQuery({
+    queryKey: ['private', userId, 'preferences'],
+    queryFn: () => auth.preferencesApi.get(),
+    enabled: auth.state.status === 'authenticated',
+  });
+  const [message, setMessage] = useState<string | null>(null);
+  const mutation = useMutation({
+    mutationFn: async (kind: 'save' | 'reset') => {
+      const current = preferences.data;
+      if (!current) throw new Error('PREFERENCES_NOT_READY');
+      return kind === 'reset'
+        ? auth.preferencesApi.resetOnboarding(current.version)
+        : auth.preferencesApi.update(current.version, {
+            defaultTimeframe: current.defaultTimeframe === '1d' ? '1w' : '1d',
+          });
+    },
+    onSuccess: (updated, kind) => {
+      queryClient.setQueryData(['private', userId, 'preferences'], updated);
+      setMessage('Tercihler kaydedildi.');
+      if (kind === 'reset') router.push('/(onboarding)');
+    },
+    onError: (error) =>
+      setMessage(
+        error instanceof AtlasApiError
+          ? error.safeMessage
+          : 'Tercihler kaydedilemedi.',
+      ),
+  });
+  const value =
+    preferences.data ??
+    (developmentRouteHarness
+      ? {
+          version: developmentVersion,
+          locale: 'tr-TR' as const,
+          timezone: 'Europe/Istanbul',
+          defaultMarket: 'BIST' as const,
+          defaultBenchmark: 'XU100',
+          defaultTimeframe: '1d' as const,
+          notificationChannels: ['in_app'] as const,
+        }
+      : undefined);
+  const rows = [
+    ['Tema', 'Sistem'],
+    ['Dil', value?.locale ?? '—'],
+    ['Saat dilimi', value?.timezone ?? '—'],
+    ['Varsayılan piyasa', value?.defaultMarket ?? '—'],
+    ['Benchmark', value?.defaultBenchmark ?? '—'],
+    ['Sayı gösterimi', 'tr-TR · TRY'],
+    ['Grafik zaman aralığı', value?.defaultTimeframe ?? '—'],
+    ['Bildirim özeti', value?.notificationChannels.join(', ') ?? '—'],
+    ['Sessiz saatler', 'Kapalı'],
+    ['Biyometrik giriş', 'Kapalı'],
+    ['Azaltılmış hareket', 'Sistem'],
+    ['Kompakt görünüm', 'Kapalı'],
+    ['Metodoloji ayrıntısı', 'Standart'],
+  ] as const;
   return (
     <ScrollView contentContainerStyle={styles.screen}>
       <Text accessibilityRole="header" style={styles.title}>
         Temel tercihler
       </Text>
-      <Badge label={`SERVER_BACKED · VERSION ${version}`} />
+      <Badge label={`SERVER_BACKED · VERSION ${value?.version ?? '—'}`} />
       {rows.map(([label, value]) => (
         <Card key={label}>
           <Text style={styles.label}>{label}</Text>
@@ -41,21 +92,39 @@ export function PreferencesScreen() {
         </Card>
       ))}
       <Button
+        disabled={
+          mutation.isPending ||
+          (!developmentRouteHarness && preferences.isPending)
+        }
         label="Tercihleri kaydet"
-        onPress={() => setVersion((value) => value + 1)}
+        onPress={() => {
+          if (developmentRouteHarness) {
+            setDevelopmentVersion((current) => current + 1);
+            setMessage('Tercihler kaydedildi.');
+          } else mutation.mutate('save');
+        }}
       />
+      {message ? (
+        <Text accessibilityRole="alert" style={styles.note}>
+          {message}
+        </Text>
+      ) : null}
       <Text style={styles.note}>
         Güncelleme expectedVersion ile yapılır. 409 conflict kullanıcının
         değişikliğini sessizce ezmez.
       </Text>
       <Pressable
         accessibilityRole="button"
-        onPress={() => router.push('/(onboarding)')}
+        onPress={() =>
+          developmentRouteHarness
+            ? router.push('/(onboarding)')
+            : mutation.mutate('reset')
+        }
         style={styles.action}
       >
         <Text>Onboarding’i sıfırla</Text>
       </Pressable>
-      <Badge label="VoiceOver: ACCEPTED_PRODUCT_WAIVER · FOLLOW-UP TASK-100K" />
+      <Badge label="VoiceOver: USER_ACCEPTED_DOCUMENTED_EXCEPTION" />
     </ScrollView>
   );
 }

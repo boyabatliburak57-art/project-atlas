@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Data quality
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=quality'
+- openLink: 'atlas://strategies?fixture=1&view=quality'
+- assertVisible: { id: 'strategy-quality' }
+- assertVisible: 'Veri kalitesi ve reproducibility'

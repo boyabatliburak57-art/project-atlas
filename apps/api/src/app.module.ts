@@ -194,6 +194,7 @@ import { NavigationRepository } from './navigation/navigation.repository';
 import { NavigationService } from './navigation/navigation.service';
 import { ReportsController } from './reports/reports.controller';
 import { ReportsRepository } from './reports/reports.repository';
+import { ReportsDispatcher } from './reports/reports.dispatcher';
 import { ReportsService } from './reports/reports.service';
 import {
   BacktestsController,
@@ -327,6 +328,7 @@ import {
     PreferencesRepository,
     NavigationRepository,
     ReportsRepository,
+    ReportsDispatcher,
     PostgresStrategyApiRepository,
     PostgresBacktestApiStore,
     PostgresExperimentStore,

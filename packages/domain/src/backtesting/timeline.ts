@@ -25,6 +25,7 @@ export function createOrderedBacktestTimeline(
   let duplicateLookup: Map<string, BacktestTimelineEvent> | null = null;
   let ordered = true;
   let previousUnique: BacktestTimelineEvent | undefined;
+  const streamingHash = createTimelineHasher();
   for (const [index, event] of input.entries()) {
     validateEvent(event, timestampValidity);
     if (!seenIds.has(event.eventId)) {
@@ -35,6 +36,7 @@ export function createOrderedBacktestTimeline(
       )
         ordered = false;
       previousUnique = event;
+      streamingHash.updateEvent(event);
       uniqueEvents?.push(event);
       duplicateLookup?.set(event.eventId, event);
       continue;
@@ -60,7 +62,7 @@ export function createOrderedBacktestTimeline(
     : [...insertionOrderedEvents].sort(compareBacktestEvents);
   return {
     events,
-    hash: createTimelineHash(events),
+    hash: ordered ? streamingHash.finalize() : createTimelineHash(events),
     duplicateEventIds: [...new Set(duplicateEventIds)].sort(),
   };
 }
@@ -72,29 +74,39 @@ export function createOrderedBacktestTimeline(
  * first become a hundreds-of-megabytes canonical JSON string merely to hash it.
  */
 function createTimelineHash(events: readonly BacktestTimelineEvent[]): string {
+  const hasher = createTimelineHasher();
+  for (const event of events) hasher.updateEvent(event);
+  return hasher.finalize();
+}
+
+function createTimelineHasher(): {
+  updateEvent(event: BacktestTimelineEvent): void;
+  finalize(): string;
+} {
   let first = 0x81_1c_9d_c5;
   let second = 0x9e_37_79_b9;
-  const updateByte = (value: number): void => {
+  const mix = (value: number): void => {
     first = Math.imul(first ^ value, 0x01_00_01_93) >>> 0;
     second = Math.imul(second ^ value, 0x01_00_01_93) >>> 0;
   };
   const update = (value: string): void => {
-    let length = value.length;
-    do {
-      updateByte(length & 0xff);
-      length >>>= 8;
-    } while (length > 0);
-    updateByte(0xff);
+    // Length-prefixing keeps fields unambiguous. Mixing UTF-16 code units
+    // directly halves the hot-loop work compared with splitting every code
+    // unit into two bytes, while retaining two independent FNV accumulators.
+    mix(value.length);
     for (let index = 0; index < value.length; index += 1) {
-      const code = value.charCodeAt(index);
-      updateByte(code & 0xff);
-      updateByte(code >>> 8);
+      mix(value.charCodeAt(index));
     }
-    updateByte(0xfe);
   };
-  update('backtest-timeline-v2');
-  for (const event of events) updateTimelineEvent(event, update);
-  return `fnv1a64:${first.toString(16).padStart(8, '0')}${second.toString(16).padStart(8, '0')}`;
+  update('backtest-timeline-v3');
+  return {
+    updateEvent(event) {
+      updateTimelineEvent(event, update);
+    },
+    finalize() {
+      return `fnv1a64:${first.toString(16).padStart(8, '0')}${second.toString(16).padStart(8, '0')}`;
+    },
+  };
 }
 
 function updateTimelineEvent(

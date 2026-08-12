@@ -11,6 +11,7 @@ import {
   Text,
   TextInput,
   View,
+  type AccessibilityRole,
   type TextStyle,
 } from 'react-native';
 import {
@@ -37,11 +38,16 @@ export function useAtlasTheme() {
 export function AtlasText({
   children,
   role = 'bodyMedium',
-}: PropsWithChildren<{ role?: keyof typeof typography.styles }>) {
+  accessibilityRole,
+}: PropsWithChildren<{
+  role?: keyof typeof typography.styles;
+  accessibilityRole?: AccessibilityRole;
+}>) {
   const theme = useAtlasTheme();
   return (
     <Text
       allowFontScaling
+      accessibilityRole={accessibilityRole}
       style={[
         typography.styles[role] as TextStyle,
         { color: theme.textPrimary },
@@ -100,12 +106,13 @@ export function FinancialValue({
   value: number | null;
   currency?: boolean;
 }) {
+  const formatted = currency ? formatTry(value) : String(value ?? '—');
   return (
     <Text
-      accessibilityLabel={value === null ? 'Değer mevcut değil' : String(value)}
+      accessibilityLabel={value === null ? 'Değer mevcut değil' : formatted}
       style={s.financial}
     >
-      {currency ? formatTry(value) : String(value ?? '—')}
+      {formatted}
     </Text>
   );
 }
@@ -249,6 +256,7 @@ export function TextField({
     <View>
       <AtlasText role="labelMedium">{label}</AtlasText>
       <TextInput
+        accessibilityHint={error ? `Hata: ${error}` : undefined}
         accessibilityLabel={label}
         accessibilityState={{ disabled: false }}
         secureTextEntry={secure}
@@ -274,7 +282,9 @@ export function AppHeader({
 }) {
   return (
     <View style={s.header}>
-      <AtlasText role="titleLarge">{title}</AtlasText>
+      <AtlasText accessibilityRole="header" role="titleLarge">
+        {title}
+      </AtlasText>
       {subtitle ? <AtlasText>{subtitle}</AtlasText> : null}
     </View>
   );

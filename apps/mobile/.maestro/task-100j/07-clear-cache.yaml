@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Clear local cache confirmation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=clear-cache'
+- assertVisible: 'Sunucudaki hesap veya portföy verileri silinmez.'
+- assertVisible: 'Yerel verileri temizle'

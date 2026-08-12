@@ -1,12 +1,12 @@
 # PASS — Scanner Runtime Performance Baseline
 
-Generated: 2026-08-06T11:23:42.256Z
+Generated: 2026-08-09T22:40:40.673Z
 
 ## Environment
 
 ```json
 {
-  "commitSha": "d8e92ab5af6ca56407b193001d3508fdf91bcc87",
+  "commitSha": "fac5bfe45c2fafad159bb223a01e870bbd26bf07",
   "nodeVersion": "v22.14.0",
   "pnpmVersion": "9.15.4",
   "operatingSystem": "darwin 25.5.0",
@@ -14,7 +14,7 @@ Generated: 2026-08-06T11:23:42.256Z
   "cpu": "Apple M1",
   "cpuCount": 8,
   "totalMemoryBytes": 8589934592,
-  "freeMemoryBytes": 134299648,
+  "freeMemoryBytes": 167985152,
   "postgresql": "PostgreSQL 17.10 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
   "redis": "7.4.9",
   "workerConcurrency": 2,
@@ -32,14 +32,14 @@ Generated: 2026-08-06T11:23:42.256Z
 - Batch size: 100
 - Cache: 1 cold + 5 warm runs
 - Repetitions: 6
-- p50: 98.58 ms
-- p95: 107.34 ms
-- Maximum: 107.34 ms
+- p50: 179.01 ms
+- p95: 509.51 ms
+- Maximum: 509.51 ms
 - Errors: 0
 - Processed instruments: 25
 - Matched instruments: 25
 - Threshold: cold p95 ≤ 2000 ms; warm p95 ≤ 750 ms; errors = 0
-- cold p95: 134.21 ms
+- cold p95: 232.63 ms
 - execution mode: sync
 
 ### PERF-SCN-002 — PASS
@@ -50,9 +50,9 @@ Generated: 2026-08-06T11:23:42.256Z
 - Batch size: 100
 - Cache: warm after 1 warm-up run
 - Repetitions: 5
-- p50: 1894.62 ms
-- p95: 1938.01 ms
-- Maximum: 1938.01 ms
+- p50: 7137.13 ms
+- p95: 7700.73 ms
+- Maximum: 7700.73 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 600
@@ -69,9 +69,9 @@ Generated: 2026-08-06T11:23:42.256Z
 - Batch size: 100
 - Cache: warm after 1 warm-up run
 - Repetitions: 5
-- p50: 3470.3 ms
-- p95: 3572.73 ms
-- Maximum: 3572.73 ms
+- p50: 10116.46 ms
+- p95: 12060.35 ms
+- Maximum: 12060.35 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 0
@@ -88,9 +88,9 @@ Generated: 2026-08-06T11:23:42.256Z
 - Batch size: 100
 - Cache: warm database
 - Repetitions: 13
-- p50: 0.52 ms
-- p95: 2.72 ms
-- Maximum: 2.72 ms
+- p50: 2.57 ms
+- p95: 24.59 ms
+- Maximum: 24.59 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 600
@@ -105,9 +105,9 @@ Generated: 2026-08-06T11:23:42.256Z
 - Batch size: 100
 - Cache: warm terminal polling
 - Repetitions: 10
-- p50: 0.56 ms
-- p95: 1.4 ms
-- Maximum: 1.4 ms
+- p50: 1.8 ms
+- p95: 4.54 ms
+- Maximum: 4.54 ms
 - Errors: 0
 - Processed instruments: 600
 - Matched instruments: 600
@@ -123,9 +123,9 @@ Generated: 2026-08-06T11:23:42.256Z
 - Batch size: 100
 - Cache: warm PostgreSQL idempotency lookup
 - Repetitions: 10
-- p50: 0.94 ms
-- p95: 1.11 ms
-- Maximum: 1.11 ms
+- p50: 3.07 ms
+- p95: 4.81 ms
+- Maximum: 4.81 ms
 - Errors: 0
 - Processed instruments: 0
 - Matched instruments: 0

@@ -15,6 +15,7 @@ import {
   MobilePushDeviceApi,
   PushListenerRegistry,
   parsePushIntent,
+  validatePrivacySafePushPayload,
 } from './push-notifications';
 
 const uuid = '81000000-0000-4000-8000-000000000001';
@@ -61,6 +62,34 @@ describe('push listener lifecycle', () => {
     registry.stop();
     expect(remove).toHaveBeenCalledOnce();
     expect(registry.start(() => () => undefined)).toBe(true);
+  });
+});
+describe('push lock-screen privacy', () => {
+  it('accepts minimal opaque resource payloads', () => {
+    expect(
+      validatePrivacySafePushPayload({
+        type: 'alert_triggered',
+        title: 'Atlas bildirimi',
+        body: 'Ayrıntıları görmek için Atlas’ı açın.',
+        target: { kind: 'alert', id: uuid },
+      }),
+    ).toBe(true);
+  });
+  it('rejects financial, token and unknown payload fields', () => {
+    expect(
+      validatePrivacySafePushPayload({
+        type: 'alert_triggered',
+        target: { kind: 'alert', id: uuid },
+        portfolioValue: '100000',
+      }),
+    ).toBe(false);
+    expect(
+      validatePrivacySafePushPayload({
+        type: 'alert_triggered',
+        target: { kind: 'alert', id: uuid },
+        token: 'secret',
+      }),
+    ).toBe(false);
   });
 });
 describe('push device API', () => {

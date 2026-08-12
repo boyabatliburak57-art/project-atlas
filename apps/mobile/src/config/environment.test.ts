@@ -19,4 +19,19 @@ describe('mobile environment', () => {
       'EXPO_PUBLIC_API_BASE_URL',
     );
   });
+
+  it('rejects cleartext, local and staging hosts for production', () => {
+    for (const url of [
+      'http://api.atlas.example/api/v1',
+      'https://localhost/api/v1',
+      'https://staging.atlas.example/api/v1',
+    ]) {
+      expect(() =>
+        parseMobileEnvironment(
+          { EXPO_PUBLIC_API_BASE_URL: url, EXPO_PUBLIC_APP_ENV: 'production' },
+          { release: true },
+        ),
+      ).toThrow('production transport');
+    }
+  });
 });

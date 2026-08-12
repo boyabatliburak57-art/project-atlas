@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report share confirmation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=share-warning'
+- assertVisible: 'CONFIRMATION REQUIRED'
+- assertVisible: 'Sahiplik ve dosya bütünlüğü paylaşmadan önce yeniden doğrulanır.'

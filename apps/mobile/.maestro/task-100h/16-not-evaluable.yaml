@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Not evaluable
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=not-evaluable'
+- openLink: 'atlas://strategies?fixture=1&view=not-evaluable'
+- assertVisible: { id: 'strategy-not-evaluable' }
+- assertVisible: 'NOT_EVALUABLE'

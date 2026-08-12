@@ -222,37 +222,36 @@ export class DeterministicBacktestEngine {
       position !== undefined &&
       !hasPending(simulation, bar.instrumentId, 'SELL')
     ) {
-      const exit = this.signalEvaluator.evaluate(plan.exitRule, context);
-      if (exit.status === 'matched') {
+      const exit = this.signalEvaluator.evaluate(plan.exitRule, context).status;
+      if (exit === 'matched') {
         simulation.pendingOrders.push(orderIntent(plan, bar, 'SELL', 'exit'));
-      } else if (exit.status === 'notEvaluable') {
+      } else if (exit === 'notEvaluable') {
         addWarning(simulation, warning('SIGNAL_NOT_EVALUABLE', bar));
       }
       return;
     }
-    if (
+    const eligible =
       position === undefined &&
       isInstrumentEligibleAt(
         plan.pointInTimePolicy,
         bar.instrumentId,
         bar.timestamp,
-      ) &&
+      );
+    if (
+      position === undefined &&
+      eligible &&
       !hasPending(simulation, bar.instrumentId, 'BUY')
     ) {
-      const entry = this.signalEvaluator.evaluate(plan.entryRule, context);
-      if (entry.status === 'matched') {
+      const entry = this.signalEvaluator.evaluate(
+        plan.entryRule,
+        context,
+      ).status;
+      if (entry === 'matched') {
         simulation.pendingOrders.push(orderIntent(plan, bar, 'BUY', 'entry'));
-      } else if (entry.status === 'notEvaluable') {
+      } else if (entry === 'notEvaluable') {
         addWarning(simulation, warning('SIGNAL_NOT_EVALUABLE', bar));
       }
-    } else if (
-      position === undefined &&
-      !isInstrumentEligibleAt(
-        plan.pointInTimePolicy,
-        bar.instrumentId,
-        bar.timestamp,
-      )
-    ) {
+    } else if (position === undefined && !eligible) {
       addWarning(simulation, warning('HISTORICAL_UNIVERSE_EXCLUDED', bar));
     }
   }
@@ -757,11 +756,14 @@ function recordCurves(timestamp: string, simulation: MutableSimulation): void {
   const exposurePercent = equity.isZero()
     ? Decimal.ZERO
     : exposure.dividedBy(equity).times(Decimal.parse('100'));
-  const priorPeak = simulation.equityCurve.reduce((peak, point) => {
-    const value = Decimal.parse(point.value);
-    return value.compare(peak) > 0 ? value : peak;
-  }, equity);
+  const priorPeak =
+    peakEquityBySimulation.get(simulation) ??
+    simulation.equityCurve.reduce((peak, point) => {
+      const value = Decimal.parse(point.value);
+      return value.compare(peak) > 0 ? value : peak;
+    }, equity);
   const peak = equity.compare(priorPeak) > 0 ? equity : priorPeak;
+  peakEquityBySimulation.set(simulation, peak);
   const drawdown = peak.isZero()
     ? Decimal.ZERO
     : equity.minus(peak).dividedBy(peak).times(Decimal.parse('100'));
@@ -770,6 +772,12 @@ function recordCurves(timestamp: string, simulation: MutableSimulation): void {
   upsertCurve(simulation.exposureCurve, timestamp, exposurePercent);
   upsertCurve(simulation.drawdownCurve, timestamp, drawdown);
 }
+
+// A simulation's equity curve is append-only during a run. Keeping the peak
+// alongside that object avoids reparsing and rescanning the complete curve at
+// every timestamp (quadratic work for long histories) without changing the
+// persisted checkpoint or result contract.
+const peakEquityBySimulation = new WeakMap<MutableSimulation, Decimal>();
 
 function currentEquity(simulation: MutableSimulation): Decimal {
   let equity = simulation.cash;
@@ -1029,23 +1037,15 @@ function checkpointHashPayload(
 function hashStringSequence(values: readonly string[]): string {
   let first = 0x81_1c_9d_c5;
   let second = 0x9e_37_79_b9;
-  const updateByte = (value: number): void => {
+  const mix = (value: number): void => {
     first = Math.imul(first ^ value, 0x01_00_01_93) >>> 0;
     second = Math.imul(second ^ value, 0x01_00_01_93) >>> 0;
   };
   for (const value of values) {
-    let length = value.length;
-    do {
-      updateByte(length & 0xff);
-      length >>>= 8;
-    } while (length > 0);
-    updateByte(0xff);
+    mix(value.length);
     for (let index = 0; index < value.length; index += 1) {
-      const code = value.charCodeAt(index);
-      updateByte(code & 0xff);
-      updateByte(code >>> 8);
+      mix(value.charCodeAt(index));
     }
-    updateByte(0xfe);
   }
   return `fnv1a64:${first.toString(16).padStart(8, '0')}${second.toString(16).padStart(8, '0')}`;
 }

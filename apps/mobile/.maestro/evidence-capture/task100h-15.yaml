@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 15
+---
+- openLink: 'atlas://strategies?fixture=1&view=trades'
+- openLink: 'atlas://strategies?fixture=1&view=trades'
+- assertVisible: { id: 'strategy-trades' }
+- assertVisible: 'İşlem geçmişi'

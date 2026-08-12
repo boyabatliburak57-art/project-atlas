@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: User switch isolation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=privacy-cleanup'
+- assertVisible: 'CROSS-USER LEAKAGE: 0'
+- assertVisible: 'Hesap değişimi ve çıkışta özel cihaz durumu temizlenir.'

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Token link cleanup
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=invalid-link'
+- assertVisible: 'Bu bağlantı Atlas içinde güvenli bir hedefe yönlenmiyor.'
+- assertNotVisible: 'reset-token-secret'

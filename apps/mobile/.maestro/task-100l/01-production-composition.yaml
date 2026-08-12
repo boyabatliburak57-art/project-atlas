@@ -1,0 +1,52 @@
+appId: com.atlasfinance.mobile
+name: TASK-100L production composition smoke
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- tapOn: 'Giriş yap'
+- tapOn: { id: 'auth-email' }
+- inputText: 'mobile@example.test'
+- tapOn: { id: 'auth-password' }
+- inputText: 'Atlas-Test-2026!'
+- tapOn: { text: 'Giriş yap', index: 1 }
+- tapOn: { text: 'Sonra', optional: true }
+- runFlow:
+    when:
+      visible: 'Başlangıç ayarları'
+    commands:
+      - repeat:
+          times: 7
+          commands:
+            - tapOn: { text: 'Kaydet ve devam et', optional: true }
+            - tapOn: { text: 'Onboarding’i tamamla', optional: true }
+- extendedWaitUntil: { visible: 'Piyasa Özeti', timeout: 30000 }
+- assertVisible: { id: 'market-overview-live' }
+- tapOn: { id: 'tab-portfolio' }
+- assertVisible: { id: 'portfolio-production' }
+- tapOn: { id: 'tab-more' }
+- extendedWaitUntil: { visible: { id: 'more-scanner' }, timeout: 30000 }
+- tapOn: { id: 'more-scanner' }
+- assertVisible: { id: 'scanner-production' }
+- tapOn: "More'a dön"
+- extendedWaitUntil: { visible: { id: 'more-watchlists' }, timeout: 30000 }
+- tapOn: { id: 'more-watchlists' }
+- assertVisible: { id: 'watchlists-production' }
+- tapOn: "More'a dön"
+- extendedWaitUntil: { visible: { id: 'more-strategies' }, timeout: 30000 }
+- tapOn: { id: 'more-strategies' }
+- assertVisible: { id: 'strategy-production' }
+- tapOn: "More'a dön"
+- extendedWaitUntil: { visible: { id: 'more-reports' }, timeout: 30000 }
+- tapOn: { id: 'more-reports' }
+- assertVisible: { id: 'operations-production' }
+- assertNotVisible: 'NOT_IMPLEMENTED'
+- tapOn: 'settings'
+- scrollUntilVisible:
+    element: { text: 'Çıkış yap' }
+    direction: DOWN
+- tapOn: 'Çıkış yap'
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 30000 }
+- openLink: 'atlas://portfolio/00000000-0000-4000-8000-000000000999'
+- assertVisible: 'Giriş yap'

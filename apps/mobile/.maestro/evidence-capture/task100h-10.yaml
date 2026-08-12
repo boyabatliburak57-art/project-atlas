@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 10
+---
+- openLink: 'atlas://strategies?fixture=1&view=result'
+- openLink: 'atlas://strategies?fixture=1&view=result'
+- assertVisible: { id: 'strategy-result' }
+- assertVisible: 'Trend ve hacim araştırması'

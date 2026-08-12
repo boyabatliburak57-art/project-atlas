@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Benchmark comparison
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=benchmark'
+- openLink: 'atlas://strategies?fixture=1&view=benchmark'
+- assertVisible: { id: 'strategy-benchmark' }
+- assertVisible: 'Benchmark karşılaştırması'

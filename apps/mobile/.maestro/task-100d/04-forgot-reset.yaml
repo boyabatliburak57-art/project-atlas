@@ -3,10 +3,17 @@ name: Forgot and reset password contract
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: 'Giriş yap'
+    timeout: 120000
 - openLink: 'atlas://forgot-password'
-- assertVisible: 'Şifremi unuttum'
+- extendedWaitUntil:
+    visible: 'Şifremi unuttum'
+    timeout: 30000
+- waitForAnimationToEnd
 - tapOn:
     id: 'auth-email'
+- eraseText
 - inputText: 'mobile@example.test'
 - tapOn: 'Sıfırlama bağlantısı iste'
 - extendedWaitUntil:

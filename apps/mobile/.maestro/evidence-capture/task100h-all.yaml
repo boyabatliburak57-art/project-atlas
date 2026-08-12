@@ -1,0 +1,123 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H verified native capture
+---
+- openLink: 'atlas://strategies?fixture=1&view=lab'
+- openLink: 'atlas://strategies?fixture=1&view=lab'
+- assertVisible: { id: 'strategy-lab' }
+- assertVisible: 'Stratejilerim'
+- waitForAnimationToEnd
+- takeScreenshot: '89-strategy-lab'
+- openLink: 'atlas://strategies?fixture=1&view=empty'
+- openLink: 'atlas://strategies?fixture=1&view=empty'
+- assertVisible: { id: 'strategy-empty' }
+- assertVisible: 'Henüz strateji yok'
+- waitForAnimationToEnd
+- takeScreenshot: '90-empty-strategies'
+- openLink: 'atlas://strategies?fixture=1&view=card'
+- openLink: 'atlas://strategies?fixture=1&view=card'
+- assertVisible: { id: 'strategy-card' }
+- assertVisible: 'Trend ve hacim araştırması'
+- waitForAnimationToEnd
+- takeScreenshot: '91-strategy-card'
+- openLink: 'atlas://strategies?fixture=1&view=builder'
+- openLink: 'atlas://strategies?fixture=1&view=builder'
+- assertVisible: { id: 'strategy-builder' }
+- assertVisible: 'Strateji oluştur'
+- waitForAnimationToEnd
+- takeScreenshot: '92-strategy-builder'
+- openLink: 'atlas://strategies?fixture=1&view=rules'
+- openLink: 'atlas://strategies?fixture=1&view=rules'
+- assertVisible: { id: 'strategy-rules' }
+- assertVisible: 'Giriş kuralları'
+- waitForAnimationToEnd
+- takeScreenshot: '93-rule-editor'
+- openLink: 'atlas://strategies?fixture=1&view=validation'
+- openLink: 'atlas://strategies?fixture=1&view=validation'
+- assertVisible: { id: 'strategy-validation' }
+- assertVisible: 'BACKTEST_PERIOD_INVALID'
+- waitForAnimationToEnd
+- takeScreenshot: '94-validation-error'
+- openLink: 'atlas://strategies?fixture=1&view=config'
+- openLink: 'atlas://strategies?fixture=1&view=config'
+- assertVisible: { id: 'strategy-config' }
+- assertVisible: 'Backtest yapılandır'
+- waitForAnimationToEnd
+- takeScreenshot: '95-backtest-form'
+- openLink: 'atlas://strategies?fixture=1&view=provider'
+- openLink: 'atlas://strategies?fixture=1&view=provider'
+- assertVisible: { id: 'strategy-provider-required' }
+- assertVisible: 'Strategy Lab'
+- waitForAnimationToEnd
+- takeScreenshot: '96-provider-required'
+- openLink: 'atlas://strategies?fixture=1&view=progress'
+- openLink: 'atlas://strategies?fixture=1&view=progress'
+- assertVisible: { id: 'strategy-progress' }
+- assertVisible: 'Backtest çalışıyor'
+- waitForAnimationToEnd
+- takeScreenshot: '97-progress'
+- openLink: 'atlas://strategies?fixture=1&view=result'
+- openLink: 'atlas://strategies?fixture=1&view=result'
+- assertVisible: { id: 'strategy-result' }
+- assertVisible: 'Trend ve hacim araştırması'
+- waitForAnimationToEnd
+- takeScreenshot: '98-result-summary'
+- openLink: 'atlas://strategies?fixture=1&view=equity'
+- openLink: 'atlas://strategies?fixture=1&view=equity'
+- assertVisible: { id: 'strategy-equity' }
+- assertVisible: 'Equity curve'
+- waitForAnimationToEnd
+- takeScreenshot: '99-equity-curve'
+- openLink: 'atlas://strategies?fixture=1&view=drawdown'
+- openLink: 'atlas://strategies?fixture=1&view=drawdown'
+- assertVisible: { id: 'strategy-drawdown' }
+- assertVisible: 'Drawdown curve'
+- waitForAnimationToEnd
+- takeScreenshot: '100-drawdown-curve'
+- openLink: 'atlas://strategies?fixture=1&view=metrics'
+- openLink: 'atlas://strategies?fixture=1&view=metrics'
+- assertVisible: { id: 'strategy-metrics' }
+- assertVisible: 'Yıllıklandırılmış getiri'
+- waitForAnimationToEnd
+- takeScreenshot: '101-metric-grid'
+- openLink: 'atlas://strategies?fixture=1&view=not-evaluable'
+- openLink: 'atlas://strategies?fixture=1&view=not-evaluable'
+- assertVisible: { id: 'strategy-not-evaluable' }
+- assertVisible: 'NOT_EVALUABLE'
+- waitForAnimationToEnd
+- takeScreenshot: '102-not-evaluable'
+- openLink: 'atlas://strategies?fixture=1&view=trades'
+- openLink: 'atlas://strategies?fixture=1&view=trades'
+- assertVisible: { id: 'strategy-trades' }
+- assertVisible: 'İşlem geçmişi'
+- waitForAnimationToEnd
+- takeScreenshot: '103-trade-history'
+- openLink: 'atlas://strategies?fixture=1&view=trade-detail'
+- openLink: 'atlas://strategies?fixture=1&view=trade-detail'
+- assertVisible: { id: 'strategy-trade-detail' }
+- assertVisible: 'THYAO · işlem detayı'
+- waitForAnimationToEnd
+- takeScreenshot: '104-trade-detail'
+- openLink: 'atlas://strategies?fixture=1&view=benchmark'
+- openLink: 'atlas://strategies?fixture=1&view=benchmark'
+- assertVisible: { id: 'strategy-benchmark' }
+- assertVisible: 'Benchmark karşılaştırması'
+- waitForAnimationToEnd
+- takeScreenshot: '105-benchmark-comparison'
+- openLink: 'atlas://strategies?fixture=1&view=quality'
+- openLink: 'atlas://strategies?fixture=1&view=quality'
+- assertVisible: { id: 'strategy-quality' }
+- assertVisible: 'Veri kalitesi ve reproducibility'
+- waitForAnimationToEnd
+- takeScreenshot: '106-data-quality'
+- openLink: 'atlas://strategies?fixture=1&view=experiments'
+- openLink: 'atlas://strategies?fixture=1&view=experiments'
+- assertVisible: { id: 'strategy-experiments' }
+- assertVisible: 'Deney karşılaştırması'
+- waitForAnimationToEnd
+- takeScreenshot: '107-experiment-comparison'
+- openLink: 'atlas://strategies?fixture=1&view=rerun'
+- openLink: 'atlas://strategies?fixture=1&view=rerun'
+- assertVisible: { id: 'strategy-rerun' }
+- assertVisible: 'Tekrar çalıştır'
+- waitForAnimationToEnd
+- takeScreenshot: '108-rerun-dialog'

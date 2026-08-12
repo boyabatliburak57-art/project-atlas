@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report ready detail
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=ready'
+- assertVisible: { id: 'operations-ready' }
+- assertVisible: 'READY · OWNER VERIFIED'

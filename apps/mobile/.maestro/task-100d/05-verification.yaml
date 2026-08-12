@@ -3,7 +3,8 @@ name: Verification status resend and confirm contract
 ---
 - launchApp:
     clearState: true
-- openLink: 'atlas://verification'
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///verification'
 - assertVisible: 'E-posta doğrulaması'
 - assertVisible: 'TRANSACTIONAL_EMAIL · SANDBOX_INTEGRATION'
 - assertVisible: 'Doğrulama bağlantısını yeniden gönder'

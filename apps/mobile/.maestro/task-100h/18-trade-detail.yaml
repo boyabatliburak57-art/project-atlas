@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Trade detail
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=trade-detail'
+- openLink: 'atlas://strategies?fixture=1&view=trade-detail'
+- assertVisible: { id: 'strategy-trade-detail' }
+- assertVisible: 'THYAO · işlem detayı'

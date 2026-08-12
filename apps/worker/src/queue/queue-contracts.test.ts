@@ -7,6 +7,7 @@ import {
   createHeartbeatJobId,
   createNotificationDeliveryJobId,
   createMarketIntelligenceReconciliationJobId,
+  createReportGenerationJobId,
   createScannerRunJobId,
   DEFAULT_JOB_OPTIONS,
   QUEUE_NAMES,
@@ -58,6 +59,16 @@ describe('queue contracts', () => {
     );
     expect(createExperimentJobId('experiment-1')).not.toBe(
       createExperimentJobId('experiment-2'),
+    );
+  });
+
+  it('creates stable report identities with an isolated production queue', () => {
+    expect(QUEUE_NAMES.reports).toMatch(/^atlas\.reports\.v\d+$/);
+    expect(createReportGenerationJobId('report-1')).toBe(
+      createReportGenerationJobId('report-1'),
+    );
+    expect(createReportGenerationJobId('report-1')).not.toBe(
+      createReportGenerationJobId('report-2'),
     );
   });
 

@@ -19,6 +19,9 @@ name: Login invalid credentials
 - tapOn:
     text: 'Giriş yap'
     index: 1
+- tapOn:
+    text: 'Sonra'
+    optional: true
 - extendedWaitUntil:
     visible: 'Authentication failed'
     timeout: 30000

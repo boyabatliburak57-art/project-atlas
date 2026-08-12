@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Cache expiry state
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=expired-cache'
+- assertVisible: 'SAFE CLOSED'
+- assertVisible: 'Süresi aşılmış finansal veri gösterilmedi.'

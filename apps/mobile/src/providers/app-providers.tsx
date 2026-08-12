@@ -10,6 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Text, View } from 'react-native';
 import { createAtlasQueryClient } from '../query/query-client';
 import { AuthProvider } from './auth-provider';
+import { AppPrivacyBoundary } from './app-privacy-boundary';
 
 class FoundationErrorBoundary extends Component<
   PropsWithChildren,
@@ -45,7 +46,9 @@ export function AppProviders({ children }: PropsWithChildren) {
     <FoundationErrorBoundary>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <AppPrivacyBoundary>{children}</AppPrivacyBoundary>
+          </AuthProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </FoundationErrorBoundary>

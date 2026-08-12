@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Offline mutation blocked
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=mutation-blocked'
+- assertVisible: { id: 'native-security-mutation-blocked' }
+- assertVisible: 'Talep sıraya alınmadı ve başarı gösterilmedi.'

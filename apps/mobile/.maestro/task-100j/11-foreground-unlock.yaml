@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Foreground unlock state
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=app-lock'
+- assertVisible: 'Atlas kilitli'
+- assertVisible: 'Face ID ile kilidi aç'

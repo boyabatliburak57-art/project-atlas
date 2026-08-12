@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Offline logout deep link ownership
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&offline=1'
+- assertVisible: { id: 'operations-offline' }
+- assertVisible: 'Rapor, destek ve server-backed ayar değişiklikleri çevrimdışıyken sıraya alınmaz.'

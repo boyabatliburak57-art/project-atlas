@@ -19,6 +19,14 @@ name: Login success
 - tapOn:
     text: 'Giriş yap'
     index: 1
+- waitForAnimationToEnd
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: 'Sonra'
+          optional: true
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible: 'Başlangıç ayarları'
     timeout: 30000

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report ownership safe fallback
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports'
+- assertVisible: { id: 'operations-production-empty' }
+- assertVisible: 'Hazır içerik yok'

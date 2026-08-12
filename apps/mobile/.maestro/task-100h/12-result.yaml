@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Result summary
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=result'
+- openLink: 'atlas://strategies?fixture=1&view=result'
+- assertVisible: { id: 'strategy-result' }
+- assertVisible: 'Trend ve hacim araştırması'

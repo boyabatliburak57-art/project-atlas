@@ -16,8 +16,18 @@ import {
 } from '../features/auth/auth-session';
 import { clearPrivateQueries } from '../query/query-client';
 import { ExpoSecureStorage } from '../storage/secure-storage';
+import { InstallationGuard } from '../security/installation-guard';
+import { installationMarkerStore } from '../security/installation-marker';
+import {
+  cleanupPrivateDeviceState,
+  cleanupStartupSensitiveFiles,
+} from '../security/private-device-cleanup';
+import { MobilePushDeviceApi } from '../notifications/push-notifications';
+import { MobilePreferencesApi } from '../features/preferences/preferences-api';
 
 interface AuthContextValue {
+  readonly client: AtlasApiClient;
+  readonly preferencesApi: MobilePreferencesApi;
   readonly state: AuthState;
   login(email: string, password: string): Promise<boolean>;
   logout(): Promise<void>;
@@ -33,8 +43,11 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const composition = useMemo(() => {
-    const controller = new AuthSessionController(new ExpoSecureStorage(), () =>
-      clearPrivateQueries(queryClient),
+    const secureStorage = new ExpoSecureStorage();
+    const controller = new AuthSessionController(
+      secureStorage,
+      () => clearPrivateQueries(queryClient),
+      cleanupPrivateDeviceState,
     );
     const environment = currentMobileEnvironment();
     const client = new AtlasApiClient({
@@ -47,18 +60,32 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }),
       credentials: controller,
     });
-    return { api: new MobileAuthApi(client), controller };
+    return {
+      api: new MobileAuthApi(client),
+      client,
+      preferencesApi: new MobilePreferencesApi(client),
+      pushApi: new MobilePushDeviceApi(client),
+      controller,
+      installationGuard: new InstallationGuard(
+        installationMarkerStore,
+        secureStorage,
+      ),
+    };
   }, [queryClient]);
   const [state, setState] = useState<AuthState>(
     composition.controller.snapshot(),
   );
   useEffect(() => {
     const unsubscribe = composition.controller.subscribe(setState);
-    void composition.controller.restore();
+    void cleanupStartupSensitiveFiles()
+      .then(() => composition.installationGuard.enforce())
+      .then(() => composition.controller.restore());
     return unsubscribe;
   }, [composition]);
   const value = useMemo<AuthContextValue>(
     () => ({
+      client: composition.client,
+      preferencesApi: composition.preferencesApi,
       state,
       async login(email, password) {
         const session = await composition.api.login(email, password);
@@ -66,6 +93,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return session.emailVerificationRequired === true;
       },
       async logout() {
+        try {
+          await composition.pushApi.revokeAll();
+        } catch {
+          // Session and local cleanup must still complete if remote revocation is unavailable.
+        }
         try {
           await composition.api.logout();
         } finally {

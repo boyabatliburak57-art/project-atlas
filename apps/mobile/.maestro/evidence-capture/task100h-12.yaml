@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 12
+---
+- openLink: 'atlas://strategies?fixture=1&view=drawdown'
+- openLink: 'atlas://strategies?fixture=1&view=drawdown'
+- assertVisible: { id: 'strategy-drawdown' }
+- assertVisible: 'Drawdown curve'

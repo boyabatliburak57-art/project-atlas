@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 11
+---
+- openLink: 'atlas://strategies?fixture=1&view=equity'
+- openLink: 'atlas://strategies?fixture=1&view=equity'
+- assertVisible: { id: 'strategy-equity' }
+- assertVisible: 'Equity curve'

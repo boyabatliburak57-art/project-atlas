@@ -7,6 +7,7 @@
     "build": "pnpm --filter @atlas/types build && pnpm --filter @atlas/domain build && tsc -p tsconfig.build.json",
     "dev": "pnpm --filter @atlas/types build && tsx watch src/main.ts",
     "e2e:scanner": "pnpm --filter @atlas/types build && pnpm --filter @atlas/domain build && pnpm --filter @atlas/database build && tsc -p tsconfig.e2e.json && node dist/e2e-server/e2e/scanner-api-server.js",
+    "e2e:seed:mobile-release": "tsx src/e2e/mobile-release-seed.ts",
     "lint": "eslint src",
     "openapi:check": "vitest run src/openapi/openapi.test.ts",
     "perf:market": "tsx src/performance/market-intelligence-benchmark.ts",

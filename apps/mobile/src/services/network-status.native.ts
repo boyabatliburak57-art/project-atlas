@@ -6,8 +6,12 @@ export function connectExpoNetworkStatus(
   controller: NetworkStatusController,
 ): () => void {
   return NetInfo.addEventListener((state) => {
-    controller.setOnline(
-      state.isConnected === true && state.isInternetReachable !== false,
-    );
+    if (state.isConnected === null || state.isInternetReachable === null) {
+      controller.setStatus('unknown');
+    } else {
+      controller.setOnline(
+        state.isConnected === true && state.isInternetReachable !== false,
+      );
+    }
   });
 }

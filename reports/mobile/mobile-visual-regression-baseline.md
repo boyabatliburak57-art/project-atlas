@@ -102,3 +102,30 @@ Android and tablet visual suites remain `DEFERRED_V1_1_NOT_RELEASE_GATED`.
 - Result: `PASS`
 
 Android and tablet visual suites remain `DEFERRED_V1_1_NOT_RELEASE_GATED`.
+
+# TASK-100H baseline addendum
+
+- New native iPhone 17 / iOS 26.5 screenshots: 20
+- Total native screenshots: 108
+- Independent visual differences: 0
+- Missing/unexpected/metadata errors: 0
+- Normal-test baseline mutation: 0
+
+# TASK-100I baseline addendum
+
+- New native iPhone 17 / iOS 26.5 screenshots: 20
+- Total native screenshots: 128
+- Independent visual differences: 0
+- Missing/unexpected/metadata errors: 0
+- Normal-test baseline mutation: 0
+- Explicit baseline update followed by independent test: PASS
+
+# TASK-100J baseline addendum
+
+- New native iPhone 17 / iOS 26.5 screenshots: 16
+- Total native screenshots: 144
+- Missing/unexpected/metadata errors: 0/0/0
+- Independent visual differences: 0
+- Normal-test baseline mutation: 0
+- Baseline aggregate SHA-256: `ca614022fbb56a0d41f0b9cd9c41249ce900372a1dc6c6212295f0fe38dc6def`
+- Explicit baseline update followed by independent normal test: PASS

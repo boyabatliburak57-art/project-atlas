@@ -2,3 +2,7 @@
 # in the same pull request and must never contain the detected secret value.
 # False positive: prose describing production stack-trace suppression in the GO re-audit.
 reports/strategy-lab-milestone-reaudit.md:generic-api-key:138
+# False positive: bounded synthetic token used only by the mobile deep-link unit test.
+219d617819955c8c93474c73b5a8de26850ba0ce:apps/mobile/src/navigation/deep-links.test.ts:generic-api-key:60
+# False positive: biometric enrollment prose in the mobile secure-storage documentation.
+219d617819955c8c93474c73b5a8de26850ba0ce:docs/mobile/MOBILE_SECURE_STORAGE.md:generic-api-key:7

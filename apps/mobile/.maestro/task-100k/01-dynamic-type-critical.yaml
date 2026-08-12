@@ -1,0 +1,24 @@
+appId: com.atlasfinance.mobile
+name: TASK-100K Dynamic Type critical surfaces
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil:
+    visible: 'Piyasayı sakin ve güvenilir bir çerçevede analiz edin.'
+    timeout: 120000
+- scrollUntilVisible:
+    element: { text: 'Giriş yap' }
+    direction: DOWN
+- tapOn: 'Giriş yap'
+- assertVisible: 'E-posta'
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- assertVisible: 'Piyasa Özeti'
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=overview'
+- assertVisible: { id: 'symbol-detail' }
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- assertVisible: { id: 'scan-builder' }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=overview'
+- assertVisible: { id: 'portfolio-overview' }
+- openLink: 'atlas://strategies?fixture=1&view=metrics'
+- assertVisible: { id: 'strategy-metrics' }
+- openLink: 'atlas://reports?fixture=1&view=settings'
+- assertVisible: { id: 'operations-settings' }

@@ -15,6 +15,7 @@ export class MobileAuthApi {
 
   async login(email: string, password: string): Promise<AuthSession> {
     const response = await this.client.request<AtlasResponse<LoginResponse>>({
+      authentication: 'anonymous',
       body: { email: normalizeEmail(email), password },
       method: 'POST',
       path: '/auth/login',
@@ -68,6 +69,7 @@ export class MobileAuthApi {
     email: string,
   ): Promise<AtlasResponse<{ accepted: true }>> {
     return this.client.request({
+      authentication: 'anonymous',
       body: { email: normalizeEmail(email) },
       method: 'POST',
       path: '/auth/password-reset/request',
@@ -76,6 +78,7 @@ export class MobileAuthApi {
 
   confirmPasswordReset(token: string, password: string): Promise<void> {
     return this.client.request({
+      authentication: 'anonymous',
       body: { password, token },
       method: 'POST',
       path: '/auth/password-reset/confirm',

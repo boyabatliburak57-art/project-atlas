@@ -1,0 +1,57 @@
+appId: com.atlasfinance.mobile
+name: TASK-100K accessibility QA native capture
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil:
+    visible: 'Piyasayı sakin ve güvenilir bir çerçevede analiz edin.'
+    timeout: 120000
+- openLink: 'atlas:///(auth)/login'
+- assertVisible: 'E-posta'
+- waitForAnimationToEnd
+- takeScreenshot: '145-login-accessibility-text'
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- assertVisible: 'Piyasa Özeti'
+- waitForAnimationToEnd
+- takeScreenshot: '146-bottom-navigation-accessibility-text'
+- takeScreenshot: '147-market-overview-large-type'
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=overview'
+- assertVisible: { id: 'symbol-detail' }
+- waitForAnimationToEnd
+- takeScreenshot: '148-symbol-detail-large-type'
+- openLink: 'atlas://scanner?fixture=1&view=builder'
+- assertVisible: { id: 'scan-builder' }
+- waitForAnimationToEnd
+- takeScreenshot: '149-scanner-builder-large-type'
+- openLink: 'atlas://watchlists?fixture=1&view=alert-active'
+- scrollUntilVisible:
+    element: { text: 'Aktif alarmlar' }
+    direction: DOWN
+    timeout: 120000
+    visibilityPercentage: 20
+- assertVisible: 'Aktif alarmlar'
+- waitForAnimationToEnd
+- takeScreenshot: '150-watchlist-alerts-large-type'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=privacy'
+- assertVisible: { id: 'portfolio-privacy' }
+- waitForAnimationToEnd
+- takeScreenshot: '151-portfolio-privacy-voiceover-safe'
+- openLink: 'atlas://portfolio-risk?fixture=1&view=overview'
+- assertVisible: { id: 'portfolio-overview' }
+- waitForAnimationToEnd
+- takeScreenshot: '152-portfolio-large-type'
+- openLink: 'atlas://strategies?fixture=1&view=metrics'
+- assertVisible: { id: 'strategy-metrics' }
+- waitForAnimationToEnd
+- takeScreenshot: '153-backtest-metrics-large-type'
+- openLink: 'atlas://reports?fixture=1&view=reports'
+- assertVisible: { id: 'operations-reports' }
+- waitForAnimationToEnd
+- takeScreenshot: '154-reports-large-type'
+- openLink: 'atlas://reports?fixture=1&view=settings'
+- assertVisible: { id: 'operations-settings' }
+- waitForAnimationToEnd
+- takeScreenshot: '155-settings-large-type'
+- openLink: 'atlas://security?fixture=1&view=app-lock'
+- assertVisible: { id: 'native-security-app-lock' }
+- waitForAnimationToEnd
+- takeScreenshot: '156-reduced-motion-stable-state'

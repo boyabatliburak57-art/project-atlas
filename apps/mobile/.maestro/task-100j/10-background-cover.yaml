@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Background privacy cover
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=privacy-cover'
+- assertVisible: { id: 'native-security-privacy-cover' }
+- assertVisible: 'Hassas içerik uygulama değiştiricide gizlendi.'

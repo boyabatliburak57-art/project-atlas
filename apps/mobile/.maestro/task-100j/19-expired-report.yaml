@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Expired report file
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=invalid-report'
+- assertVisible: 'Süresi dolmuş veya beklenmeyen dosya güvenli biçimde reddedildi.'
+- assertVisible: 'SAFE CLOSED'

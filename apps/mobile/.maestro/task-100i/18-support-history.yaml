@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Support history
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=support-history'
+- assertVisible: { id: 'operations-support-history' }
+- assertVisible: 'Taleplerim'

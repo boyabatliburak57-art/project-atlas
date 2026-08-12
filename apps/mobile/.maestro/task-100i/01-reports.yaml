@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Reports landing
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=reports'
+- assertVisible: { id: 'operations-reports' }
+- assertVisible: 'Analizi kaynağıyla birlikte sakla.'

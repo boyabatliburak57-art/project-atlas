@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Offline backtest report expiry
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=expired-cache'
+- assertVisible: 'EXPIRED_OFFLINE_CACHE'
+- assertVisible: 'Süresi aşılmış finansal veri gösterilmedi.'

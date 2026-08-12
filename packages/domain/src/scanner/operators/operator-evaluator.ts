@@ -63,10 +63,18 @@ function binary(
   compare: (left: number, right: number) => boolean,
 ): ScanOperatorEvaluator {
   return ({ operands }) => {
-    const values = currentNumbers(operands, 2);
-    return 'status' in values
-      ? values
-      : result(compare(values.values[0]!, values.values[1]!));
+    const left = operands.left;
+    const right = operands.right;
+    if (left.type !== 'number' || right?.type !== 'number')
+      return unavailable('OPERAND_TYPE_MISMATCH');
+    if (
+      left.current === null ||
+      right.current === null ||
+      !Number.isFinite(left.current) ||
+      !Number.isFinite(right.current)
+    )
+      return unavailable('OPERAND_UNAVAILABLE');
+    return result(compare(left.current, right.current));
   };
 }
 
@@ -74,23 +82,44 @@ function range(
   compare: (value: number, lower: number, upper: number) => boolean,
 ): ScanOperatorEvaluator {
   return ({ operands }) => {
-    const values = currentNumbers(operands, 3);
-    return 'status' in values
-      ? values
-      : result(
-          compare(values.values[0]!, values.values[1]!, values.values[2]!),
-        );
+    const value = operands.left;
+    const lower = operands.right;
+    const upper = operands.upperBound;
+    if (
+      value.type !== 'number' ||
+      lower?.type !== 'number' ||
+      upper?.type !== 'number'
+    )
+      return unavailable('OPERAND_TYPE_MISMATCH');
+    if (
+      value.current === null ||
+      lower.current === null ||
+      upper.current === null ||
+      !Number.isFinite(value.current) ||
+      !Number.isFinite(lower.current) ||
+      !Number.isFinite(upper.current)
+    )
+      return unavailable('OPERAND_UNAVAILABLE');
+    return result(compare(value.current, lower.current, upper.current));
   };
 }
 
 function cross(direction: 'above' | 'below'): ScanOperatorEvaluator {
   return ({ operands }) => {
-    const values = numbers(operands, 2);
-    if ('status' in values) return values;
-    const [left, right] = values.values;
+    const left = operands.left;
+    const right = operands.right;
+    if (left.type !== 'number' || right?.type !== 'number')
+      return unavailable('OPERAND_TYPE_MISMATCH');
     if (
-      left?.previous === null ||
-      left?.previous === undefined ||
+      left.current === null ||
+      right.current === null ||
+      !Number.isFinite(left.current) ||
+      !Number.isFinite(right.current)
+    )
+      return unavailable('OPERAND_UNAVAILABLE');
+    if (
+      left.previous === null ||
+      left.previous === undefined ||
       right?.previous === null ||
       right?.previous === undefined ||
       !Number.isFinite(left.previous) ||
@@ -99,12 +128,8 @@ function cross(direction: 'above' | 'below'): ScanOperatorEvaluator {
       return unavailable('PREVIOUS_VALUE_UNAVAILABLE');
     }
     return direction === 'above'
-      ? result(
-          left.previous <= right.previous && left.current! > right.current!,
-        )
-      : result(
-          left.previous >= right.previous && left.current! < right.current!,
-        );
+      ? result(left.previous <= right.previous && left.current > right.current)
+      : result(left.previous >= right.previous && left.current < right.current);
   };
 }
 

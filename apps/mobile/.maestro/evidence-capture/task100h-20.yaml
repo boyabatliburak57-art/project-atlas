@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 20
+---
+- openLink: 'atlas://strategies?fixture=1&view=rerun'
+- openLink: 'atlas://strategies?fixture=1&view=rerun'
+- assertVisible: { id: 'strategy-rerun' }
+- assertVisible: 'Tekrar çalıştır'

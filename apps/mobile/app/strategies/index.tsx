@@ -1,6 +1,4 @@
-import { FeatureShell } from '../../src/components/feature-shell';
+import { StrategyLabScreen } from '../../src/features/strategy/strategy-screens';
 export default function Page() {
-  return (
-    <FeatureShell title="Strategy Lab / Backtest" targetTask="TASK-100H" />
-  );
+  return <StrategyLabScreen />;
 }

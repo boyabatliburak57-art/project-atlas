@@ -298,6 +298,10 @@ function RegistrationUnavailable() {
 
 function Verification() {
   const auth = useAuth();
+  const developmentRouteHarness =
+    __DEV__ &&
+    auth.state.status !== 'authenticated' &&
+    auth.state.status !== 'verificationRequired';
   const parameters = useLocalSearchParams<{ token?: string }>();
   const [maskedEmail, setMaskedEmail] = useState('e***@example.com');
   const [message, setMessage] = useState('Doğrulama durumu kontrol ediliyor.');
@@ -324,6 +328,10 @@ function Verification() {
   };
   useEffect(() => {
     const token = parameters.token;
+    if (developmentRouteHarness && typeof token !== 'string') {
+      setMessage('Hesabınıza tam erişim için e-postanızı doğrulayın.');
+      return;
+    }
     if (typeof token !== 'string') {
       void refresh();
       return;
@@ -343,9 +351,13 @@ function Verification() {
         ),
       )
       .finally(() => setPending(false));
-  }, [parameters.token]);
+  }, [developmentRouteHarness, parameters.token]);
   const resend = async () => {
     if (pending) return;
+    if (developmentRouteHarness) {
+      setMessage('Doğrulama teslimatı güvenli şekilde sıraya alındı.');
+      return;
+    }
     setPending(true);
     try {
       const response = await auth.resendVerification();

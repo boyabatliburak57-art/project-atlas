@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AtlasApiError } from '@atlas/api-client';
 import { Link, router, useLocalSearchParams } from 'expo-router';
 import {
   FlatList,
@@ -31,6 +33,7 @@ import {
   scanResults,
   watchlistSymbols,
 } from './operations-evidence-data';
+import { useAuth } from '../../providers/auth-provider';
 
 type ScannerView =
   | 'saved'
@@ -142,7 +145,8 @@ export function ScannerScreen() {
         <OfflineState />
       </Screen>
     );
-  if (!fixture || view === 'provider')
+  if (!fixture) return <LiveScannerScreen />;
+  if (view === 'provider')
     return (
       <Screen testID="scanner-provider-required">
         <AppHeader
@@ -485,13 +489,15 @@ export function WatchlistsAlertsScreen() {
     });
   if (!fixture)
     return (
-      <Screen testID="watchlists-production">
-        <AppHeader
-          title="İzleme listeleri"
-          subtitle="Metadata kullanılabilir; piyasa değerleri provider-gated"
-        />
-        <ProviderRequiredState />
-      </Screen>
+      <LiveOperationsScreen
+        initialSection={
+          view === 'notifications'
+            ? 'activity'
+            : view.startsWith('alert')
+              ? 'alerts'
+              : 'lists'
+        }
+      />
     );
   return (
     <Screen testID={`operations-${view}`}>
@@ -855,6 +861,238 @@ function NotificationCenter() {
   );
 }
 
+type ApiEnvelope<T> = {
+  readonly data: T;
+  readonly meta?: { readonly nextCursor?: string | null };
+};
+
+type LiveSavedScan = {
+  readonly id: string;
+  readonly name: string;
+  readonly currentRevision: number;
+  readonly status: string;
+  readonly updatedAt: string;
+};
+
+type LiveWatchlist = {
+  readonly id: string;
+  readonly name: string;
+  readonly status: string;
+  readonly updatedAt: string;
+  readonly items: readonly unknown[];
+};
+
+type LiveAlert = {
+  readonly id: string;
+  readonly name: string;
+  readonly status: string;
+  readonly currentRevision: number;
+};
+
+type LiveNotification = {
+  readonly id: string;
+  readonly title: string;
+  readonly body: string;
+  readonly readAt: string | null;
+  readonly occurredAt: string;
+};
+
+function safeApiMessage(error: unknown): string {
+  return error instanceof AtlasApiError
+    ? `${error.safeMessage}${error.requestId ? ` · ${error.requestId}` : ''}`
+    : 'İstek tamamlanamadı. Lütfen yeniden deneyin.';
+}
+
+function LiveScannerScreen() {
+  const { client, state } = useAuth();
+  const owner = 'session' in state ? state.session.userId : 'anonymous';
+  const scans = useQuery({
+    queryKey: ['private', owner, 'saved-scans'],
+    queryFn: () =>
+      client.request<ApiEnvelope<readonly LiveSavedScan[]>>({
+        path: '/saved-scans',
+      }),
+  });
+  return (
+    <Screen testID="scanner-production">
+      <AppHeader
+        title="Scanner"
+        subtitle="Kısıtlı taramalar özel ve revision tabanlıdır"
+      />
+      <Button
+        label="More'a dön"
+        onPress={() => router.replace('/(tabs)/more')}
+      />
+      {scans.isPending ? <Text>Kayıtlı taramalar yükleniyor…</Text> : null}
+      {scans.isError ? (
+        <Card>
+          <Text style={styles.validationTitle}>
+            {safeApiMessage(scans.error)}
+          </Text>
+          <Button label="Yeniden dene" onPress={() => void scans.refetch()} />
+        </Card>
+      ) : null}
+      {scans.data?.data.length === 0 ? (
+        <Card>
+          <Text style={styles.cardTitle}>Henüz kayıtlı tarama yok</Text>
+          <Text style={styles.muted}>
+            Kural oluşturucu backend'in paylaşılan AST sözleşmesini kullanır.
+          </Text>
+        </Card>
+      ) : null}
+      {scans.data?.data.map((scan) => (
+        <Card key={scan.id}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.cardTitle}>{scan.name}</Text>
+            <Badge label={scan.status.toUpperCase()} />
+          </View>
+          <Text>Revision {scan.currentRevision}</Text>
+          <Text style={styles.muted}>Güncellendi: {scan.updatedAt}</Text>
+        </Card>
+      ))}
+      <ProviderRequiredState />
+      <Text style={styles.muted}>
+        Canlı tarama yalnız veri sağlayıcısı kullanılabilir olduğunda backend
+        worker tarafından çalıştırılır; istemci sahte sonuç üretmez.
+      </Text>
+    </Screen>
+  );
+}
+
+function LiveOperationsScreen({
+  initialSection,
+}: {
+  initialSection: 'lists' | 'alerts' | 'activity';
+}) {
+  const { client, state } = useAuth();
+  const queryClient = useQueryClient();
+  const owner = 'session' in state ? state.session.userId : 'anonymous';
+  const [section, setSection] = useState<'lists' | 'alerts' | 'activity'>(
+    initialSection,
+  );
+  const [name, setName] = useState('');
+  const lists = useQuery({
+    queryKey: ['private', owner, 'watchlists'],
+    queryFn: () =>
+      client.request<ApiEnvelope<{ readonly items: readonly LiveWatchlist[] }>>(
+        {
+          path: '/watchlists?limit=50',
+        },
+      ),
+  });
+  const alerts = useQuery({
+    queryKey: ['private', owner, 'alerts'],
+    queryFn: () =>
+      client.request<ApiEnvelope<readonly LiveAlert[]>>({
+        path: '/alerts?limit=50',
+      }),
+  });
+  const notifications = useQuery({
+    queryKey: ['private', owner, 'notifications'],
+    queryFn: () =>
+      client.request<ApiEnvelope<readonly LiveNotification[]>>({
+        path: '/notifications?limit=50',
+      }),
+  });
+  const createList = useMutation({
+    mutationFn: () =>
+      client.request<ApiEnvelope<LiveWatchlist>>({
+        method: 'POST',
+        path: '/watchlists',
+        body: { name: name.trim() },
+      }),
+    onSuccess: () => {
+      setName('');
+      void queryClient.invalidateQueries({
+        queryKey: ['private', owner, 'watchlists'],
+      });
+    },
+  });
+  const busy = lists.isPending || alerts.isPending || notifications.isPending;
+  const error = lists.error ?? alerts.error ?? notifications.error;
+  return (
+    <Screen testID="watchlists-production">
+      <AppHeader
+        title="İzleme listeleri ve alarmlar"
+        subtitle="Owner-scoped kaynaklar · piyasa değerleri capability-gated"
+      />
+      <Button
+        label="More'a dön"
+        onPress={() => router.replace('/(tabs)/more')}
+      />
+      <TabStrip
+        active={section}
+        items={['lists', 'alerts', 'activity']}
+        onSelect={(value) =>
+          setSection(value as 'lists' | 'alerts' | 'activity')
+        }
+      />
+      {busy ? <Text>Kayıtlar yükleniyor…</Text> : null}
+      {error ? (
+        <Card>
+          <Text style={styles.validationTitle}>{safeApiMessage(error)}</Text>
+        </Card>
+      ) : null}
+      {section === 'lists' ? (
+        <>
+          <TextInput
+            accessibilityLabel="Yeni izleme listesi adı"
+            maxLength={160}
+            onChangeText={setName}
+            placeholder="Yeni liste adı"
+            style={styles.input}
+            value={name}
+          />
+          <Button
+            disabled={name.trim().length === 0 || createList.isPending}
+            label={createList.isPending ? 'Oluşturuluyor…' : 'Liste oluştur'}
+            onPress={() => createList.mutate()}
+          />
+          {createList.isError ? (
+            <Text style={styles.validationTitle}>
+              {safeApiMessage(createList.error)}
+            </Text>
+          ) : null}
+          {lists.data?.data.items.map((list) => (
+            <Card key={list.id}>
+              <View style={styles.rowBetween}>
+                <Text style={styles.cardTitle}>{list.name}</Text>
+                <Badge label={`${list.items.length} SYMBOL`} />
+              </View>
+              <Text style={styles.muted}>
+                {list.status} · {list.updatedAt}
+              </Text>
+            </Card>
+          ))}
+          <ProviderRequiredState />
+        </>
+      ) : null}
+      {section === 'alerts'
+        ? alerts.data?.data.map((alert) => (
+            <Card key={alert.id}>
+              <Text style={styles.cardTitle}>{alert.name}</Text>
+              <Text>
+                {alert.status} · Revision {alert.currentRevision}
+              </Text>
+            </Card>
+          ))
+        : null}
+      {section === 'activity'
+        ? notifications.data?.data.map((notification) => (
+            <Card key={notification.id}>
+              <View style={styles.rowBetween}>
+                <Text style={styles.cardTitle}>{notification.title}</Text>
+                <Badge label={notification.readAt ? 'READ' : 'UNREAD'} />
+              </View>
+              <Text>{notification.body}</Text>
+              <Text style={styles.muted}>{notification.occurredAt}</Text>
+            </Card>
+          ))
+        : null}
+    </Screen>
+  );
+}
+
 const styles = StyleSheet.create({
   action: {
     alignItems: 'center',
@@ -923,6 +1161,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#DCE4EF',
     borderBottomWidth: 1,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     minHeight: 62,
   },
@@ -942,6 +1181,7 @@ const styles = StyleSheet.create({
   rowBetween: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing[8],
     justifyContent: 'space-between',
   },
@@ -955,6 +1195,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
   sectionTitle: {
@@ -982,6 +1223,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E9EEF6',
     borderRadius: 999,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing[4],
     padding: spacing[4],
   },

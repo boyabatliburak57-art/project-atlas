@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Create experiment
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=experiments'
+- openLink: 'atlas://strategies?fixture=1&view=experiments'
+- assertVisible: { id: 'strategy-experiments' }
+- assertVisible: 'Deney karşılaştırması'

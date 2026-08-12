@@ -5,6 +5,7 @@ export const ATLAS_QUEUE_NAMES = {
   backtests: 'atlas.backtests.v1',
   experiments: 'atlas.experiments.v1',
   notifications: 'atlas.notifications.v1',
+  reports: 'atlas.reports.v1',
   deadLetter: 'atlas.system.dead-letter.v1',
   marketData: 'atlas.market-data.v1',
   scanner: 'atlas.scanner.v1',
@@ -16,6 +17,7 @@ export const ATLAS_JOB_NAMES = {
   backtestRun: 'backtests.run.v1',
   backtestExperiment: 'backtests.experiment.v1',
   notificationDeliver: 'notifications.deliver.v1',
+  reportGenerate: 'reports.generate.v1',
   barIngestion: 'market-data.bar-ingestion.v1',
   deadLetter: 'system.dead-letter.v1',
   heartbeat: 'system.heartbeat.v1',
@@ -27,6 +29,60 @@ export const ATLAS_JOB_NAMES = {
   marketIntelligenceReconcile: 'market-data.intelligence-reconcile.v1',
   scannerRun: 'scanner.run.v1',
 } as const;
+
+export const ATLAS_REPORT_TYPE_REGISTRY = [
+  {
+    id: 'PORTFOLIO_SUMMARY',
+    apiType: 'portfolio',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'portfolios',
+  },
+  {
+    id: 'PORTFOLIO_PERFORMANCE',
+    apiType: 'portfolio',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'portfolioPerformance',
+  },
+  {
+    id: 'PORTFOLIO_RISK',
+    apiType: 'portfolio',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'portfolioRisk',
+  },
+  {
+    id: 'SCANNER_RUN',
+    apiType: 'scanner',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'savedScans',
+  },
+  {
+    id: 'SCANNER_HISTORY',
+    apiType: 'scanner',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'scanHistory',
+  },
+  {
+    id: 'BACKTEST_RESULT',
+    apiType: 'backtest',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'backtesting',
+  },
+  {
+    id: 'EXPERIMENT_COMPARISON',
+    apiType: 'experiment_matrix',
+    version: 1,
+    formats: ['pdf', 'csv'],
+    requiredCapability: 'experiments',
+  },
+] as const;
+
+export type AtlasReportType = (typeof ATLAS_REPORT_TYPE_REGISTRY)[number]['id'];
 
 export interface RetentionRunQueuePayload {
   readonly category:
@@ -93,6 +149,13 @@ export interface BacktestRunQueuePayload {
 
 export interface ExperimentQueuePayload {
   readonly experimentId: string;
+  readonly telemetry?: SafeTraceContext;
+}
+
+export interface ReportGenerationQueuePayload {
+  readonly reportId: string;
+  readonly ownerUserId: string;
+  readonly correlationId: string;
   readonly telemetry?: SafeTraceContext;
 }
 

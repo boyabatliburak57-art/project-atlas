@@ -61,7 +61,10 @@ export class AtlasApiClient {
     request.signal?.addEventListener('abort', linkedAbort, { once: true });
     const requestId = this.options.requestId?.() ?? createRequestId();
     try {
-      const token = await this.options.credentials.getToken();
+      const token =
+        request.authentication === 'anonymous'
+          ? null
+          : await this.options.credentials.getToken();
       if (controller.signal.aborted) throw new Error('request aborted');
       const context = this.options.context();
       const response = await this.fetchImplementation(this.url(request), {
@@ -72,6 +75,9 @@ export class AtlasApiClient {
             ? {}
             : { 'Content-Type': 'application/json' }),
           ...(token === null ? {} : { Authorization: `Bearer ${token}` }),
+          ...(request.idempotencyKey === undefined
+            ? {}
+            : { 'Idempotency-Key': request.idempotencyKey }),
           'X-Atlas-Client': 'mobile',
           'X-Atlas-Platform': context.platform,
           'X-Atlas-App-Version': context.appVersion,
@@ -86,7 +92,7 @@ export class AtlasApiClient {
       });
       if (!response.ok) {
         const error = await mapApiError(response, requestId);
-        if (response.status === 401)
+        if (response.status === 401 && request.authentication !== 'anonymous')
           await this.options.credentials.onUnauthorized(error);
         throw error;
       }

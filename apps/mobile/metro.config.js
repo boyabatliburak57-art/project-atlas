@@ -14,7 +14,7 @@ if (process.env.EXPO_PUBLIC_APP_ENV === 'production') {
         platform,
       );
     }
-    if (moduleName.endsWith('/operations-evidence-data')) {
+    if (moduleName.endsWith('/reports-settings-evidence-data')) {
       return context.resolveRequest(
         context,
         `${moduleName}.production`,
@@ -22,6 +22,27 @@ if (process.env.EXPO_PUBLIC_APP_ENV === 'production') {
       );
     }
     if (moduleName.endsWith('/portfolio-evidence-data')) {
+      return context.resolveRequest(
+        context,
+        `${moduleName}.production`,
+        platform,
+      );
+    }
+    if (moduleName.endsWith('/strategy-evidence-data')) {
+      return context.resolveRequest(
+        context,
+        `${moduleName}.production`,
+        platform,
+      );
+    }
+    if (moduleName.endsWith('/operations-evidence-data')) {
+      return context.resolveRequest(
+        context,
+        `${moduleName}.production`,
+        platform,
+      );
+    }
+    if (moduleName.endsWith('/native-security-evidence-data')) {
       return context.resolveRequest(
         context,
         `${moduleName}.production`,

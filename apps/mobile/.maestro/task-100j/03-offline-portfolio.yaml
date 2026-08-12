@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Offline portfolio masked
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=offline-portfolio'
+- assertVisible: { id: 'native-security-offline-portfolio' }
+- assertVisible: 'Bakiye ve kâr/zarar privacy mode ile maskelendi.'

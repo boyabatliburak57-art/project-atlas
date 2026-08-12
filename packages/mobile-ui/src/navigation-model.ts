@@ -5,6 +5,13 @@ export function formatNavigationBadge(value?: number): string | undefined {
   if (value === undefined || value <= 0) return undefined;
   return value > 99 ? '99+' : String(value);
 }
+export function formatNavigationAccessibilityLabel(
+  label: string,
+  badge?: number,
+): string {
+  const formattedBadge = formatNavigationBadge(badge);
+  return `${label}${formattedBadge ? `, ${formattedBadge} bildirim` : ''}`;
+}
 export function visibleNavigationItems<T extends NavigationVisibility>(
   items: readonly T[],
 ): T[] {

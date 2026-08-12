@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Deep link offline logout ownership
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&offline=1'
+- openLink: 'atlas://strategies?fixture=1&offline=1'
+- assertVisible: { id: 'strategy-offline' }
+- assertVisible: 'Strategy Lab'

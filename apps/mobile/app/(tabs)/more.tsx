@@ -11,25 +11,30 @@ export default function MoreRoute() {
         <MoreLink href="/scanner" label="Scanner" />
         <MoreLink href="/watchlists" label="İzleme listeleri ve alarmlar" />
         <MoreLink
-          href="/notifications?fixture=1&view=notifications"
+          href="/notifications?view=notifications"
           label="Bildirim merkezi"
         />
         <MoreLink href="/preferences" label="Temel tercihler" />
+        <MoreLink href="/strategies" label="Strategy Lab" />
+        <MoreLink href="/reports" label="Raporlar, yardım ve ayarlar" />
       </View>
       <Card>
-        <Text>
-          Portfolio, Strategy Lab, Reports ve Settings merkezi sonraki
-          görevlerdedir.
-        </Text>
+        <Text>Offline, gizlilik ve native güvenlik kontrolleri etkindir.</Text>
       </Card>
     </ScrollScreen>
   );
 }
 
 function MoreLink({ href, label }: { href: string; label: string }) {
+  const testID = `more-${href.split('?')[0]?.replace(/^\//u, '') ?? 'item'}`;
   return (
     <Link href={href as never} asChild>
-      <Pressable accessibilityRole="button" style={styles.row}>
+      <Pressable
+        accessibilityLabel={label}
+        accessibilityRole="button"
+        style={styles.row}
+        testID={testID}
+      >
         <Text style={styles.label}>{label}</Text>
         <Text>›</Text>
       </Pressable>

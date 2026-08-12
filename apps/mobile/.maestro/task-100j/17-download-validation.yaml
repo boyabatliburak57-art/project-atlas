@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report download validation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=invalid-report'
+- assertVisible: 'DOWNLOAD_VALIDATION_FAILED'
+- assertVisible: 'Süresi dolmuş veya beklenmeyen dosya güvenli biçimde reddedildi.'

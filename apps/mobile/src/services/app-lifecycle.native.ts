@@ -3,7 +3,9 @@ import { AppState, type AppStateStatus } from 'react-native';
 import {
   type AppLifecycleController,
   type AppLifecycleState,
-} from './app-lifecycle';
+} from './app-lifecycle-core';
+
+export * from './app-lifecycle-core';
 
 function mapAppState(state: AppStateStatus): AppLifecycleState {
   if (state === 'active') return 'active';

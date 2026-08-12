@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Settings landing
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=settings'
+- assertVisible: { id: 'operations-settings' }
+- assertVisible: 'Hesap, Doğrulandı · invitation/admin managed'

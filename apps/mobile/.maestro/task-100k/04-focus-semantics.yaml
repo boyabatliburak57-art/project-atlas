@@ -1,0 +1,19 @@
+appId: com.atlasfinance.mobile
+name: TASK-100K Modal focus and semantic controls
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://component-catalog?mode=sheet'
+- tapOn: 'Bottom sheet aç'
+- assertVisible: 'Filtre seçenekleri'
+- assertVisible: 'Sheet ilk kontrolü'
+- tapOn: { id: 'atlas-overlay-close' }
+- launchApp: { clearState: false }
+- openLink: 'atlas://component-catalog?mode=dialog'
+- tapOn: 'Onay penceresini aç'
+- assertVisible: 'İşlemi onayla'
+- assertVisible: 'Vazgeç'
+- assertVisible: 'Test işlemini onayla'
+- tapOn: 'Vazgeç'
+- launchApp: { clearState: false }
+- openLink: 'atlas://component-catalog?mode=dialog'
+- assertVisible: 'Onay penceresini aç'

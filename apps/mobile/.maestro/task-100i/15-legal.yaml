@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Legal review status
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=legal'
+- assertVisible: { id: 'operations-legal' }
+- assertVisible: 'LEGAL_REVIEW_REQUIRED · NOT_FOR_PRODUCTION_PUBLICATION'

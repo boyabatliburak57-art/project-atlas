@@ -1,4 +1,4 @@
-import { useRef, useState, type PropsWithChildren } from 'react';
+import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import {
   AccessibilityInfo,
   Modal as NativeModal,
@@ -35,6 +35,21 @@ function AccessibleOverlay({
   children,
 }: PropsWithChildren<OverlayProps>) {
   const titleRef = useRef<Text>(null);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (active) setReduceMotion(enabled);
+    });
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion,
+    );
+    return () => {
+      active = false;
+      subscription.remove();
+    };
+  }, []);
   const focusTitle = () => {
     const target = findNodeHandle(titleRef.current);
     if (target) AccessibilityInfo.setAccessibilityFocus(target);
@@ -52,7 +67,7 @@ function AccessibleOverlay({
   return (
     <NativeModal
       accessibilityViewIsModal
-      animationType="fade"
+      animationType={reduceMotion ? 'none' : 'fade'}
       onDismiss={restoreFocus}
       onRequestClose={requestClose}
       onShow={focusTitle}
@@ -65,10 +80,9 @@ function AccessibleOverlay({
         style={styles.backdrop}
       >
         <View
-          accessibilityLabel={`${title}${description ? `. ${description}` : ''}`}
+          accessible={false}
           accessibilityViewIsModal
           onAccessibilityEscape={requestClose}
-          accessibilityRole="alert"
           style={styles.dialog}
           testID="atlas-overlay-surface"
         >
@@ -90,6 +104,7 @@ function AccessibleOverlay({
             accessibilityRole="button"
             onPress={requestClose}
             style={styles.action}
+            testID="atlas-overlay-close"
           >
             <Text>Kapat</Text>
           </Pressable>
@@ -141,6 +156,7 @@ export function ConfirmationDialog({
   return (
     <AccessibleOverlay {...props} loading={submitting}>
       <Pressable
+        accessibilityHint={destructive ? 'Yıkıcı işlem' : undefined}
         accessibilityLabel={cancelLabel}
         accessibilityRole="button"
         onPress={cancel}

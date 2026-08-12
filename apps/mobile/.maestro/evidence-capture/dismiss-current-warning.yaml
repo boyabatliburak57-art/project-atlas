@@ -1,0 +1,5 @@
+appId: com.atlasfinance.mobile
+name: Dismiss current development warning
+---
+- tapOn:
+    point: '92%,94%'

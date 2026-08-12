@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Theme reduced motion
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=appearance'
+- assertVisible: { id: 'operations-appearance' }
+- assertVisible: 'Azaltılmış hareket'

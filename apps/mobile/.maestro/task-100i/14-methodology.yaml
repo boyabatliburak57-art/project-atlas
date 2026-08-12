@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Methodology Center
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=methodology'
+- assertVisible: { id: 'operations-methodology' }
+- assertVisible: 'Hesapların nasıl yapıldığını gör.'

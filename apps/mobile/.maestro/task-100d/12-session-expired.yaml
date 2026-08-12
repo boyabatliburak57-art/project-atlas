@@ -3,6 +3,7 @@ name: Session expiration and reauthentication
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas://session-expired'
 - assertVisible: 'Oturum süresi doldu'
 - assertVisible: 'Güvenliğiniz için yeniden giriş yapın.'

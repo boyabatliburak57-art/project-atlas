@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Backtest report generation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=backtest'
+- assertVisible: { id: 'operations-backtest' }
+- scrollUntilVisible:
+    element: { text: 'Yıllıklandırılmış getiri' }
+    direction: DOWN

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Save revision
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=card'
+- openLink: 'atlas://strategies?fixture=1&view=card'
+- assertVisible: { id: 'strategy-card' }
+- assertVisible: 'Trend ve hacim araştırması'

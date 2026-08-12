@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  formatNavigationAccessibilityLabel,
   formatNavigationBadge,
   navigationKind,
   visibleNavigationItems,
@@ -13,6 +14,12 @@ describe('adaptive navigation contracts', () => {
   it('hides zero and caps large badges', () => {
     expect(formatNavigationBadge(0)).toBeUndefined();
     expect(formatNavigationBadge(100)).toBe('99+');
+  });
+  it('announces a badge as part of its parent tab without a duplicate element', () => {
+    expect(formatNavigationAccessibilityLabel('More', 4)).toBe(
+      'More, 4 bildirim',
+    );
+    expect(formatNavigationAccessibilityLabel('Home', 0)).toBe('Home');
   });
   it('removes hidden flags without empty slots', () => {
     expect(

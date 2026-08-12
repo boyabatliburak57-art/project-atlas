@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Push foreground dedup
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=privacy-cleanup'
+- assertVisible: 'Hesap değişimi ve çıkışta özel cihaz durumu temizlenir.'
+- assertVisible: 'OWNER CLEANUP'

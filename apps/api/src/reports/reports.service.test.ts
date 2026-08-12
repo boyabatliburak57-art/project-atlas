@@ -15,6 +15,7 @@ describe('ReportsService', () => {
     softDelete: vi.fn(),
   };
   const activity = { recordActivity: vi.fn() };
+  const dispatcher = { dispatch: vi.fn() };
   let service: ReportsService;
 
   beforeEach(() => {
@@ -25,6 +26,7 @@ describe('ReportsService', () => {
       {
         getOrThrow: () => 'task-085-download-token-key-with-safe-length',
       } as unknown as ConfigService,
+      dispatcher as unknown as import('./reports.dispatcher').ReportsDispatcher,
     );
   });
 
@@ -58,11 +60,18 @@ describe('ReportsService', () => {
     );
     expect(result).not.toHaveProperty('storageKey');
     expect(result).not.toHaveProperty('artifactPayload');
+    expect(result).toMatchObject({ status: 'queued' });
     expect(result.methodology).toMatchObject({
       report: 'report-v1',
       freshness: 'market-freshness-v1',
     });
-    expect(activity.recordActivity).toHaveBeenCalledOnce();
+    expect(activity.recordActivity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'report.queued',
+        status: 'queued',
+      }),
+    );
+    expect(dispatcher.dispatch).toHaveBeenCalledOnce();
   });
 
   it('returns not found for another users source and rejects internal fields', async () => {
@@ -142,5 +151,29 @@ describe('ReportsService', () => {
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('deduplicates explicit idempotency keys without exposing them', async () => {
+    repository.ownsSource.mockResolvedValue(true);
+    repository.create.mockImplementation((value: Record<string, unknown>) =>
+      Promise.resolve({
+        ...value,
+        id: '018f6ec7-0e31-7d58-9f8f-333333333333',
+        createdAt: new Date('2026-07-25T10:00:00Z'),
+        updatedAt: new Date('2026-07-25T10:00:00Z'),
+        deletedAt: null,
+      }),
+    );
+    await service.create('user-a', [], {
+      reportType: 'portfolio',
+      sourceId: '018f6ec7-0e31-7d58-9f8f-222222222222',
+      idempotencyKey: 'mobile-report-submit-0001',
+    });
+    const values = repository.create.mock.calls[0]?.[0] as Record<
+      string,
+      unknown
+    >;
+    expect(values.requestHash).toMatch(/^[a-f0-9]{64}$/u);
+    expect(JSON.stringify(values)).not.toContain('mobile-report-submit-0001');
   });
 });

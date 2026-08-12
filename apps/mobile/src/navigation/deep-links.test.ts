@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { gateDeepLink, parseDeepLink } from './deep-links';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  consumeTokenDeepLink,
+  gateDeepLink,
+  parseDeepLink,
+} from './deep-links';
 import { resolveGuard } from './route-guard';
 
 describe('deep links and guards', () => {
@@ -39,6 +43,26 @@ describe('deep links and guards', () => {
     ).toMatchObject({
       destination: 'auth',
     });
+  });
+
+  it('accepts completed owner resources and rejects params or oversized links', () => {
+    const id = '123e4567-e89b-12d3-a456-426614174000';
+    expect(parseDeepLink(`atlas://strategy/${id}`)).toEqual({
+      kind: 'strategy',
+      id,
+    });
+    expect(parseDeepLink(`atlas://support/${id}?owner=other`)).toBeNull();
+    expect(parseDeepLink(`atlas://symbol/${'A'.repeat(800)}`)).toBeNull();
+  });
+
+  it('consumes bounded auth tokens without returning or persisting them', () => {
+    const consume = vi.fn();
+    const token = 'x'.repeat(16);
+    expect(consumeTokenDeepLink(`atlas://reset/${token}`, consume)).toBe(true);
+    expect(consume).toHaveBeenCalledWith({ kind: 'reset', token });
+    expect(consumeTokenDeepLink(`atlas://reset/${token}?copy=1`, consume)).toBe(
+      false,
+    );
   });
 
   it('routes authentication and onboarding states', () => {

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Metrics
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=metrics'
+- openLink: 'atlas://strategies?fixture=1&view=metrics'
+- assertVisible: { id: 'strategy-metrics' }
+- assertVisible: 'Yıllıklandırılmış getiri'

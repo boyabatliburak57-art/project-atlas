@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report share confirmation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=share'
+- assertVisible: { id: 'operations-share' }
+- assertVisible: 'Hassas raporu paylaş?'

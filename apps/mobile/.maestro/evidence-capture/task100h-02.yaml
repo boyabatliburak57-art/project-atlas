@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 2
+---
+- openLink: 'atlas://strategies?fixture=1&view=empty'
+- openLink: 'atlas://strategies?fixture=1&view=empty'
+- assertVisible: { id: 'strategy-empty' }
+- assertVisible: 'Henüz strateji yok'

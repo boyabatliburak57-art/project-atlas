@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Trade history
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=trades'
+- openLink: 'atlas://strategies?fixture=1&view=trades'
+- assertVisible: { id: 'strategy-trades' }
+- assertVisible: 'İşlem geçmişi'

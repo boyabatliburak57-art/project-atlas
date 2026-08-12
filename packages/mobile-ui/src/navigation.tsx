@@ -10,11 +10,13 @@ import {
   type AtlasTheme,
 } from '@atlas/design-tokens';
 import {
+  formatNavigationAccessibilityLabel,
   formatNavigationBadge,
   navigationKind,
   visibleNavigationItems,
 } from './navigation-model';
 export {
+  formatNavigationAccessibilityLabel,
   formatNavigationBadge,
   navigationKind,
   visibleNavigationItems,
@@ -59,7 +61,10 @@ function NavigationButton({
           ? 'Sekme köküne dönmek için tekrar seçin'
           : `${item.label} bölümünü açar`
       }
-      accessibilityLabel={item.label}
+      accessibilityLabel={formatNavigationAccessibilityLabel(
+        item.label,
+        item.badge,
+      )}
       accessibilityRole="tab"
       accessibilityState={{ disabled: item.disabled, selected }}
       disabled={item.disabled}
@@ -77,6 +82,7 @@ function NavigationButton({
       {expanded ? (
         <Text
           allowFontScaling
+          maxFontSizeMultiplier={1.4}
           numberOfLines={2}
           style={[
             typography.styles.labelSmall,
@@ -89,7 +95,9 @@ function NavigationButton({
       ) : null}
       {badge ? (
         <Text
-          accessibilityLabel={`${badge} bildirim`}
+          accessibilityElementsHidden
+          maxFontSizeMultiplier={1.4}
+          importantForAccessibility="no"
           style={[styles.badge, { backgroundColor: theme.financial.negative }]}
         >
           {badge}

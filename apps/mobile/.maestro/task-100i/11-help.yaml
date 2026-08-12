@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Help Center
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=help'
+- assertVisible: { id: 'operations-help' }
+- assertVisible: 'Kategoriler'

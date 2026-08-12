@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Biometric app-lock contract
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=app-lock'
+- assertVisible: 'LOCAL PRIVACY GATE'
+- assertVisible: 'Bu kilit backend oturumunun yerine geçmez.'

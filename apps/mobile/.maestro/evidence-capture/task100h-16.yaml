@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 16
+---
+- openLink: 'atlas://strategies?fixture=1&view=trade-detail'
+- openLink: 'atlas://strategies?fixture=1&view=trade-detail'
+- assertVisible: { id: 'strategy-trade-detail' }
+- assertVisible: 'THYAO · işlem detayı'

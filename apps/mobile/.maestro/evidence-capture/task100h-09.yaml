@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 9
+---
+- openLink: 'atlas://strategies?fixture=1&view=progress'
+- openLink: 'atlas://strategies?fixture=1&view=progress'
+- assertVisible: { id: 'strategy-progress' }
+- assertVisible: 'Backtest çalışıyor'

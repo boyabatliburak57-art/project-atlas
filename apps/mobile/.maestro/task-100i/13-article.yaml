@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Help article
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=article'
+- assertVisible: { id: 'operations-article' }
+- assertVisible: 'Veri tazeliğini anlama'

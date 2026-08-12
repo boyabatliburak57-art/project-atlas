@@ -3,6 +3,7 @@ name: Onboarding full completion
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
 - assertVisible: 'Başlangıç ayarları'
 - repeat:
@@ -11,4 +12,4 @@ name: Onboarding full completion
       - tapOn: 'Kaydet ve devam et'
 - assertVisible: 'Onboarding özeti'
 - tapOn: 'Onboarding’i tamamla'
-- assertVisible: 'Home foundation'
+- assertVisible: 'Piyasa Özeti'

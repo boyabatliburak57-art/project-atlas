@@ -1,0 +1,18 @@
+appId: com.atlasfinance.mobile
+name: TASK-100K Reduced Motion critical surfaces
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://component-catalog?mode=sheet'
+- assertVisible: 'Component Catalog'
+- tapOn: 'Bottom sheet aç'
+- assertVisible: { id: 'atlas-overlay-title' }
+- tapOn: { id: 'atlas-overlay-close' }
+- launchApp: { clearState: false }
+- openLink: 'atlas://component-catalog?mode=dialog'
+- tapOn: 'Onay penceresini aç'
+- assertVisible: 'İşlemi onayla'
+- tapOn: 'Vazgeç'
+- openLink: 'atlas://security?fixture=1&view=app-lock'
+- assertVisible: { id: 'native-security-app-lock' }
+- openLink: 'atlas://symbol/THYAO?fixture=1&tab=chart'
+- assertVisible: 'Mum grafik etkileşim alanı'

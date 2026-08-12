@@ -3,6 +3,7 @@ name: Biometric unavailable fallback
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///preferences'
 - scrollUntilVisible:
     element:

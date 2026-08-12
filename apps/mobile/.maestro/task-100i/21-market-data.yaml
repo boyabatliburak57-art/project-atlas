@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Market data preferences
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=settings'
+- assertVisible: { id: 'operations-settings' }
+- scrollUntilVisible:
+    element: { text: 'Piyasa ve Veri, BIST · Europe/Istanbul' }
+    direction: DOWN

@@ -3,6 +3,7 @@ name: Onboarding interruption contract
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
 - tapOn: 'Kaydet ve devam et'
 - assertVisible: 'Dil, saat dilimi ve piyasa'

@@ -1,6 +1,4 @@
-import { FeatureShell } from '../../src/components/feature-shell';
+import { OperationsScreen } from '../../src/features/reports-settings/reports-settings-screen';
 export default function Page() {
-  return (
-    <FeatureShell title="Reports / Help / Settings" targetTask="TASK-100I" />
-  );
+  return <OperationsScreen />;
 }

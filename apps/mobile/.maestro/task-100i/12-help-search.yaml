@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Help search
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=help-search'
+- assertVisible: { id: 'operations-help-search' }
+- assertVisible: 'Veri neden gecikmeli görünüyor?, Piyasa verisi · v3'

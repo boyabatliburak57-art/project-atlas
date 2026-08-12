@@ -44,6 +44,20 @@ describe('AtlasApiClient', () => {
     expect(headers.get('Authorization')).toBe('Bearer session-secret');
   });
 
+  it('sends an explicit idempotency key without allowing arbitrary header overrides', async () => {
+    const mockFetch = vi.fn<typeof fetch>(() =>
+      Promise.resolve(new Response(null, { status: 204 })),
+    );
+    await client(mockFetch).request({
+      idempotencyKey: 'mobile-mutation-0001',
+      method: 'POST',
+      path: '/mutations',
+    });
+    const headers = new Headers(mockFetch.mock.calls[0]?.[1]?.headers);
+    expect(headers.get('Idempotency-Key')).toBe('mobile-mutation-0001');
+    expect(headers.get('Authorization')).toBe('Bearer session-secret');
+  });
+
   it('maps unsafe internal errors to a bounded safe contract', async () => {
     const error = await mapApiError(
       new Response(
@@ -63,6 +77,7 @@ describe('AtlasApiClient', () => {
   });
 
   it('notifies unauthorized handling and preserves typed errors', async () => {
+    credentials.onUnauthorized.mockClear();
     const mockFetch = vi.fn<typeof fetch>(() =>
       Promise.resolve(
         new Response(JSON.stringify({ code: 'AUTHENTICATION_REQUIRED' }), {
@@ -74,6 +89,27 @@ describe('AtlasApiClient', () => {
       client(mockFetch).request({ path: '/me' }),
     ).rejects.toBeInstanceOf(AtlasApiError);
     expect(credentials.onUnauthorized).toHaveBeenCalled();
+  });
+
+  it('does not attach or expire a session for anonymous endpoint failures', async () => {
+    credentials.onUnauthorized.mockClear();
+    const mockFetch = vi.fn<typeof fetch>(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ code: 'AUTHENTICATION_FAILED' }), {
+          status: 401,
+        }),
+      ),
+    );
+    await expect(
+      client(mockFetch).request({
+        authentication: 'anonymous',
+        method: 'POST',
+        path: '/auth/login',
+      }),
+    ).rejects.toBeInstanceOf(AtlasApiError);
+    const headers = new Headers(mockFetch.mock.calls[0]?.[1]?.headers);
+    expect(headers.get('Authorization')).toBeNull();
+    expect(credentials.onUnauthorized).not.toHaveBeenCalled();
   });
 
   it('cancels linked requests', async () => {

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Drawdown
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=drawdown'
+- openLink: 'atlas://strategies?fixture=1&view=drawdown'
+- assertVisible: { id: 'strategy-drawdown' }
+- assertVisible: 'Drawdown curve'

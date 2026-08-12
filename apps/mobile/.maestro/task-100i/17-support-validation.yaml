@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: Support validation contract
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=support-form'
+- assertVisible: { id: 'operations-support-form' }
+- scrollUntilVisible:
+    element: { text: 'Tanılama bilgilerini ekle' }
+    direction: DOWN

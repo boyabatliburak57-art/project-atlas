@@ -1,0 +1,27 @@
+appId: com.atlasfinance.mobile
+name: TASK-100L production ownership guard
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- tapOn: 'Giriş yap'
+- tapOn: { id: 'auth-email' }
+- inputText: 'mobile@example.test'
+- tapOn: { id: 'auth-password' }
+- inputText: 'Atlas-Test-2026!'
+- tapOn: { text: 'Giriş yap', index: 1 }
+- runFlow:
+    when:
+      visible: 'Başlangıç ayarları'
+    commands:
+      - repeat:
+          times: 8
+          commands:
+            - tapOn: { text: 'Sonra', optional: true }
+            - tapOn: { text: 'Kaydet ve devam et', optional: true }
+            - tapOn: { text: 'Onboarding’i tamamla', optional: true }
+- extendedWaitUntil: { visible: 'Piyasa Özeti', timeout: 30000 }
+- openLink: 'atlas://portfolio/00000000-0000-4000-8000-000000000999'
+- extendedWaitUntil: { visible: 'Route unavailable', timeout: 30000 }
+- assertVisible: 'Return safely'

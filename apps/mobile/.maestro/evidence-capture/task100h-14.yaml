@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 14
+---
+- openLink: 'atlas://strategies?fixture=1&view=not-evaluable'
+- openLink: 'atlas://strategies?fixture=1&view=not-evaluable'
+- assertVisible: { id: 'strategy-not-evaluable' }
+- assertVisible: 'NOT_EVALUABLE'

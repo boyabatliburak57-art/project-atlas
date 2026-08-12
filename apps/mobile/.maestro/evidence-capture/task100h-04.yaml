@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 4
+---
+- openLink: 'atlas://strategies?fixture=1&view=builder'
+- openLink: 'atlas://strategies?fixture=1&view=builder'
+- assertVisible: { id: 'strategy-builder' }
+- assertVisible: 'Strateji oluştur'

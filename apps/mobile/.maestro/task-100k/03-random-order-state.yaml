@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-100K Random order and state isolation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&offline=1'
+- assertVisible: { id: 'operations-offline' }
+- openLink: 'atlas://scanner?fixture=1&view=results'
+- assertVisible: { id: 'scan-results' }
+- openLink: 'atlas://security?fixture=1&view=privacy-cleanup'
+- assertVisible: { id: 'native-security-privacy-cleanup' }
+- openLink: 'atlas://portfolio-risk?fixture=1&view=privacy'
+- assertVisible: { id: 'portfolio-privacy' }
+- openLink: 'atlas://watchlists?fixture=1&view=notifications'
+- assertVisible: { id: 'notification-center' }

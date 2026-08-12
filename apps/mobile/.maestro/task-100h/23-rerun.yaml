@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Re-run
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=rerun'
+- openLink: 'atlas://strategies?fixture=1&view=rerun'
+- assertVisible: { id: 'strategy-rerun' }
+- assertVisible: 'Tekrar çalıştır'

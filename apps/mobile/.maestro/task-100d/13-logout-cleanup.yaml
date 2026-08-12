@@ -3,7 +3,8 @@ name: Logout and account switch cleanup
 ---
 - launchApp:
     clearState: true
-- openLink: 'atlas://verification'
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///verification'
 - assertVisible: 'Hesap değiştir'
 - tapOn: 'Hesap değiştir'
 - assertVisible: 'Giriş yap'

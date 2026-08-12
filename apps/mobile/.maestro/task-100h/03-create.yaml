@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Create strategy
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=builder'
+- openLink: 'atlas://strategies?fixture=1&view=builder'
+- assertVisible: { id: 'strategy-builder' }
+- assertVisible: 'Strateji oluştur'

@@ -3,6 +3,7 @@ name: Offline error and rate limit states
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas://component-catalog'
 - assertVisible: 'Çevrimdışı · salt okunur'
 - assertVisible: 'İstek tamamlanamadı'

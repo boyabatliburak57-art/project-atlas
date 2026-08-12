@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Scanner report generation
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=scanner'
+- assertVisible: { id: 'operations-scanner' }
+- assertVisible: 'Okunabilir koşullar'

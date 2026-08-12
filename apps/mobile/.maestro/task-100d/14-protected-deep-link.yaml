@@ -3,7 +3,8 @@ name: Protected deep link continuation
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas://symbol/THYAO'
-- assertVisible: 'Symbol Detail'
+- assertVisible: 'Sembol detayı'
 - back
-- assertVisible: 'Symbol Detail'
+- assertVisible: 'Sembol detayı'

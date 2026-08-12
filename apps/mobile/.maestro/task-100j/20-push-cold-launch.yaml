@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Push cold-launch ownership
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://security?fixture=1&view=unauthorized'
+- assertVisible: 'SAFE FALLBACK'
+- assertVisible: 'Kaynak kimliği yetki değildir; backend sahipliği doğrulayamadı.'

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Biometric fallback
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=biometric-fallback'
+- assertVisible: 'BIOMETRIC UNAVAILABLE'
+- assertVisible: 'Şifre ile devam et'

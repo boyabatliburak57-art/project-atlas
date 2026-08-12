@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-100H capture 1
+---
+- openLink: 'atlas://strategies?fixture=1&view=lab'
+- openLink: 'atlas://strategies?fixture=1&view=lab'
+- assertVisible: { id: 'strategy-lab' }
+- assertVisible: 'Stratejilerim'

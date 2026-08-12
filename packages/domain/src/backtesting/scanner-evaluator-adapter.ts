@@ -19,6 +19,12 @@ export interface BacktestOperandValueResolver {
 }
 
 export class ScannerBacktestSignalEvaluator implements BacktestSignalEvaluator {
+  /**
+   * Evaluation is synchronous and evaluateScanRule does not retain the map.
+   * Reusing this scratch buffer avoids one allocation for every instrument/bar
+   * pair in full-universe backtests while preserving the authoritative values.
+   */
+  private readonly preparedValues = new Map<string, PreparedOperandValue>();
   private readonly validatedBarLengths = new WeakMap<
     readonly BacktestBar[],
     number
@@ -35,8 +41,16 @@ export class ScannerBacktestSignalEvaluator implements BacktestSignalEvaluator {
     rule: ScanRuleAst,
     context: BacktestSignalContext,
   ): ScanRuleEvaluation {
+    return evaluateScanRule(rule, this.prepare(rule, context));
+  }
+
+  private prepare(
+    rule: ScanRuleAst,
+    context: BacktestSignalContext,
+  ): Map<string, PreparedOperandValue> {
     assertNoFutureOrOpenBars(context, this.validatedBarLengths);
-    const values = new Map<string, PreparedOperandValue>();
+    const values = this.preparedValues;
+    values.clear();
     const operands = this.operandsByRule.get(rule) ?? collectOperands(rule);
     this.operandsByRule.set(rule, operands);
     for (const operand of operands) {
@@ -46,7 +60,7 @@ export class ScannerBacktestSignalEvaluator implements BacktestSignalEvaluator {
       if (resolved !== undefined)
         values.set(this.operandKey(operand), resolved);
     }
-    return evaluateScanRule(rule, values);
+    return values;
   }
 
   private operandKey(operand: ScanOperand): string {

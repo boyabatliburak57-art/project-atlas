@@ -7,6 +7,7 @@ import type {
   BacktestRunQueuePayload,
   ExperimentQueuePayload,
   NotificationDeliveryQueuePayload,
+  ReportGenerationQueuePayload,
 } from '@atlas/types';
 import { parseTraceparent, type SafeTraceContext } from '@atlas/types';
 
@@ -36,6 +37,10 @@ import {
   type NotificationComposition,
 } from '../notifications/notification-composition';
 import { RecoveryComposition } from '../recovery/recovery-composition';
+import {
+  createDefaultReportComposition,
+  type ReportComposition,
+} from '../reports/report-composition';
 import {
   createHeartbeatJobId,
   DEFAULT_JOB_OPTIONS,
@@ -88,6 +93,7 @@ export class WorkerRuntime {
     private readonly notificationQueue: Queue<NotificationDeliveryQueuePayload>,
     private readonly backtestQueue: Queue<BacktestRunQueuePayload>,
     private readonly experimentQueue: Queue<ExperimentQueuePayload>,
+    private readonly reportQueue: Queue<ReportGenerationQueuePayload>,
     private readonly deadLetterQueue: Queue<DeadLetterData>,
     private readonly systemWorker: Worker,
     private readonly marketDataWorker: Worker,
@@ -96,12 +102,14 @@ export class WorkerRuntime {
     private readonly notificationWorker: Worker<NotificationDeliveryQueuePayload>,
     private readonly backtestWorker: Worker<BacktestRunQueuePayload>,
     private readonly experimentWorker: Worker<ExperimentQueuePayload>,
+    private readonly reportWorker: Worker<ReportGenerationQueuePayload>,
     private readonly marketDataComposition: MarketDataComposition,
     private readonly scannerComposition: ScannerComposition,
     private readonly alertComposition: AlertComposition,
     private readonly notificationComposition: NotificationComposition,
     private readonly backtestComposition: BacktestComposition,
     private readonly experimentComposition: ExperimentComposition,
+    private readonly reportComposition: ReportComposition,
     private readonly recoveryComposition: RecoveryComposition,
     private readonly featureFlags: WorkerFeatureFlags,
     private readonly workerId: string,
@@ -116,6 +124,7 @@ export class WorkerRuntime {
     injectedNotificationComposition?: NotificationComposition,
     injectedBacktestComposition?: BacktestComposition,
     injectedExperimentComposition?: ExperimentComposition,
+    injectedReportComposition?: ReportComposition,
   ): Promise<WorkerRuntime> {
     const role = environment.WORKER_ROLE ?? 'all';
     const connection = createRedisConnection(environment.REDIS_URL);
@@ -155,6 +164,10 @@ export class WorkerRuntime {
     );
     const experimentQueue = new Queue<ExperimentQueuePayload>(
       QUEUE_NAMES.experiments,
+      { connection, defaultJobOptions: DEFAULT_JOB_OPTIONS },
+    );
+    const reportQueue = new Queue<ReportGenerationQueuePayload>(
+      QUEUE_NAMES.reports,
       { connection, defaultJobOptions: DEFAULT_JOB_OPTIONS },
     );
     const recoveryComposition = new RecoveryComposition(environment, logger);
@@ -295,6 +308,21 @@ export class WorkerRuntime {
         lockDuration: environment.BACKTEST_RUN_TIMEOUT_MS,
       },
     );
+    const reportComposition =
+      injectedReportComposition ??
+      createDefaultReportComposition(environment, logger);
+    const reportWorker = new Worker<ReportGenerationQueuePayload>(
+      QUEUE_NAMES.reports,
+      (job) =>
+        runtimeJobTelemetry(logger, job, QUEUE_NAMES.reports, () =>
+          reportComposition.process(job),
+        ),
+      {
+        autorun: roleConsumesQueue(role, 'report'),
+        concurrency: environment.WORKER_CONCURRENCY,
+        connection,
+      },
+    );
     const runtime = new WorkerRuntime(
       environment,
       logger,
@@ -305,6 +333,7 @@ export class WorkerRuntime {
       notificationQueue,
       backtestQueue,
       experimentQueue,
+      reportQueue,
       deadLetterQueue,
       systemWorker,
       marketDataWorker,
@@ -313,12 +342,14 @@ export class WorkerRuntime {
       notificationWorker,
       backtestWorker,
       experimentWorker,
+      reportWorker,
       marketDataComposition,
       scannerComposition,
       alertComposition,
       notificationComposition,
       backtestComposition,
       experimentComposition,
+      reportComposition,
       recoveryComposition,
       featureFlags,
       randomUUID(),
@@ -371,6 +402,7 @@ export class WorkerRuntime {
       this.notificationWorker.pause(false),
       this.backtestWorker.pause(false),
       this.experimentWorker.pause(false),
+      this.reportWorker.pause(false),
     ]);
     await this.closeConnections();
     this.logger.info('worker.stopped', { reason });
@@ -395,6 +427,7 @@ export class WorkerRuntime {
           this.notificationQueue.waitUntilReady(),
           this.backtestQueue.waitUntilReady(),
           this.experimentQueue.waitUntilReady(),
+          this.reportQueue.waitUntilReady(),
           this.deadLetterQueue.waitUntilReady(),
           this.systemWorker.waitUntilReady(),
           this.marketDataWorker.waitUntilReady(),
@@ -403,6 +436,7 @@ export class WorkerRuntime {
           this.notificationWorker.waitUntilReady(),
           this.backtestWorker.waitUntilReady(),
           this.experimentWorker.waitUntilReady(),
+          this.reportWorker.waitUntilReady(),
         ]),
         timeoutPromise,
       ]);
@@ -464,6 +498,7 @@ export class WorkerRuntime {
     this.registerQueueError(this.notificationQueue, QUEUE_NAMES.notifications);
     this.registerQueueError(this.backtestQueue, QUEUE_NAMES.backtests);
     this.registerQueueError(this.experimentQueue, QUEUE_NAMES.experiments);
+    this.registerQueueError(this.reportQueue, QUEUE_NAMES.reports);
     this.registerQueueError(this.deadLetterQueue, QUEUE_NAMES.deadLetter);
     this.registerJobEvents(this.systemWorker, QUEUE_NAMES.system);
     this.registerJobEvents(this.marketDataWorker, QUEUE_NAMES.marketData);
@@ -472,6 +507,7 @@ export class WorkerRuntime {
     this.registerJobEvents(this.notificationWorker, QUEUE_NAMES.notifications);
     this.registerJobEvents(this.backtestWorker, QUEUE_NAMES.backtests);
     this.registerJobEvents(this.experimentWorker, QUEUE_NAMES.experiments);
+    this.registerJobEvents(this.reportWorker, QUEUE_NAMES.reports);
   }
 
   private registerQueueError(queue: Queue, queueName: string): void {
@@ -560,6 +596,7 @@ export class WorkerRuntime {
       this.notificationWorker.close(),
       this.backtestWorker.close(),
       this.experimentWorker.close(),
+      this.reportWorker.close(),
       this.systemQueue.close(),
       this.marketDataQueue.close(),
       this.scannerQueue.close(),
@@ -567,6 +604,7 @@ export class WorkerRuntime {
       this.notificationQueue.close(),
       this.backtestQueue.close(),
       this.experimentQueue.close(),
+      this.reportQueue.close(),
       this.deadLetterQueue.close(),
       this.marketDataComposition.close(),
       this.scannerComposition.close(),
@@ -574,6 +612,7 @@ export class WorkerRuntime {
       this.notificationComposition.close(),
       this.backtestComposition.close(),
       this.experimentComposition.close(),
+      this.reportComposition.close(),
       this.recoveryComposition.close(),
       this.featureFlags.close(),
     ]);
@@ -667,6 +706,7 @@ function enabledQueues(role: WorkerRole): readonly string[] {
     ['notification', QUEUE_NAMES.notifications],
     ['backtest', QUEUE_NAMES.backtests],
     ['experiment', QUEUE_NAMES.experiments],
+    ['report', QUEUE_NAMES.reports],
   ];
   return roles
     .filter(([queueRole]) => roleConsumesQueue(role, queueRole))

@@ -1,0 +1,107 @@
+appId: com.atlasfinance.mobile
+name: TASK-100I verified native capture
+---
+- openLink: 'atlas://reports?fixture=1&view=reports'
+- assertVisible: { id: 'operations-reports' }
+- assertVisible: 'Analizi kaynağıyla birlikte sakla.'
+- waitForAnimationToEnd
+- takeScreenshot: '109-reports-landing'
+- openLink: 'atlas://reports?fixture=1&view=categories'
+- assertVisible: { id: 'operations-categories' }
+- assertVisible: 'Rapor türü seç'
+- waitForAnimationToEnd
+- takeScreenshot: '110-report-categories'
+- openLink: 'atlas://reports?fixture=1&view=portfolio'
+- assertVisible: { id: 'operations-portfolio' }
+- assertVisible: 'Bölümler'
+- waitForAnimationToEnd
+- takeScreenshot: '111-portfolio-report'
+- openLink: 'atlas://reports?fixture=1&view=scanner'
+- assertVisible: { id: 'operations-scanner' }
+- assertVisible: 'Okunabilir koşullar'
+- waitForAnimationToEnd
+- takeScreenshot: '112-scanner-report'
+- openLink: 'atlas://reports?fixture=1&view=backtest'
+- assertVisible: { id: 'operations-backtest' }
+- scrollUntilVisible:
+    element: { text: 'Yıllıklandırılmış getiri' }
+    direction: DOWN
+- waitForAnimationToEnd
+- takeScreenshot: '113-backtest-report'
+- openLink: 'atlas://reports?fixture=1&view=progress'
+- assertVisible: { id: 'operations-progress' }
+- assertVisible: 'Rapor hazırlanıyor'
+- waitForAnimationToEnd
+- takeScreenshot: '114-report-progress'
+- openLink: 'atlas://reports?fixture=1&view=ready'
+- assertVisible: { id: 'operations-ready' }
+- assertVisible: 'READY · OWNER VERIFIED'
+- waitForAnimationToEnd
+- takeScreenshot: '115-report-ready'
+- openLink: 'atlas://reports?fixture=1&view=expired'
+- assertVisible: { id: 'operations-expired' }
+- assertVisible: 'Dosyanın süresi doldu'
+- waitForAnimationToEnd
+- takeScreenshot: '116-report-expired'
+- openLink: 'atlas://reports?fixture=1&view=share'
+- assertVisible: { id: 'operations-share' }
+- assertVisible: 'Hassas raporu paylaş?'
+- waitForAnimationToEnd
+- takeScreenshot: '117-report-share-warning'
+- openLink: 'atlas://reports?fixture=1&view=help'
+- assertVisible: { id: 'operations-help' }
+- assertVisible: 'Kategoriler'
+- waitForAnimationToEnd
+- takeScreenshot: '118-help-center'
+- openLink: 'atlas://reports?fixture=1&view=help-search'
+- assertVisible: { id: 'operations-help-search' }
+- assertVisible: 'Veri neden gecikmeli görünüyor?, Piyasa verisi · v3'
+- waitForAnimationToEnd
+- takeScreenshot: '119-help-search'
+- openLink: 'atlas://reports?fixture=1&view=article'
+- assertVisible: { id: 'operations-article' }
+- assertVisible: 'Veri tazeliğini anlama'
+- waitForAnimationToEnd
+- takeScreenshot: '120-help-article'
+- openLink: 'atlas://reports?fixture=1&view=methodology'
+- assertVisible: { id: 'operations-methodology' }
+- assertVisible: 'Hesapların nasıl yapıldığını gör.'
+- waitForAnimationToEnd
+- takeScreenshot: '121-methodology-center'
+- openLink: 'atlas://reports?fixture=1&view=legal'
+- assertVisible: { id: 'operations-legal' }
+- assertVisible: 'LEGAL_REVIEW_REQUIRED · NOT_FOR_PRODUCTION_PUBLICATION'
+- waitForAnimationToEnd
+- takeScreenshot: '122-legal-center'
+- openLink: 'atlas://reports?fixture=1&view=support-form'
+- assertVisible: { id: 'operations-support-form' }
+- assertVisible: 'Destek talebi oluştur'
+- waitForAnimationToEnd
+- takeScreenshot: '123-support-form'
+- openLink: 'atlas://reports?fixture=1&view=support-history'
+- assertVisible: { id: 'operations-support-history' }
+- assertVisible: 'Taleplerim'
+- waitForAnimationToEnd
+- takeScreenshot: '124-support-history'
+- openLink: 'atlas://reports?fixture=1&view=settings'
+- assertVisible: { id: 'operations-settings' }
+- assertVisible: 'Hesap, Doğrulandı · invitation/admin managed'
+- waitForAnimationToEnd
+- takeScreenshot: '125-settings'
+- openLink: 'atlas://reports?fixture=1&view=appearance'
+- assertVisible: { id: 'operations-appearance' }
+- assertVisible: 'Azaltılmış hareket'
+- waitForAnimationToEnd
+- takeScreenshot: '126-appearance-settings'
+- openLink: 'atlas://reports?fixture=1&view=privacy'
+- assertVisible: { id: 'operations-privacy' }
+- scrollUntilVisible:
+    element: { text: 'Kişisel veri dışa aktarma' }
+    direction: DOWN
+- waitForAnimationToEnd
+- takeScreenshot: '127-privacy-settings'
+- openLink: 'atlas://reports?fixture=1&view=about'
+- assertVisible: { id: 'operations-about' }
+- assertVisible: 'Finansal araştırma, kayıt ve analiz.'
+- waitForAnimationToEnd
+- takeScreenshot: '128-about'

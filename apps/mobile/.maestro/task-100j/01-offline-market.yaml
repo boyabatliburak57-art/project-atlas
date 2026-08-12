@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Offline market cached read-only
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=offline-market'
+- assertVisible: { id: 'native-security-offline-market' }
+- assertVisible: 'Son doğrulanmış görünüm; canlı veri değildir.'

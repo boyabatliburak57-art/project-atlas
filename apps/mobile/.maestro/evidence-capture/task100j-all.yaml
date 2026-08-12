@@ -1,0 +1,67 @@
+appId: com.atlasfinance.mobile
+name: TASK-100J verified native capture
+---
+- openLink: 'atlas://security?fixture=1&view=offline-market'
+- assertVisible: { id: 'native-security-offline-market' }
+- waitForAnimationToEnd
+- takeScreenshot: '129-offline-market'
+- openLink: 'atlas://security?fixture=1&view=offline-portfolio'
+- assertVisible: { id: 'native-security-offline-portfolio' }
+- waitForAnimationToEnd
+- takeScreenshot: '130-offline-portfolio'
+- openLink: 'atlas://security?fixture=1&view=expired-cache'
+- assertVisible: { id: 'native-security-expired-cache' }
+- waitForAnimationToEnd
+- takeScreenshot: '131-expired-offline-cache'
+- openLink: 'atlas://security?fixture=1&view=mutation-blocked'
+- assertVisible: { id: 'native-security-mutation-blocked' }
+- waitForAnimationToEnd
+- takeScreenshot: '132-offline-mutation-blocked'
+- openLink: 'atlas://security?fixture=1&view=privacy-cover'
+- assertVisible: { id: 'native-security-privacy-cover' }
+- waitForAnimationToEnd
+- takeScreenshot: '133-privacy-cover'
+- openLink: 'atlas://security?fixture=1&view=app-lock'
+- assertVisible: { id: 'native-security-app-lock' }
+- waitForAnimationToEnd
+- takeScreenshot: '134-app-lock'
+- openLink: 'atlas://security?fixture=1&view=biometric-fallback'
+- assertVisible: { id: 'native-security-biometric-fallback' }
+- waitForAnimationToEnd
+- takeScreenshot: '135-biometric-fallback'
+- openLink: 'atlas://security?fixture=1&view=security-settings'
+- assertVisible: { id: 'native-security-security-settings' }
+- waitForAnimationToEnd
+- takeScreenshot: '136-security-settings'
+- openLink: 'atlas://security?fixture=1&view=clear-cache'
+- assertVisible: { id: 'native-security-clear-cache' }
+- waitForAnimationToEnd
+- takeScreenshot: '137-clear-cache'
+- openLink: 'atlas://security?fixture=1&view=share-warning'
+- assertVisible: { id: 'native-security-share-warning' }
+- waitForAnimationToEnd
+- takeScreenshot: '138-report-share-security'
+- openLink: 'atlas://security?fixture=1&view=invalid-report'
+- assertVisible: { id: 'native-security-invalid-report' }
+- waitForAnimationToEnd
+- takeScreenshot: '139-invalid-report'
+- openLink: 'atlas://security?fixture=1&view=invalid-link'
+- assertVisible: { id: 'native-security-invalid-link' }
+- waitForAnimationToEnd
+- takeScreenshot: '140-invalid-deep-link'
+- openLink: 'atlas://security?fixture=1&view=unauthorized'
+- assertVisible: { id: 'native-security-unauthorized' }
+- waitForAnimationToEnd
+- takeScreenshot: '141-unauthorized-resource'
+- openLink: 'atlas://security?fixture=1&view=capture-warning'
+- assertVisible: { id: 'native-security-capture-warning' }
+- waitForAnimationToEnd
+- takeScreenshot: '142-screen-capture-warning'
+- openLink: 'atlas://security?fixture=1&view=privacy-cleanup'
+- assertVisible: { id: 'native-security-privacy-cleanup' }
+- waitForAnimationToEnd
+- takeScreenshot: '143-privacy-cleanup'
+- openLink: 'atlas://security?fixture=1&view=network-unavailable'
+- assertVisible: { id: 'native-security-network-unavailable' }
+- waitForAnimationToEnd
+- takeScreenshot: '144-network-unavailable'

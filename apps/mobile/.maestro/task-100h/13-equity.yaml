@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: Equity curve
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://strategies?fixture=1&view=equity'
+- openLink: 'atlas://strategies?fixture=1&view=equity'
+- assertVisible: { id: 'strategy-equity' }
+- assertVisible: 'Equity curve'

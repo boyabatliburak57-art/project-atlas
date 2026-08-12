@@ -1,50 +1,37 @@
-# iOS VoiceOver Validation
+# iOS VoiceOver Native Validation — TASK-100K
 
-**Result:** BLOCKED_BY_NATIVE_BUILD
+**Result:** `INCOMPLETE`
 
-The historical disk-space build failure was resolved for a later sequential run: the iPhone 17
-build installed and launched, and Maestro smoke passed. The deep-link flow failed. No
-Accessibility Inspector artifact was produced and no manual VoiceOver verification occurred. All required
-flows—including navigation order, selected/badge announcements, modal focus isolation/restore,
-financial labels and Dynamic Type—remain `MANUAL_NATIVE_VERIFICATION_REQUIRED`.
+**Waiver:** `USER_ACCEPTED_EXCEPTION_FOR_TASK_100L_TRANSITION`
 
-## TASK-100C-R4
+**Required profile:** `iPhone 17 · iOS 26.5`
+**Candidate timestamp:** `2026-08-09T14:00:00+03:00`
 
-Standard iPhone Maestro is now 8/8, but no user-observed VoiceOver checklist was supplied.
-All 15 required observations remain `MANUAL_NATIVE_VERIFICATION_REQUIRED`; none is PASS.
+## Environment evidence
 
-## TASK-100C-R5 required manual checklist
+The iPhone 17 / iOS 26.5 native app builds, installs and is available in Simulator. Xcode 26.5 does not provide iOS VoiceOver in Simulator, `xcrun devicectl list devices` reports no attached physical device, and therefore no human QA operator could traverse the mandatory flows with VoiceOver. Simulator hierarchy assertions and component accessibility tests were run, but they are not counted as manual VoiceOver evidence.
 
-Device: iPhone 17 · OS: iOS 26.5 · Result: `MANUAL_NATIVE_VERIFICATION_REQUIRED`
+| Screen/flow                   | Expected announcement                                    | Observed behavior           | Focus order  | Result     | Device              | OS       | Timestamp  | Evidence note                                                 |
+| ----------------------------- | -------------------------------------------------------- | --------------------------- | ------------ | ---------- | ------------------- | -------- | ---------- | ------------------------------------------------------------- |
+| Welcome/Login                 | Heading, labeled inputs, secure state, errors            | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Native hierarchy contract only                                |
+| BottomNavigation              | Five tabs, selected and badge states                     | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Badge is merged into tab label automatically                  |
+| Market/Search/Symbol          | Market state, direction, freshness and chart summary     | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Automated semantic contracts pass                             |
+| Scanner/Watchlist/Alert       | Tabs, chips, AND/OR groups, progress and states          | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Automated semantic contracts pass                             |
+| Portfolio/Risk                | Totals, P/L direction, rows, risk and data quality       | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Masked values are isolated in component/native tree           |
+| Portfolio privacy mode        | Real financial values must never be announced            | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Manual leakage check remains mandatory                        |
+| Strategy/Backtest             | Revisions, rules, metrics, charts, trades and disclosure | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Automated semantic contracts pass                             |
+| Reports/Help/Support/Settings | Status, expiry, forms, switches and legal review         | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Automated semantic contracts pass                             |
+| Offline/error/deep link       | Safe fallback and unavailable state                      | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Native state surfaces exist                                   |
+| BottomSheet                   | Title, initial focus, containment, dismiss and restore   | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Focus lifecycle contract passes; manual native check required |
+| ConfirmationDialog            | Title, description, safe initial action and restore      | Not observed with VoiceOver | Not observed | INCOMPLETE | iPhone 17 Simulator | iOS 26.5 | 2026-08-10 | Focus lifecycle contract passes; manual native check required |
 
-|   # | Expected                                  | Observed     | Result  | Timestamp | Evidence note       |
-| --: | ----------------------------------------- | ------------ | ------- | --------- | ------------------- |
-|   1 | Five tabs read in correct order           | Not supplied | PENDING | —         | Manual run required |
-|   2 | Active tab announced selected             | Not supplied | PENDING | —         | Manual run required |
-|   3 | Badge announced meaningfully              | Not supplied | PENDING | —         | Manual run required |
-|   4 | Financial direction described in text     | Not supplied | PENDING | —         | Manual run required |
-|   5 | Data freshness announced                  | Not supplied | PENDING | —         | Manual run required |
-|   6 | Sheet opening moves focus inside          | Not supplied | PENDING | —         | Manual run required |
-|   7 | Sheet background is not focusable         | Not supplied | PENDING | —         | Manual run required |
-|   8 | Sheet close restores trigger focus        | Not supplied | PENDING | —         | Manual run required |
-|   9 | Dialog title and description announced    | Not supplied | PENDING | —         | Manual run required |
-|  10 | Safe dialog action receives initial focus | Not supplied | PENDING | —         | Manual run required |
-|  11 | Destructive action has explicit name      | Not supplied | PENDING | —         | Manual run required |
-|  12 | Dialog close restores focus               | Not supplied | PENDING | —         | Manual run required |
-|  13 | Error is announced                        | Not supplied | PENDING | —         | Manual run required |
-|  14 | Navigation works with increased text      | Not supplied | PENDING | —         | Manual run required |
-|  15 | No unlabeled interactive icon             | Not supplied | PENDING | —         | Manual run required |
+## Gate disposition
 
-No checklist row is PASS without an observed result from the native VoiceOver session.
+```text
+VoiceOver Native Manual Validation: NOT_EXECUTED
+VoiceOver Waiver: USER_ACCEPTED_EXCEPTION_FOR_TASK_100L_TRANSITION
+Required Follow-up: DEFERRED_EXTERNAL_MANUAL_VALIDATION
+Decision impact: GO_FOR_TASK_100L_BY_USER_ACCEPTED_EXCEPTION
+```
 
-## TASK-100C-R5 product acceptance waiver — 2026-07-31
-
-**Gate result:** `ACCEPTED_PRODUCT_WAIVER`
-
-The product owner explicitly accepted the outstanding manual VoiceOver session for the
-TASK-100D transition. The observations above were **not manually executed** and are not
-retroactively represented as test PASS. Native roles, labels, states, Dynamic Type, modal
-isolation and focus transfer/restore remain covered by automated native and component evidence.
-
-This waiver applies only to the TASK-100D development transition. Manual VoiceOver validation
-remains required before production readiness can change from `NO-GO`.
+No automated accessibility-tree, Maestro, simulator, or visual result is represented as a real manual VoiceOver PASS.

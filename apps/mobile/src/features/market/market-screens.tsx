@@ -46,6 +46,9 @@ import {
   type OhlcvPoint,
   type Timeframe,
 } from './market-model';
+import { useAuth } from '../../providers/auth-provider';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { MobileMarketApi } from './market-api';
 
 function evidenceEnabled(value: string | string[] | undefined) {
   return __DEV__ && value === '1';
@@ -73,11 +76,11 @@ function SectionTitle({ children }: { children: string }) {
   return <Text style={styles.sectionTitle}>{children}</Text>;
 }
 
-function DeferredFeature({ title, task }: { title: string; task: string }) {
+function IntegratedFeature({ title }: { title: string }) {
   return (
     <Card>
       <Text style={styles.cardTitle}>{title}</Text>
-      <Badge label={`NOT_IMPLEMENTED · ${task}`} />
+      <Badge label="AVAILABLE" />
     </Card>
   );
 }
@@ -88,15 +91,37 @@ export function MarketOverviewScreen() {
     state?: string;
   }>();
   const fixture = evidenceEnabled(parameters.fixture);
+  const auth = useAuth();
+  const api = useMemo(() => new MobileMarketApi(auth.client), [auth.client]);
+  const overview = useQuery({
+    queryKey: ['market', 'overview'],
+    queryFn: ({ signal }) => api.overview(signal),
+    enabled: !fixture,
+  });
+  const breadth = useQuery({
+    queryKey: ['market', 'breadth'],
+    queryFn: ({ signal }) => api.breadth(signal),
+    enabled: !fixture,
+  });
   if (!fixture)
     return (
-      <Screen testID="market-overview-provider-required">
+      <Screen testID="market-overview-live">
         <AppHeader title="Piyasa Özeti" subtitle="BIST · Sağlayıcı kontrollü" />
-        <ProviderRequiredState />
-        <DataFreshnessBadge status="unavailable" />
-        <DeferredFeature title="İzleme listesi özeti" task="TASK-100F" />
-        <DeferredFeature title="Aktif alarmlar" task="TASK-100F" />
-        <DeferredFeature title="Portföy özeti" task="TASK-100G" />
+        <LiveQueryState queries={[overview, breadth]} />
+        {overview.data ? (
+          <RecordCards title="Piyasa görünümü" value={overview.data.data} />
+        ) : null}
+        {breadth.data ? (
+          <RecordCards title="Piyasa genişliği" value={breadth.data.data} />
+        ) : null}
+        <DataFreshnessBadge
+          status={overview.data?.meta.stale ? 'stale' : 'live'}
+          {...(overview.data?.meta.dataCutoffAt
+            ? { timestamp: overview.data.meta.dataCutoffAt }
+            : {})}
+        />
+        <Link href="/watchlists">İzleme listeleri ve alarmlar</Link>
+        <Link href="/portfolio-risk">Portföy ve risk</Link>
       </Screen>
     );
   const partial = parameters.state === 'partial';
@@ -138,8 +163,8 @@ export function MarketOverviewScreen() {
       <Sector name="Ulaştırma" value={0.0108} width="64%" />
       <Sector name="Banka" value={-0.0061} width="35%" />
       {partial ? <Badge label="PARTIAL · 2 SECTION UNAVAILABLE" /> : null}
-      <DeferredFeature title="İzleme listesi ve alarmlar" task="TASK-100F" />
-      <DeferredFeature title="Portföy riski" task="TASK-100G" />
+      <IntegratedFeature title="İzleme listesi ve alarmlar" />
+      <IntegratedFeature title="Portföy riski" />
       <Card>
         <Text style={styles.cardTitle}>Metodoloji</Text>
         <Text style={styles.muted}>
@@ -162,6 +187,20 @@ export function MarketsScreen() {
     initialTab,
   );
   const fixture = evidenceEnabled(parameters.fixture);
+  const auth = useAuth();
+  const api = useMemo(() => new MobileMarketApi(auth.client), [auth.client]);
+  const live = useQuery({
+    queryKey: ['market', tab],
+    queryFn: ({ signal }) =>
+      tab === 'Sectors'
+        ? api.sectors(signal)
+        : tab === 'Movers'
+          ? api.rankings('gainers', undefined, signal)
+          : tab === 'Overview'
+            ? api.breadth(signal)
+            : api.overview(signal),
+    enabled: !fixture,
+  });
   return (
     <Screen testID="markets-screen">
       <AppHeader title="Piyasalar" subtitle="Filtrele · Sırala · Metodoloji" />
@@ -181,7 +220,10 @@ export function MarketsScreen() {
           </Pressable>
         ))}
       </View>
-      {!fixture ? <ProviderRequiredState /> : null}
+      {!fixture ? <LiveQueryState queries={[live]} /> : null}
+      {!fixture && live.data ? (
+        <RecordCards title={tab} value={live.data.data} />
+      ) : null}
       {fixture ? <DemoBadge /> : null}
       {fixture && tab === 'Overview' ? (
         <Breadth advancing={317} unchanged={42} declining={181} excluded={23} />
@@ -222,6 +264,18 @@ export function GlobalSearchScreen() {
             .includes(normalized.toLocaleLowerCase('tr-TR')),
         )
       : [];
+  const auth = useAuth();
+  const api = useMemo(() => new MobileMarketApi(auth.client), [auth.client]);
+  const live = useInfiniteQuery({
+    queryKey: ['search', normalized],
+    queryFn: ({ pageParam, signal }) =>
+      api.search(normalized, pageParam, signal),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.data.nextCursor ?? undefined,
+    enabled: !fixture && canSearch(normalized),
+  });
+  const liveResults =
+    live.data?.pages.flatMap((page) => page.data.items).map(searchItem) ?? [];
   return (
     <View style={styles.searchScreen} testID="global-search">
       <AppHeader title="Ara" subtitle="Sembol, şirket, endeks veya sektör" />
@@ -246,7 +300,9 @@ export function GlobalSearchScreen() {
           </Pressable>
         ) : null}
       </View>
-      {!fixture ? <ProviderRequiredState /> : <DemoBadge />}
+      {!fixture && live.isLoading ? <Text>Aranıyor…</Text> : null}
+      {!fixture && live.isError ? <ProviderRequiredState /> : null}
+      {fixture ? <DemoBadge /> : null}
       {fixture && !canSearch(normalized) ? (
         <Text style={styles.muted}>Aramak için en az 2 karakter girin.</Text>
       ) : null}
@@ -254,14 +310,20 @@ export function GlobalSearchScreen() {
         <Text accessibilityRole="alert">Sonuç bulunamadı.</Text>
       ) : null}
       <FlatList
-        data={results}
+        data={fixture ? results : liveResults}
         keyExtractor={(item) => item.symbol}
         renderItem={({ item }) => (
           <Pressable
             accessibilityHint="Sembol detayını açar"
             accessibilityLabel={`${item.symbol}, ${item.company}, ${item.sector}`}
             accessibilityRole="button"
-            onPress={() => router.push(`/symbol/${item.symbol}?fixture=1`)}
+            onPress={() =>
+              router.push(
+                fixture
+                  ? `/symbol/${item.symbol}?fixture=1`
+                  : `/symbol/${item.symbol}`,
+              )
+            }
             style={styles.result}
             testID={`search-result-${item.symbol}`}
           >
@@ -275,6 +337,15 @@ export function GlobalSearchScreen() {
           </Pressable>
         )}
       />
+      {!fixture && live.hasNextPage ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => void live.fetchNextPage()}
+          style={styles.result}
+        >
+          <Text>Daha fazla sonuç</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -311,11 +382,72 @@ export function SymbolDetailScreen() {
   const [indicators, setIndicators] = useState<readonly IndicatorSelection[]>(
     [],
   );
+  const auth = useAuth();
+  const api = useMemo(() => new MobileMarketApi(auth.client), [auth.client]);
+  const profile = useQuery({
+    queryKey: ['symbol', symbol, 'profile'],
+    queryFn: ({ signal }) => api.profile(symbol, signal),
+    enabled: !fixture && symbol !== '—',
+  });
+  const chart = useQuery({
+    queryKey: ['symbol', symbol, 'chart', timeframe, indicators],
+    queryFn: ({ signal }) =>
+      api.chart(
+        symbol,
+        timeframe,
+        indicators.map((item) => item.code).join(','),
+        signal,
+      ),
+    enabled: !fixture && symbol !== '—',
+  });
+  const fundamentals = useQuery({
+    queryKey: ['symbol', symbol, 'fundamentals'],
+    queryFn: ({ signal }) => api.fundamentals(symbol, signal),
+    enabled: !fixture && tab === 'Financials',
+  });
+  const patterns = useQuery({
+    queryKey: ['symbol', symbol, 'patterns'],
+    queryFn: ({ signal }) => api.patterns(symbol, signal),
+    enabled: !fixture && tab === 'Patterns',
+  });
   if (!fixture)
     return (
-      <Screen testID="symbol-provider-required">
+      <Screen testID="symbol-detail-live">
         <AppHeader title={symbol} subtitle="Sembol detayı" />
-        <ProviderRequiredState />
+        <LiveQueryState queries={[profile, chart]} />
+        {profile.data ? (
+          <RecordCards title="Şirket ve fiyat" value={profile.data.data} />
+        ) : null}
+        {chart.data ? (
+          <NativeFinancialChart
+            points={chartPoints(chart.data.data)}
+            timeframe={timeframe}
+          />
+        ) : null}
+        <View accessibilityRole="tablist" style={styles.tabs}>
+          {(['Overview', 'Financials', 'Patterns'] as const).map((item) => (
+            <Pill
+              key={item}
+              label={item}
+              selected={tab === item}
+              onPress={() => setTab(item)}
+            />
+          ))}
+        </View>
+        {tab === 'Financials' ? (
+          fundamentals.data ? (
+            <RecordCards title="Finansallar" value={fundamentals.data.data} />
+          ) : (
+            <LiveQueryState queries={[fundamentals]} />
+          )
+        ) : null}
+        {tab === 'Patterns' ? (
+          patterns.data ? (
+            <RecordCards title="Formasyonlar" value={patterns.data.data} />
+          ) : (
+            <LiveQueryState queries={[patterns]} />
+          )
+        ) : null}
       </Screen>
     );
   const company =
@@ -425,10 +557,7 @@ export function SymbolDetailScreen() {
       {tab === 'Patterns' ? <Patterns /> : null}
       {tab === 'Insights' ? <Insights /> : null}
       {tab === 'Company' ? <Company symbol={symbol} company={company} /> : null}
-      <DeferredFeature
-        title="İzleme listesine ekle / Alarm oluştur"
-        task="TASK-100F"
-      />
+      <IntegratedFeature title="İzleme listesine ekle / Alarm oluştur" />
     </Screen>
   );
 }
@@ -758,6 +887,91 @@ function Company({ symbol, company }: { symbol: string; company: string }) {
       </Card>
     </View>
   );
+}
+
+function LiveQueryState({
+  queries,
+}: {
+  queries: readonly {
+    readonly isError: boolean;
+    readonly isLoading: boolean;
+  }[];
+}) {
+  if (queries.some((query) => query.isLoading))
+    return <Text accessibilityRole="progressbar">Veri yükleniyor…</Text>;
+  if (queries.some((query) => query.isError)) return <ProviderRequiredState />;
+  return null;
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function RecordCards({ title, value }: { title: string; value: unknown }) {
+  const record = asRecord(value);
+  const entries = Object.entries(record).slice(0, 12);
+  return (
+    <Card>
+      <Text style={styles.cardTitle}>{title}</Text>
+      {entries.length === 0 ? (
+        <Text style={styles.muted}>Kullanılabilir kayıt bulunamadı.</Text>
+      ) : (
+        entries.map(([key, item]) => (
+          <Text key={key} style={styles.muted}>
+            {key}: {displayValue(item)}
+          </Text>
+        ))
+      )}
+    </Card>
+  );
+}
+
+function displayValue(value: unknown): string {
+  if (value === null || value === undefined) return 'NOT_EVALUABLE';
+  if (typeof value === 'string' || typeof value === 'number')
+    return String(value);
+  if (typeof value === 'boolean') return value ? 'Evet' : 'Hayır';
+  if (Array.isArray(value)) return `${value.length} kayıt`;
+  return 'Detay mevcut';
+}
+
+function searchItem(value: unknown) {
+  const item = asRecord(value);
+  return {
+    symbol: textValue(item.symbol ?? item.code, '—').toUpperCase(),
+    company: textValue(item.companyName ?? item.name, 'BIST enstrümanı'),
+    sector: textValue(item.sector ?? item.type, 'Enstrüman'),
+    change: typeof item.change === 'number' ? item.change : Number.NaN,
+  };
+}
+
+function textValue(value: unknown, fallback: string): string {
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value)
+    : fallback;
+}
+
+function chartPoints(value: unknown): readonly OhlcvPoint[] {
+  const record = asRecord(value);
+  const source = [record.bars, record.points, record.items, record.series].find(
+    Array.isArray,
+  );
+  if (!Array.isArray(source)) return [];
+  return source.flatMap((raw) => {
+    const item = asRecord(raw);
+    const time = item.time ?? item.timestamp ?? item.date;
+    const open = Number(item.open);
+    const high = Number(item.high);
+    const low = Number(item.low);
+    const close = Number(item.close);
+    const volume = Number(item.volume ?? 0);
+    return typeof time === 'string' &&
+      [open, high, low, close, volume].every(Number.isFinite)
+      ? [{ time, open, high, low, close, volume }]
+      : [];
+  });
 }
 
 const styles = StyleSheet.create({

@@ -3,6 +3,7 @@ name: Preference update
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///preferences'
 - assertVisible: 'Temel tercihler'
 - assertVisible: 'SERVER_BACKED · VERSION 1'

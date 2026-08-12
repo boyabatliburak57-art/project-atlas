@@ -1,4 +1,11 @@
 import { useState } from 'react';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { AtlasApiError } from '@atlas/api-client';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   Pressable,
@@ -25,6 +32,7 @@ import {
   transactions,
 } from './portfolio-evidence-data';
 import { maskFinancialValue } from './portfolio-model';
+import { useAuth } from '../../providers/auth-provider';
 
 type ViewName =
   | 'overview'
@@ -80,7 +88,8 @@ export function PortfolioScreen() {
         </Text>
       </Shell>
     );
-  if (!fixture || view === 'provider')
+  if (!fixture) return <LivePortfolioScreen />;
+  if (view === 'provider')
     return (
       <Shell id="portfolio-provider-required">
         <AppHeader title="Portföy" subtitle="Kayıt, izleme ve risk analizi" />
@@ -637,6 +646,396 @@ function Action({ label, onPress }: { label: string; onPress: () => void }) {
   );
 }
 
+type Envelope<T> = {
+  readonly data: T;
+  readonly meta?: { readonly nextCursor?: string | null };
+};
+type LivePortfolio = {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string | null;
+  readonly reportingCurrency: string;
+  readonly defaultBenchmarkCode: string | null;
+  readonly status: string;
+  readonly ledgerVersion: number;
+  readonly updatedAt: string;
+};
+type LiveTransaction = {
+  readonly id: string;
+  readonly type: string;
+  readonly status: string;
+  readonly tradeAt: string;
+  readonly quantity: string | null;
+  readonly unitPrice: string | null;
+  readonly cashAmount: string | null;
+  readonly fee: string;
+  readonly tax: string;
+};
+
+function portfolioError(error: unknown): string {
+  return error instanceof AtlasApiError
+    ? `${error.safeMessage}${error.requestId ? ` · ${error.requestId}` : ''}`
+    : 'Portföy isteği tamamlanamadı.';
+}
+
+function objectValue(value: unknown): Readonly<Record<string, unknown>> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Readonly<Record<string, unknown>>)
+    : {};
+}
+
+function analyticsText(value: unknown): string {
+  if (value === null || value === undefined) return 'NOT_EVALUABLE';
+  if (typeof value === 'string' || typeof value === 'number')
+    return String(value);
+  if (typeof value === 'boolean') return value ? 'Evet' : 'Hayır';
+  if (Array.isArray(value)) return `${value.length} kayıt`;
+  return 'Detay mevcut';
+}
+
+function AnalyticsCard({ title, value }: { title: string; value: unknown }) {
+  const record = objectValue(value);
+  const entries = Object.entries(record).slice(0, 8);
+  return (
+    <Card>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {entries.length === 0 ? (
+        <Text style={styles.status}>NOT_EVALUABLE</Text>
+      ) : (
+        entries.map(([key, item]) => (
+          <Text key={key} style={styles.note}>
+            {key}: {analyticsText(item)}
+          </Text>
+        ))
+      )}
+    </Card>
+  );
+}
+
+function LivePortfolioScreen() {
+  const { client, state } = useAuth();
+  const queryClient = useQueryClient();
+  const owner = 'session' in state ? state.session.userId : 'anonymous';
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [cashAmount, setCashAmount] = useState('');
+  const [transactionType, setTransactionType] = useState<
+    | 'buy'
+    | 'sell'
+    | 'cashDeposit'
+    | 'cashWithdrawal'
+    | 'dividend'
+    | 'fee'
+    | 'tax'
+  >('cashDeposit');
+  const [instrumentId, setInstrumentId] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unitPrice, setUnitPrice] = useState('');
+  const [hidden, setHidden] = useState(false);
+  const list = useQuery({
+    queryKey: ['private', owner, 'portfolios'],
+    queryFn: () =>
+      client.request<Envelope<{ readonly items: readonly LivePortfolio[] }>>({
+        path: '/portfolios?limit=100',
+      }),
+  });
+  const selected =
+    list.data?.data.items.find((item) => item.id === selectedId) ??
+    list.data?.data.items[0];
+  const create = useMutation({
+    mutationFn: () =>
+      client.request<Envelope<LivePortfolio>>({
+        method: 'POST',
+        path: '/portfolios',
+        body: { name: name.trim() },
+      }),
+    onSuccess: (result) => {
+      setName('');
+      setSelectedId(result.data.id);
+      void queryClient.invalidateQueries({
+        queryKey: ['private', owner, 'portfolios'],
+      });
+    },
+  });
+  const positions = useInfiniteQuery({
+    queryKey: ['private', owner, 'portfolio', selected?.id, 'positions'],
+    queryFn: ({ pageParam }) =>
+      client.request<
+        Envelope<{ readonly items: readonly Record<string, unknown>[] }>
+      >({
+        path: `/portfolios/${selected?.id ?? ''}/positions`,
+        query: { limit: 50, cursor: pageParam },
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.meta?.nextCursor ?? undefined,
+    enabled: selected !== undefined,
+  });
+  const transactions = useInfiniteQuery({
+    queryKey: ['private', owner, 'portfolio', selected?.id, 'transactions'],
+    queryFn: ({ pageParam }) =>
+      client.request<Envelope<{ readonly items: readonly LiveTransaction[] }>>({
+        path: `/portfolios/${selected?.id ?? ''}/transactions`,
+        query: { limit: 50, cursor: pageParam },
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (page) => page.meta?.nextCursor ?? undefined,
+    enabled: selected !== undefined,
+  });
+  const valuation = useQuery({
+    queryKey: ['private', owner, 'portfolio', selected?.id, 'valuation'],
+    queryFn: () =>
+      client.request<Envelope<Record<string, unknown>>>({
+        path: `/portfolios/${selected?.id ?? ''}/valuation`,
+      }),
+    enabled: selected !== undefined,
+  });
+  const performance = useQuery({
+    queryKey: ['private', owner, 'portfolio', selected?.id, 'performance'],
+    queryFn: () =>
+      client.request<Envelope<Record<string, unknown>>>({
+        path: `/portfolios/${selected?.id ?? ''}/performance`,
+      }),
+    enabled: selected !== undefined,
+  });
+  const risk = useQuery({
+    queryKey: ['private', owner, 'portfolio', selected?.id, 'risk'],
+    queryFn: () =>
+      client.request<Envelope<Record<string, unknown>>>({
+        path: `/portfolios/${selected?.id ?? ''}/risk`,
+      }),
+    enabled: selected !== undefined,
+  });
+  const addTransaction = useMutation({
+    mutationFn: () =>
+      client.request<Envelope<LiveTransaction>>({
+        method: 'POST',
+        path: `/portfolios/${selected?.id ?? ''}/transactions`,
+        idempotencyKey: `mobile-transaction-${owner}-${Date.now()}`,
+        body: {
+          type: transactionType,
+          tradeAt: new Date().toISOString(),
+          ...(['buy', 'sell', 'dividend'].includes(transactionType)
+            ? {
+                instrumentId: instrumentId.trim(),
+                quantity: quantity.trim(),
+                unitPrice: unitPrice.trim(),
+              }
+            : { cashAmount: cashAmount.trim() }),
+          fee: '0',
+          tax: '0',
+          note: 'Mobil uygulamadan eklenen analiz/muhasebe kaydı',
+        },
+      }),
+    onSuccess: () => {
+      setCashAmount('');
+      void queryClient.invalidateQueries({
+        queryKey: ['private', owner, 'portfolio', selected?.id],
+      });
+    },
+  });
+  const firstError =
+    list.error ??
+    positions.error ??
+    transactions.error ??
+    valuation.error ??
+    performance.error ??
+    risk.error;
+  return (
+    <Shell id="portfolio-production">
+      <AppHeader
+        title="Portföy ve Risk"
+        subtitle="Kayıt ve analiz · işlem yürütmez · yatırım tavsiyesi vermez"
+      />
+      <PrivacyBand hidden={hidden} onChange={setHidden} />
+      {list.isPending ? <Text>Portföyler yükleniyor…</Text> : null}
+      {firstError ? (
+        <Card>
+          <Text style={styles.danger}>{portfolioError(firstError)}</Text>
+        </Card>
+      ) : null}
+      <TextInput
+        accessibilityLabel="Yeni portföy adı"
+        maxLength={200}
+        onChangeText={setName}
+        placeholder="Yeni portföy adı"
+        style={styles.input}
+        value={name}
+      />
+      <Button
+        disabled={name.trim().length === 0 || create.isPending}
+        label={create.isPending ? 'Oluşturuluyor…' : 'Portföy oluştur'}
+        onPress={() => create.mutate()}
+      />
+      {list.data?.data.items.map((portfolio) => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: portfolio.id === selected?.id }}
+          key={portfolio.id}
+          onPress={() => setSelectedId(portfolio.id)}
+          style={styles.selector}
+        >
+          <View>
+            <Text style={styles.heroTitle}>{portfolio.name}</Text>
+            <Text style={styles.note}>
+              {portfolio.reportingCurrency} · {portfolio.status} · ledger v
+              {portfolio.ledgerVersion}
+            </Text>
+          </View>
+          <Badge label={portfolio.id === selected?.id ? 'SEÇİLİ' : 'AÇ'} />
+        </Pressable>
+      ))}
+      {selected === undefined && !list.isPending ? (
+        <Card>
+          <Text style={styles.sectionTitle}>Henüz portföy yok</Text>
+          <Text>Portföy oluşturmak broker veya yatırım hesabı açmaz.</Text>
+        </Card>
+      ) : null}
+      {selected ? (
+        <>
+          <AnalyticsCard title="Değerleme" value={valuation.data?.data} />
+          {valuation.isError ? <ProviderRequiredState /> : null}
+          <AnalyticsCard
+            title="Performans ve benchmark"
+            value={performance.data?.data}
+          />
+          <AnalyticsCard
+            title="Risk ve veri kalitesi"
+            value={risk.data?.data}
+          />
+          <Card>
+            <Text style={styles.sectionTitle}>Pozisyonlar</Text>
+            {positions.data?.pages
+              .flatMap((page) => page.data.items)
+              .map((position, index) => (
+                <Text
+                  key={analyticsText(position.id ?? position.symbol ?? index)}
+                  style={styles.note}
+                >
+                  {Object.entries(position)
+                    .slice(0, 6)
+                    .map(([key, value]) => `${key}: ${analyticsText(value)}`)
+                    .join(' · ')}
+                </Text>
+              ))}
+            {positions.hasNextPage ? (
+              <Button
+                label="Daha fazla pozisyon"
+                onPress={() => void positions.fetchNextPage()}
+              />
+            ) : null}
+          </Card>
+          <Card>
+            <Text style={styles.sectionTitle}>İşlem geçmişi</Text>
+            {transactions.data?.pages
+              .flatMap((page) => page.data.items)
+              .map((transaction) => (
+                <Text key={transaction.id} style={styles.note}>
+                  {transaction.type} · {transaction.status} ·{' '}
+                  {transaction.tradeAt} ·{' '}
+                  {transaction.cashAmount ?? 'NOT_EVALUABLE'}
+                </Text>
+              ))}
+            {transactions.hasNextPage ? (
+              <Button
+                label="Daha fazla işlem"
+                onPress={() => void transactions.fetchNextPage()}
+              />
+            ) : null}
+          </Card>
+          <Card>
+            <Text style={styles.sectionTitle}>İşlem kaydı</Text>
+            <Text style={styles.note}>
+              Bu yalnızca muhasebe/analiz kaydıdır; emir veya para transferi
+              yapılmaz.
+            </Text>
+            <View style={styles.actions}>
+              {(
+                [
+                  'buy',
+                  'sell',
+                  'cashDeposit',
+                  'cashWithdrawal',
+                  'dividend',
+                  'fee',
+                  'tax',
+                ] as const
+              ).map((type) => (
+                <Action
+                  key={type}
+                  label={type}
+                  onPress={() => setTransactionType(type)}
+                />
+              ))}
+            </View>
+            {['buy', 'sell', 'dividend'].includes(transactionType) ? (
+              <>
+                <TextInput
+                  accessibilityLabel="Enstrüman kimliği"
+                  autoCapitalize="none"
+                  onChangeText={setInstrumentId}
+                  placeholder="Instrument UUID"
+                  style={styles.input}
+                  value={instrumentId}
+                />
+                <TextInput
+                  accessibilityLabel="Miktar"
+                  keyboardType="decimal-pad"
+                  onChangeText={setQuantity}
+                  placeholder="Miktar"
+                  style={styles.input}
+                  value={quantity}
+                />
+                <TextInput
+                  accessibilityLabel="Birim fiyat"
+                  keyboardType="decimal-pad"
+                  onChangeText={setUnitPrice}
+                  placeholder="Birim fiyat"
+                  style={styles.input}
+                  value={unitPrice}
+                />
+              </>
+            ) : (
+              <TextInput
+                accessibilityLabel="Nakit hareketi tutarı"
+                keyboardType="decimal-pad"
+                onChangeText={setCashAmount}
+                placeholder="Canonical decimal, ör. 1000.00"
+                style={styles.input}
+                value={cashAmount}
+              />
+            )}
+            <Button
+              disabled={
+                addTransaction.isPending ||
+                (['buy', 'sell', 'dividend'].includes(transactionType)
+                  ? instrumentId.trim().length === 0 ||
+                    !/^\d+(?:\.\d{1,12})?$/.test(quantity) ||
+                    !/^\d+(?:\.\d{1,4})?$/.test(unitPrice)
+                  : !/^\d+(?:\.\d{1,2})?$/.test(cashAmount))
+              }
+              label={
+                transactionType === 'buy'
+                  ? 'Alış kaydı ekle'
+                  : transactionType === 'sell'
+                    ? 'Satış kaydı ekle'
+                    : transactionType === 'dividend'
+                      ? 'Temettü kaydı ekle'
+                      : 'Nakit hareketi ekle'
+              }
+              onPress={() => addTransaction.mutate()}
+            />
+            {addTransaction.isError ? (
+              <Text style={styles.danger}>
+                {portfolioError(addTransaction.error)}
+              </Text>
+            ) : null}
+          </Card>
+        </>
+      ) : null}
+    </Shell>
+  );
+}
+
 const colors = {
   navy: '#07182B',
   blue: '#176BCE',
@@ -661,6 +1060,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navy,
     borderRadius: radius.large,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     padding: spacing[16],
   },
@@ -676,6 +1076,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
     borderBottomWidth: 1,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     minHeight: touchTargets.minimum,
     paddingVertical: spacing[8],
@@ -736,6 +1137,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.line,
     borderBottomWidth: 1,
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     minHeight: 72,
     padding: spacing[16],
@@ -743,6 +1145,7 @@ const styles = StyleSheet.create({
   rowBetween: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
   rowTitle: { color: colors.ink, fontSize: 16, fontWeight: '800' },

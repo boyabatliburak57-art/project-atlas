@@ -79,6 +79,31 @@ export function parsePushIntent(value: unknown): PushTarget | null {
   }
 }
 
+const allowedPushKeys = new Set([
+  'type',
+  'resourceType',
+  'resourceId',
+  'title',
+  'body',
+  'target',
+  'correlationId',
+]);
+const forbiddenPushKey =
+  /(?:token|session|portfolio|transaction|amount|strategy|ast|provider|email|user)/iu;
+
+export function validatePrivacySafePushPayload(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  for (const [key, item] of Object.entries(value)) {
+    if (!allowedPushKeys.has(key) || forbiddenPushKey.test(key)) return false;
+    if (key === 'target') {
+      if (parsePushIntent({ target: item }) === null) return false;
+      continue;
+    }
+    if (typeof item !== 'string' || item.length > 240) return false;
+  }
+  return typeof value['type'] === 'string' && isRecord(value['target']);
+}
+
 export class PushListenerRegistry {
   private remove: (() => void) | null = null;
   start(subscribe: () => () => void) {

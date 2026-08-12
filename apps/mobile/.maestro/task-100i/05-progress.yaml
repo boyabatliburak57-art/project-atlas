@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Report progress
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://reports?fixture=1&view=progress'
+- assertVisible: { id: 'operations-progress' }
+- assertVisible: 'Rapor hazırlanıyor'

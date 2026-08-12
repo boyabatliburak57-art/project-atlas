@@ -1,12 +1,12 @@
 {
   "evidenceClass": "NOT_STAGING_EVIDENCE",
   "environment": "local",
-  "startedAt": "2026-07-26T15:07:45.489Z",
-  "completedAt": "2026-07-26T15:07:45.577Z",
+  "startedAt": "2026-08-11T01:50:01.638Z",
+  "completedAt": "2026-08-11T01:50:01.724Z",
   "checks": [
     {
       "id": "bundle-size",
-      "totalBytes": 1601947,
+      "totalBytes": 1601865,
       "largestBytes": 283588,
       "maximumTotalBytes": 2097152,
       "maximumChunkBytes": 524288,
@@ -24,9 +24,9 @@
     {
       "id": "memory-leak-smoke",
       "maximumGrowthBytes": 33554432,
-      "growth": 943976,
-      "first": 4049944,
-      "last": 4993920,
+      "growth": 15872,
+      "first": 4049376,
+      "last": 4065248,
       "status": "PASS"
     }
   ],

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Security and privacy cleanup settings
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=security-settings'
+- assertVisible: 'Güvenlik ve gizlilik'
+- assertVisible: 'Yerel kilit, capture uyarısı ve veri temizleme ayarları.'

@@ -37,7 +37,11 @@ export interface SessionCredentialProvider {
 }
 
 export interface ApiRequest {
+  /** Public endpoints can opt out of session attachment and 401 session expiry. */
+  readonly authentication?: 'anonymous' | 'session';
   readonly body?: unknown;
+  /** Opaque mutation key; sent only as the standard Idempotency-Key header. */
+  readonly idempotencyKey?: string;
   readonly method?: 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
   readonly path: string;
   readonly query?: Readonly<

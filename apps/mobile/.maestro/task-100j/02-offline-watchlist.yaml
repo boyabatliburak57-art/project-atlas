@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: Offline watchlist policy
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=offline-market'
+- assertVisible: 'SALT OKUNUR ÖNBELLEK'
+- assertVisible: 'Son doğrulanmış görünüm; canlı veri değildir.'

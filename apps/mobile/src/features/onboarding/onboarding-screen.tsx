@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import {
@@ -18,6 +18,9 @@ import {
   skipOptionalStep,
   startOnboarding,
 } from './onboarding-model';
+import { useAuth } from '../../providers/auth-provider';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AtlasApiError } from '@atlas/api-client';
 
 const copy: Record<
   OnboardingStep,
@@ -59,7 +62,7 @@ const copy: Record<
   notifications: {
     title: 'Bildirim tercihleri',
     detail:
-      'Push token kaydı TASK-100F kapsamındadır. Güvenlik bildirimleri kapatılamaz.',
+      'Push token kaydı izin verildiğinde güvenli cihaz kaydıyla tamamlanır. Güvenlik bildirimleri kapatılamaz.',
     choices: ['Uygulama içi', 'Push daha sonra', 'Sessiz saatler'],
   },
   demoData: {
@@ -85,7 +88,58 @@ const copy: Record<
 };
 
 export function OnboardingScreen() {
+  const auth = useAuth();
+  const queryClient = useQueryClient();
+  const userId =
+    'session' in auth.state ? auth.state.session.userId : 'anonymous';
+  const developmentRouteHarness =
+    __DEV__ && auth.state.status !== 'authenticated';
+  const preferences = useQuery({
+    queryKey: ['private', userId, 'preferences'],
+    queryFn: () => auth.preferencesApi.get(),
+    enabled: auth.state.status === 'authenticated',
+  });
   const [draft, setDraft] = useState(() => startOnboarding());
+  const [message, setMessage] = useState<string | null>(null);
+  useEffect(() => {
+    if (!preferences.data) return;
+    setDraft({
+      state:
+        preferences.data.onboardingState.status === 'not_started'
+          ? startOnboarding(preferences.data.version).state
+          : preferences.data.onboardingState,
+      version: preferences.data.version,
+    });
+  }, [preferences.data]);
+  const save = useMutation({
+    mutationFn: async (input: {
+      readonly complete: boolean;
+      readonly next: ReturnType<typeof completeStep>;
+    }) =>
+      input.complete
+        ? auth.preferencesApi.completeOnboarding(
+            input.next.version,
+            input.next.state.demoDataRequested,
+          )
+        : auth.preferencesApi.update(input.next.version, {
+            onboarding: input.next.state,
+          }),
+    onSuccess: async (updated, input) => {
+      await queryClient.setQueryData(
+        ['private', userId, 'preferences'],
+        updated,
+      );
+      setDraft({ state: updated.onboardingState, version: updated.version });
+      setMessage(null);
+      if (input.complete) router.replace('/(tabs)/home');
+    },
+    onError: (error) =>
+      setMessage(
+        error instanceof AtlasApiError
+          ? error.safeMessage
+          : 'Onboarding kaydedilemedi.',
+      ),
+  });
   const step = draft.state.currentStep;
   const index = ONBOARDING_STEPS.indexOf(step);
   const current = copy[step];
@@ -94,17 +148,21 @@ export function OnboardingScreen() {
     [index],
   );
   const next = () => {
-    if (step === 'summary') {
-      router.replace('/(tabs)/home');
+    if (save.isPending) return;
+    const updated =
+      step === 'summary'
+        ? draft
+        : completeStep(
+            draft,
+            step,
+            step === 'demoData' ? { demoDataRequested: false } : {},
+          );
+    if (developmentRouteHarness) {
+      setDraft(updated);
+      if (step === 'summary') router.replace('/(tabs)/home?fixture=1');
       return;
     }
-    setDraft((value) =>
-      completeStep(
-        value,
-        step,
-        step === 'demoData' ? { demoDataRequested: false } : {},
-      ),
-    );
+    save.mutate({ complete: step === 'summary', next: updated });
   };
   return (
     <ScrollView contentContainerStyle={styles.screen}>
@@ -128,15 +186,28 @@ export function OnboardingScreen() {
         <Badge label="LEGAL_REVIEW_REQUIRED · NOT_FOR_PRODUCTION_PUBLICATION" />
       ) : null}
       <Button
+        disabled={
+          save.isPending || (!developmentRouteHarness && preferences.isPending)
+        }
         label={
           step === 'summary' ? 'Onboarding’i tamamla' : 'Kaydet ve devam et'
         }
         onPress={next}
       />
+      {message ? (
+        <Text accessibilityRole="alert" style={styles.note}>
+          {message}
+        </Text>
+      ) : null}
       {step !== 'disclosure' && step !== 'summary' ? (
         <Pressable
           accessibilityRole="button"
-          onPress={() => setDraft((value) => skipOptionalStep(value, step))}
+          onPress={() => {
+            if (save.isPending) return;
+            const updated = skipOptionalStep(draft, step);
+            if (developmentRouteHarness) setDraft(updated);
+            else save.mutate({ complete: false, next: updated });
+          }}
           style={styles.touch}
         >
           <Text>Bu adımı geç</Text>
