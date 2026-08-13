@@ -6,10 +6,24 @@ name: Onboarding full completion
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
 - assertVisible: 'Başlangıç ayarları'
-- repeat:
-    times: 7
-    commands:
-      - tapOn: 'Kaydet ve devam et'
-- assertVisible: 'Onboarding özeti'
-- tapOn: 'Onboarding’i tamamla'
-- assertVisible: 'Piyasa Özeti'
+- assertVisible: 'Ürün kapsamı ve yasal bildirimler'
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Dil, saat dilimi ve piyasa', timeout: 60000 }
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil:
+    { visible: 'Benchmark ve kullanım profili', timeout: 60000 }
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'İzleme listesi başlangıcı', timeout: 60000 }
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Tarama kriteri başlangıcı', timeout: 60000 }
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Bildirim tercihleri', timeout: 60000 }
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Biyometri ve demo içerik', timeout: 60000 }
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Onboarding özeti', timeout: 60000 }
+- tapOn:
+    id: 'onboarding-primary-action'
+    retryTapIfNoChange: true
+- extendedWaitUntil: { visible: { id: 'hub-home' }, timeout: 60000 }
+- assertVisible: 'Bugün ne dikkat gerektiriyor?'

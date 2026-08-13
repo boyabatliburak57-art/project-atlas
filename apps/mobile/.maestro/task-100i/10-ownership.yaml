@@ -3,5 +3,5 @@ name: Report ownership safe fallback
 ---
 - launchApp: { clearState: false }
 - openLink: 'atlas://reports'
-- assertVisible: { id: 'operations-production-empty' }
-- assertVisible: 'Hazır içerik yok'
+- assertVisible: 'Giriş yap'
+- assertNotVisible: 'Hazır raporlar'

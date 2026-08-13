@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 15 Position
+---
+- runFlow: ../task-100g/13-position.yaml

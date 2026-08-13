@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 08 Radar
+---
+- runFlow: ../task-100f/01-scanner-saved.yaml

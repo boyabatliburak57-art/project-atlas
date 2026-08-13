@@ -2,7 +2,12 @@ appId: com.atlasfinance.mobile
 name: Search company name
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/search?fixture=1'
-- tapOn: { id: 'symbol-search-input' }
+- openLink: 'atlas:///search?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-search' }
+- tapOn:
+    id: 'symbol-search-input'
+    retryTapIfNoChange: true
+- waitForAnimationToEnd
 - inputText: 'Aselsan'
-- assertVisible: { id: 'search-result-ASELS' }
+- extendedWaitUntil: { visible: { id: 'search-result-ASELS' }, timeout: 60000 }

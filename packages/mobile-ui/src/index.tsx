@@ -64,10 +64,12 @@ export function Button({
   label,
   onPress,
   disabled = false,
+  testID,
 }: {
   label: string;
   onPress?: () => void;
   disabled?: boolean;
+  testID?: string;
 }) {
   return (
     <Pressable
@@ -76,6 +78,7 @@ export function Button({
       disabled={disabled}
       onPress={onPress}
       style={s.button}
+      testID={testID}
     >
       <Text style={s.buttonText}>{label}</Text>
     </Pressable>
@@ -276,16 +279,181 @@ export const SelectField = TextField;
 export function AppHeader({
   title,
   subtitle,
+  actions,
 }: {
   title: string;
   subtitle?: string;
+  actions?: ReactNode;
+}) {
+  const theme = useAtlasTheme();
+  return (
+    <View
+      style={[
+        s.header,
+        {
+          backgroundColor: theme.header.background,
+          borderBottomColor: theme.header.border,
+        },
+      ]}
+    >
+      <View style={s.headerRow}>
+        <View style={s.headerCopy}>
+          <AtlasText accessibilityRole="header" role="titleLarge">
+            {title}
+          </AtlasText>
+        </View>
+        {actions ? (
+          <View
+            accessibilityLabel="Global actions"
+            pointerEvents="box-none"
+            style={s.headerActions}
+          >
+            {actions}
+          </View>
+        ) : null}
+      </View>
+      {subtitle ? <AtlasText>{subtitle}</AtlasText> : null}
+    </View>
+  );
+}
+
+export function GlobalActionButton({
+  label,
+  glyph,
+  onPress,
+  testID,
+}: {
+  label: string;
+  glyph: string;
+  onPress?: () => void;
+  testID?: string;
+}) {
+  const theme = useAtlasTheme();
+  return (
+    <Pressable
+      accessibilityLabel={label}
+      accessibilityRole="button"
+      hitSlop={spacing[4]}
+      onPress={onPress}
+      style={({ pressed }) => [
+        s.globalAction,
+        {
+          backgroundColor: pressed
+            ? theme.header.pressed
+            : theme.header.background,
+          borderColor: theme.header.border,
+        },
+      ]}
+      testID={testID}
+    >
+      <Text
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+        style={[s.globalActionGlyph, { color: theme.header.icon }]}
+      >
+        {glyph}
+      </Text>
+    </Pressable>
+  );
+}
+
+export function HubSection({
+  title,
+  description,
+  children,
+  testID,
+}: PropsWithChildren<{
+  title: string;
+  description?: string;
+  testID?: string;
+}>) {
+  return (
+    <View accessibilityLabel={title} style={s.hubSection} testID={testID}>
+      <View style={s.hubSectionHeading}>
+        <AtlasText accessibilityRole="header" role="titleSmall">
+          {title}
+        </AtlasText>
+        {description ? (
+          <AtlasText role="bodySmall">{description}</AtlasText>
+        ) : null}
+      </View>
+      <View style={s.hubSectionBody}>{children}</View>
+    </View>
+  );
+}
+
+export function FeatureEntryRow({
+  title,
+  description,
+  onPress,
+  availabilityLabel,
+  disabled = false,
+  testID,
+}: {
+  title: string;
+  description: string;
+  onPress?: () => void;
+  availabilityLabel?: string;
+  disabled?: boolean;
+  testID?: string;
+}) {
+  const theme = useAtlasTheme();
+  return (
+    <Pressable
+      accessibilityHint={description}
+      accessibilityLabel={`${title}${availabilityLabel ? `, ${availabilityLabel}` : ''}`}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        s.featureEntry,
+        { borderBottomColor: theme.border },
+        pressed && s.pressed,
+      ]}
+      testID={testID}
+    >
+      <View style={s.featureEntryCopy}>
+        <AtlasText role="labelLarge">{title}</AtlasText>
+        <AtlasText role="bodySmall">{description}</AtlasText>
+      </View>
+      {availabilityLabel ? <Badge label={availabilityLabel} /> : null}
+      <Text
+        accessibilityElementsHidden
+        importantForAccessibility="no"
+        style={{ color: theme.textSecondary, fontSize: 22 }}
+      >
+        ›
+      </Text>
+    </Pressable>
+  );
+}
+
+export function ContextualAction({
+  label,
+  onPress,
+  testID,
+}: {
+  label: string;
+  onPress?: () => void;
+  testID?: string;
 }) {
   return (
-    <View style={s.header}>
-      <AtlasText accessibilityRole="header" role="titleLarge">
-        {title}
-      </AtlasText>
-      {subtitle ? <AtlasText>{subtitle}</AtlasText> : null}
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [s.contextualAction, pressed && s.pressed]}
+      testID={testID}
+    >
+      <AtlasText role="labelMedium">{label}</AtlasText>
+    </Pressable>
+  );
+}
+
+export function ProfileMenu({ children }: PropsWithChildren) {
+  return (
+    <View accessibilityLabel="Profil menüsü" style={s.profileMenu}>
+      {children}
     </View>
   );
 }
@@ -448,7 +616,47 @@ const s = StyleSheet.create({
     color: lightTheme.textPrimary,
     fontVariant: ['tabular-nums'],
   },
-  header: { gap: spacing[4], paddingVertical: spacing[12] },
+  header: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: spacing[4],
+    paddingBottom: spacing[12],
+    paddingTop: spacing[8],
+  },
+  headerActions: {
+    flexDirection: 'row',
+    flexShrink: 0,
+    gap: spacing[8],
+    width: touchTargets.minimum * 3 + spacing[8] * 2,
+  },
+  headerCopy: { flex: 1, minWidth: 0 },
+  headerRow: { alignItems: 'center', flexDirection: 'row', gap: spacing[12] },
+  globalAction: {
+    alignItems: 'center',
+    borderRadius: radius.medium,
+    borderWidth: 1,
+    height: touchTargets.minimum,
+    justifyContent: 'center',
+    width: touchTargets.minimum,
+  },
+  globalActionGlyph: { fontSize: 19, fontWeight: '600' },
+  hubSection: { gap: spacing[8] },
+  hubSectionBody: { gap: spacing[2] },
+  hubSectionHeading: { gap: spacing[2] },
+  featureEntry: {
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    gap: spacing[12],
+    minHeight: touchTargets.minimum,
+    paddingVertical: spacing[12],
+  },
+  featureEntryCopy: { flex: 1, gap: spacing[2] },
+  contextualAction: {
+    minHeight: touchTargets.minimum,
+    paddingVertical: spacing[12],
+  },
+  profileMenu: { gap: spacing[2] },
+  pressed: { opacity: 0.72, transform: [{ scale: 0.985 }] },
   input: {
     borderColor: lightTheme.border,
     borderRadius: radius.medium,

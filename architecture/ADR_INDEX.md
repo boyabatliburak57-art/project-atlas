@@ -52,3 +52,8 @@ Repository'de bu indeks dışındaki başka bir kabul edilmiş belge `ADR-004` k
 | ADR-024 | Authoritative Feature Flags ve Auditli Kill Switch'ler | Accepted |
 | ADR-025 | Expand/Contract Migration ve Rollback Politikası | Accepted |
 | ADR-026 | Mobile Expo Architecture and Shared Client | Accepted |
+| ADR-027 | Canonical BIST Intelligence Domain Model | Accepted |
+| ADR-028 | Provider Capability V2 | Accepted |
+| ADR-029 | Intelligence Temporal availableAt Semantics | Accepted |
+| ADR-030 | Provider Identity Resolution | Accepted |
+| ADR-031 | High-Volume Order Book Storage Strategy | Accepted |

@@ -8,9 +8,11 @@ name: TASK-100K Dynamic Type critical surfaces
 - scrollUntilVisible:
     element: { text: 'Giriş yap' }
     direction: DOWN
-- tapOn: 'Giriş yap'
-- assertVisible: 'E-posta'
-- openLink: 'atlas:///(tabs)/home?fixture=1'
+- tapOn:
+    id: 'welcome-login'
+    retryTapIfNoChange: true
+- extendedWaitUntil: { visible: 'E-posta', timeout: 60000 }
+- openLink: 'atlas:///markets/overview?fixture=1'
 - assertVisible: 'Piyasa Özeti'
 - openLink: 'atlas://symbol/THYAO?fixture=1&tab=overview'
 - assertVisible: { id: 'symbol-detail' }

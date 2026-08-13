@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Research to Methodology
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/research?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-methodology' }
+- tapOn:
+    id: 'feature-methodology'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible: { id: 'operations-methodology' }
+    timeout: 60000

@@ -1,0 +1,16 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Markets to Symbol
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/overview?fixture=1'
+- waitForAnimationToEnd
+- openLink: 'atlas:///markets/overview?fixture=1'
+- scrollUntilVisible:
+    element: { text: 'Mover THYAO' }
+    direction: DOWN
+    visibilityPercentage: 50
+    centerElement: true
+- tapOn:
+    text: 'Mover THYAO'
+    retryTapIfNoChange: true
+- assertVisible: { id: 'symbol-detail' }

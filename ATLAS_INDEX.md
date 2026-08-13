@@ -1,5 +1,33 @@
 # Atlas Doküman İndeksi
 
+## BIST Intelligence Expansion — TASK-110A
+
+Status: `APPROVED_AND_DOCUMENTED`
+Next: `GO_FOR_TASK_110B`
+TASK-100R: `SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION`
+
+- `docs/product/ATLAS_BIST_INTELLIGENCE_PRODUCT_SCOPE.md`
+- `docs/product/ATLAS_INFORMATION_ARCHITECTURE_V2.md`
+- `docs/product/ATLAS_INTELLIGENCE_DOMAIN_MAP.md`
+- `docs/product/ATLAS_PROVIDER_CAPABILITY_EXPANSION.md`
+- `reports/mobile/task-110a-scope-expansion-result.md`
+- `reports/mobile/task-110a-existing-vs-new-capability-matrix.md`
+- `reports/mobile/task-110a-audit-supersession.md`
+- `tasks/TASK-110A-BIST-Intelligence-Expansion-and-Audit-Supersession.md`
+- `tasks/TASK-110B-Information-Architecture-and-Navigation-V2.md` through
+  `tasks/TASK-110S-Re-run-Non-Staging-Launch-Completeness-Audit.md`
+
+```text
+TASK-110A -> TASK-110B -> TASK-110C -> TASK-110D -> TASK-110E -> TASK-110F
+-> TASK-110G -> TASK-110H -> TASK-110I -> TASK-110J -> TASK-110K -> TASK-110L
+-> TASK-110M -> TASK-110N -> TASK-110O -> TASK-110P -> TASK-110Q -> TASK-110R
+-> TASK-110S
+```
+
+Each task depends on the immediately preceding accepted result. TASK-110R is expanded parity;
+TASK-110S is the new authoritative non-staging completeness audit. Production remains `NO-GO`,
+staging remains `DEFERRED_EXTERNAL_GATE`, and launch remains `BLOCKED`.
+
 ## Mobile v1 platform and form factor
 
 - Platform: `IOS_ONLY`

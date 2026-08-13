@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 28 Offline
+---
+- runFlow: ../task-100j/01-offline-market.yaml

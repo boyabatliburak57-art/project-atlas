@@ -1,4 +1,4 @@
-import { StrategyLabScreen } from '../../src/features/strategy/strategy-screens';
+import { LegacyRouteAlias } from '../../src/navigation/legacy-route-alias';
 export default function Page() {
-  return <StrategyLabScreen />;
+  return <LegacyRouteAlias destination="/research/strategies" />;
 }

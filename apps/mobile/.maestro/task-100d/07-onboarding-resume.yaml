@@ -5,6 +5,20 @@ name: Onboarding interruption contract
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
-- tapOn: 'Kaydet ve devam et'
-- assertVisible: 'Dil, saat dilimi ve piyasa'
+- waitForAnimationToEnd
+- assertVisible: 'Ürün kapsamı ve yasal bildirimler'
+- swipe:
+    start: 50%, 70%
+    end: 50%, 45%
+    duration: 1000
+- swipe:
+    start: 50%, 45%
+    end: 50%, 70%
+    duration: 1000
+- tapOn:
+    text: 'Kaydet ve devam et'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible: 'Dil, saat dilimi ve piyasa'
+    timeout: 30000
 - assertVisible: 'Daha sonra devam et'

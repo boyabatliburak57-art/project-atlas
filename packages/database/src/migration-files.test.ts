@@ -15,8 +15,8 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the ninety-five scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(95);
+  it('creates the one-hundred-seven scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(107);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
   });
 
@@ -154,6 +154,31 @@ describe('generated PostgreSQL migrations', () => {
     expect(sql).toContain('prevent_fundamental_statement_snapshot_mutation');
     expect(sql).toContain('numeric(28, 10)');
     expect(sql).toContain('numeric(20, 12)');
+  });
+
+  it('contains canonical BIST intelligence identities, revisions and temporal guards', () => {
+    for (const table of [
+      'intelligence_institutions',
+      'intelligence_companies',
+      'intelligence_funds',
+      'derivative_contracts',
+      'intelligence_external_identity_mappings',
+      'intelligence_provider_capabilities',
+      'corporate_disclosure_revisions',
+      'intelligence_market_events',
+      'institutional_flow_observations',
+      'settlement_snapshots',
+      'intelligence_market_measures',
+      'fund_holding_revisions',
+    ])
+      expect(sql).toContain(`CREATE TABLE "${table}"`);
+
+    expect(sql).toContain('corporate_disclosure_available_check');
+    expect(sql).toContain('institutional_flow_natural_revision_unique');
+    expect(sql).toContain('settlement_snapshot_natural_revision_unique');
+    expect(sql).toContain('intelligence_external_identity_resolution_check');
+    expect(sql).toContain('prevent_intelligence_revision_mutation');
+    expect(sql).not.toContain('CREATE TABLE "order_book_levels"');
   });
 
   it('contains strategy, backtest and experiment integrity guards', () => {

@@ -4,8 +4,12 @@ import { StatusBar } from 'expo-status-bar';
 import { AppProviders } from '../src/providers/app-providers';
 import { ThemeProvider } from '@atlas/mobile-ui';
 import { darkTheme, lightTheme } from '@atlas/design-tokens';
-import { useColorScheme } from 'react-native';
+import { LogBox, useColorScheme } from 'react-native';
 import { AppRouteGuard } from '../src/navigation/app-route-guard';
+
+if (__DEV__ && process.env['EXPO_PUBLIC_E2E_MODE'] === 'true') {
+  LogBox.ignoreAllLogs();
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

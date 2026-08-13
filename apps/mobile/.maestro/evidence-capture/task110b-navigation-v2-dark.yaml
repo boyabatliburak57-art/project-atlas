@@ -1,0 +1,19 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Navigation V2 dark visual migration
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- assertVisible: { id: 'hub-home' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '166-home-v2-dark'
+- tapOn: 'Markets'
+- assertVisible: { id: 'hub-markets' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '167-markets-v2-dark'
+- tapOn: 'Radar'
+- assertVisible: { id: 'hub-radar' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '168-radar-v2-dark'

@@ -1,5 +1,6 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useGlobalSearchParams } from 'expo-router';
 import { Text, useColorScheme, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { darkTheme, lightTheme } from '@atlas/design-tokens';
 import {
   BottomNavigation,
@@ -7,14 +8,12 @@ import {
   navigationKind,
   type NavigationItem,
 } from '@atlas/mobile-ui';
+import { primaryNavigation } from '../../src/navigation/feature-registry';
+import { tabBarBottomInset } from '../../src/navigation/safe-area-contract';
 
-const labels: Record<string, string> = {
-  home: 'Home',
-  markets: 'Markets',
-  search: 'Search',
-  portfolio: 'Portfolio',
-  more: 'More',
-};
+const labels: Record<string, string> = Object.fromEntries(
+  primaryNavigation.map((item) => [item.routeName, item.label]),
+);
 
 interface TabRoute {
   readonly key: string;
@@ -22,6 +21,7 @@ interface TabRoute {
   readonly params?: object;
 }
 interface TabBarProps {
+  readonly fixtureEnabled: boolean;
   readonly state: { readonly routes: TabRoute[]; readonly index: number };
   readonly descriptors: Record<
     string,
@@ -36,14 +36,22 @@ interface TabBarProps {
     navigate(name: string, params?: object): void;
   };
 }
-function AtlasTabBar({ state, descriptors, navigation }: TabBarProps) {
+function AtlasTabBar({
+  state,
+  descriptors,
+  fixtureEnabled,
+  navigation,
+}: TabBarProps) {
   const { width } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? darkTheme : lightTheme;
+  const insets = useSafeAreaInsets();
   const routes = state.routes.filter((route) => labels[route.name]);
   const items: NavigationItem[] = routes.map((route) => ({
     icon: (
-      <Text accessibilityElementsHidden>{labels[route.name]?.slice(0, 1)}</Text>
+      <Text accessibilityElementsHidden style={{ color: theme.textSecondary }}>
+        {labels[route.name]?.slice(0, 1)}
+      </Text>
     ),
     key: route.key,
     label: labels[route.name] ?? route.name,
@@ -59,7 +67,11 @@ function AtlasTabBar({ state, descriptors, navigation }: TabBarProps) {
       target: route.key,
       type: 'tabPress',
     });
-    if (!event.defaultPrevented) navigation.navigate(route.name, route.params);
+    if (!event.defaultPrevented)
+      navigation.navigate(route.name, {
+        ...route.params,
+        ...(fixtureEnabled ? { fixture: '1' } : {}),
+      });
     if (reselected)
       navigation.emit({ target: route.key, type: 'tabLongPress' });
   };
@@ -69,6 +81,7 @@ function AtlasTabBar({ state, descriptors, navigation }: TabBarProps) {
       activeKey={activeKey}
       items={items}
       onSelect={select}
+      safeAreaBottom={tabBarBottomInset(insets.bottom)}
       theme={theme}
     />
   ) : (
@@ -83,6 +96,8 @@ function AtlasTabBar({ state, descriptors, navigation }: TabBarProps) {
 }
 
 export default function TabsLayout() {
+  const parameters = useGlobalSearchParams<{ fixture?: string }>();
+  const fixtureEnabled = __DEV__ && parameters.fixture === '1';
   const { width } = useWindowDimensions();
   const kind = navigationKind(width);
   return (
@@ -94,13 +109,18 @@ export default function TabsLayout() {
             ? undefined
             : { marginLeft: kind === 'rail-expanded' ? 240 : 72 },
       }}
-      tabBar={(props) => <AtlasTabBar {...(props as unknown as TabBarProps)} />}
+      tabBar={(props) => (
+        <AtlasTabBar
+          {...(props as unknown as Omit<TabBarProps, 'fixtureEnabled'>)}
+          fixtureEnabled={fixtureEnabled}
+        />
+      )}
     >
       <Tabs.Screen name="home" options={{ title: 'Home' }} />
       <Tabs.Screen name="markets" options={{ title: 'Markets' }} />
-      <Tabs.Screen name="search" options={{ title: 'Search' }} />
+      <Tabs.Screen name="radar" options={{ title: 'Radar' }} />
       <Tabs.Screen name="portfolio" options={{ title: 'Portfolio' }} />
-      <Tabs.Screen name="more" options={{ title: 'More' }} />
+      <Tabs.Screen name="research" options={{ title: 'Research' }} />
     </Tabs>
   );
 }

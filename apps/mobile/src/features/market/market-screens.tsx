@@ -49,6 +49,10 @@ import {
 import { useAuth } from '../../providers/auth-provider';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { MobileMarketApi } from './market-api';
+import {
+  SafeAreaScreen,
+  SafeAreaScrollScreen,
+} from '../../components/safe-area-scroll-screen';
 
 function evidenceEnabled(value: string | string[] | undefined) {
   return __DEV__ && value === '1';
@@ -62,13 +66,9 @@ function Screen({
   testID: string;
 }) {
   return (
-    <ScrollView
-      contentContainerStyle={styles.screen}
-      refreshControl={undefined}
-      testID={testID}
-    >
+    <SafeAreaScrollScreen contentContainerStyle={styles.screen} testID={testID}>
       {children}
-    </ScrollView>
+    </SafeAreaScrollScreen>
   );
 }
 
@@ -120,8 +120,8 @@ export function MarketOverviewScreen() {
             ? { timestamp: overview.data.meta.dataCutoffAt }
             : {})}
         />
-        <Link href="/watchlists">İzleme listeleri ve alarmlar</Link>
-        <Link href="/portfolio-risk">Portföy ve risk</Link>
+        <Link href="/radar/watchlists">İzleme listeleri ve alarmlar</Link>
+        <Link href="/portfolio/overview">Portföy ve risk</Link>
       </Screen>
     );
   const partial = parameters.state === 'partial';
@@ -176,13 +176,17 @@ export function MarketOverviewScreen() {
   );
 }
 
-export function MarketsScreen() {
+export function MarketsScreen({
+  initialTab: configuredInitialTab,
+}: {
+  initialTab?: 'Overview' | 'Indices' | 'Sectors' | 'Movers';
+} = {}) {
   const parameters = useLocalSearchParams<{ fixture?: string; tab?: string }>();
-  const initialTab = ['Overview', 'Indices', 'Sectors', 'Movers'].includes(
-    parameters.tab ?? '',
-  )
-    ? (parameters.tab as 'Overview' | 'Indices' | 'Sectors' | 'Movers')
-    : 'Overview';
+  const initialTab =
+    configuredInitialTab ??
+    (['Overview', 'Indices', 'Sectors', 'Movers'].includes(parameters.tab ?? '')
+      ? (parameters.tab as 'Overview' | 'Indices' | 'Sectors' | 'Movers')
+      : 'Overview');
   const [tab, setTab] = useState<'Overview' | 'Indices' | 'Sectors' | 'Movers'>(
     initialTab,
   );
@@ -277,7 +281,7 @@ export function GlobalSearchScreen() {
   const liveResults =
     live.data?.pages.flatMap((page) => page.data.items).map(searchItem) ?? [];
   return (
-    <View style={styles.searchScreen} testID="global-search">
+    <SafeAreaScreen style={styles.searchScreen} testID="global-search">
       <AppHeader title="Ara" subtitle="Sembol, şirket, endeks veya sektör" />
       <View style={styles.searchBox}>
         <TextInput
@@ -346,7 +350,7 @@ export function GlobalSearchScreen() {
           <Text>Daha fazla sonuç</Text>
         </Pressable>
       ) : null}
-    </View>
+    </SafeAreaScreen>
   );
 }
 
@@ -1048,7 +1052,6 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.background,
     gap: spacing[16],
     padding: spacing[16],
-    paddingBottom: 96,
   },
   searchBox: {
     backgroundColor: lightTheme.surface,

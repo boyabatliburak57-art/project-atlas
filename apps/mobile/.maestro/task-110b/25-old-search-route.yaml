@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B old Search route compatibility
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://search?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-search' }

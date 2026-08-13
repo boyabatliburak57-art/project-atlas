@@ -3,8 +3,10 @@ import {
   consumeTokenDeepLink,
   gateDeepLink,
   parseDeepLink,
+  resolveStaticRouteAlias,
 } from './deep-links';
 import { resolveGuard } from './route-guard';
+import { ownershipPath, resourcePath } from './resource-routes';
 
 describe('deep links and guards', () => {
   it('accepts allowlisted links and rejects arbitrary URLs', () => {
@@ -104,5 +106,35 @@ describe('deep links and guards', () => {
         requestedAdmin: false,
       }),
     ).toBe('/(auth)/verification');
+  });
+
+  it('migrates legacy static routes to one canonical V2 owner', () => {
+    expect(resolveStaticRouteAlias('atlas://scanner')).toBe('/radar/scanner');
+    expect(resolveStaticRouteAlias('atlas://watchlists/')).toBe(
+      '/radar/watchlists',
+    );
+    expect(resolveStaticRouteAlias('atlas://reports')).toBe(
+      '/research/reports',
+    );
+    expect(resolveStaticRouteAlias('atlas://settings')).toBe('/settings');
+    expect(resolveStaticRouteAlias('atlas:///markets/overview')).toBe(
+      '/markets/overview',
+    );
+    expect(resolveStaticRouteAlias('atlas:///research/backtests')).toBe(
+      '/research/backtests',
+    );
+    expect(resolveStaticRouteAlias('atlas://scanner?owner=other')).toBeNull();
+  });
+
+  it('keeps server ownership checks while resolving canonical resource routes', () => {
+    const id = '123e4567-e89b-12d3-a456-426614174000';
+    expect(resourcePath({ kind: 'alert', id })).toBe(
+      `/radar/alerts?resourceId=${id}`,
+    );
+    expect(ownershipPath({ kind: 'alert', id })).toBe(`/alerts/${id}`);
+    expect(resourcePath({ kind: 'backtest', id })).toBe(
+      `/research/backtests?resourceId=${id}`,
+    );
+    expect(ownershipPath({ kind: 'backtest', id })).toBe(`/backtests/${id}`);
   });
 });

@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Radar to Watchlists
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/radar?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-watchlists' }
+- tapOn:
+    id: 'feature-watchlists'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible: { id: 'operations-lists' }
+    timeout: 60000

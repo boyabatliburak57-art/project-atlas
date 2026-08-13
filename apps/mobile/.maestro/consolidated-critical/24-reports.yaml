@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 24 Reports
+---
+- runFlow: ../task-100i/01-reports.yaml

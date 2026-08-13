@@ -1,0 +1,29 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B per-tab state restore
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/overview?fixture=1'
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: 'market-overview' }
+    timeout: 60000
+- assertVisible: 'Portfolio'
+- tapOn:
+    text: 'Portfolio'
+    retryTapIfNoChange: true
+- tapOn:
+    text: 'Portfolio'
+    optional: true
+- extendedWaitUntil:
+    visible: { id: 'hub-portfolio' }
+    timeout: 60000
+- assertVisible: 'Markets'
+- tapOn:
+    text: 'Markets'
+    retryTapIfNoChange: true
+- tapOn:
+    text: 'Markets'
+    optional: true
+- extendedWaitUntil:
+    visible: { id: 'market-overview' }
+    timeout: 60000

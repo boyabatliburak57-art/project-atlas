@@ -4,5 +4,6 @@ name: Fundamentals provider required
 - launchApp: { clearState: true }
 - openLink: 'atlas://symbol/THYAO?fixture=0'
 - openLink: 'atlas://symbol/THYAO?fixture=0'
-- assertVisible: { id: 'symbol-provider-required' }
+- assertVisible: { id: 'symbol-detail-live' }
+- assertVisible: 'Veri sağlayıcısı gerekli'
 - assertNotVisible: 'Gelir · 2026/06'

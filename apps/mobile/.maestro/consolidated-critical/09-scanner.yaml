@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 09 Scanner
+---
+- runFlow: ../task-100f/04-builder-basic.yaml

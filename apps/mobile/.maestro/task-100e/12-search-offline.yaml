@@ -1,7 +1,29 @@
 appId: com.atlasfinance.mobile
-name: Search provider and error state
+name: Search provider-backed no fabricated result
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/search'
-- assertVisible: 'Veri sağlayıcısı gerekli'
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- waitForAnimationToEnd
+- tapOn:
+    id: 'welcome-login'
+    retryTapIfNoChange: true
+- extendedWaitUntil: { visible: 'E-posta', timeout: 60000 }
+- tapOn: { id: 'auth-email' }
+- inputText: 'mobile@example.test'
+- tapOn: { id: 'auth-password' }
+- inputText: 'Atlas-Test-2026!'
+- tapOn: { text: 'Giriş yap', index: 1 }
+- waitForAnimationToEnd
+- repeat:
+    times: 3
+    commands:
+      - tapOn: { text: 'Sonra', optional: true }
+      - waitForAnimationToEnd
+- tapOn: { text: 'Onboarding’i tamamla', optional: true }
+- extendedWaitUntil:
+    { visible: 'Bugün ne dikkat gerektiriyor?', timeout: 30000 }
+- openLink: 'atlas:///search'
+- tapOn: { id: 'symbol-search-input' }
+- inputText: 'TH'
+- assertVisible: { id: 'global-search' }
 - assertNotVisible: 'THYAO'

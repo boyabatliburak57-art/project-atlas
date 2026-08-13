@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B profile Support
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///profile?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-support' }
+- tapOn:
+    text: 'Destek'
+    retryTapIfNoChange: true
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: 'operations-support-form' }
+    timeout: 60000

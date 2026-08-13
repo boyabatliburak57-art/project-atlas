@@ -6,5 +6,8 @@ name: Price alert create
 - openLink: 'atlas://watchlists?fixture=1&view=alert-create'
 - assertVisible: { id: 'alert-builder' }
 - assertVisible: 'PRICE'
-- tapOn: { id: 'save-alert' }
+- waitForAnimationToEnd
+- tapOn:
+    id: 'save-alert'
+    retryTapIfNoChange: true
 - assertVisible: { id: 'alerts-active' }

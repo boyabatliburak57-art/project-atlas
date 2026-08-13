@@ -27,6 +27,69 @@ export type TokenDeepLinkTarget = z.infer<typeof tokenTargetSchema>;
 
 export type DeepLinkTarget = z.infer<typeof targetSchema>;
 
+const staticRouteAliases = new Map<string, string>([
+  ['atlas://home', '/(tabs)/home'],
+  ['atlas://markets', '/(tabs)/markets'],
+  ['atlas://search', '/search'],
+  ['atlas://scanner', '/radar/scanner'],
+  ['atlas://watchlists', '/radar/watchlists'],
+  ['atlas://alerts', '/radar/alerts'],
+  ['atlas://notifications', '/inbox'],
+  ['atlas://portfolio', '/portfolio/overview'],
+  ['atlas://strategies', '/research/strategies'],
+  ['atlas://backtests', '/research/backtests'],
+  ['atlas://reports', '/research/reports'],
+  ['atlas://settings', '/settings'],
+  ['atlas://help', '/help'],
+  ['atlas://support', '/support'],
+]);
+
+const canonicalStaticPaths = new Set([
+  '/(tabs)/home',
+  '/(tabs)/markets',
+  '/(tabs)/radar',
+  '/(tabs)/portfolio',
+  '/(tabs)/research',
+  '/markets/overview',
+  '/markets/indices',
+  '/markets/sectors',
+  '/radar/scanner',
+  '/radar/saved',
+  '/radar/watchlists',
+  '/radar/alerts',
+  '/radar/activity',
+  '/portfolio/overview',
+  '/portfolio/positions',
+  '/portfolio/transactions',
+  '/portfolio/performance',
+  '/portfolio/risk',
+  '/portfolio/quality',
+  '/research/strategies',
+  '/research/backtests',
+  '/research/reports',
+  '/research/methodology',
+  '/search',
+  '/inbox',
+  '/profile',
+  '/settings',
+  '/help',
+  '/support',
+]);
+
+export function resolveStaticRouteAlias(rawUrl: string): string | null {
+  if (rawUrl.length > 768 || rawUrl.includes('?') || rawUrl.includes('#'))
+    return null;
+  try {
+    const url = new URL(rawUrl);
+    if (url.protocol !== 'atlas:' || url.username || url.password) return null;
+    const path = url.pathname.replace(/\/$/u, '') || '/';
+    if (url.hostname === '' && canonicalStaticPaths.has(path)) return path;
+    return staticRouteAliases.get(rawUrl.replace(/\/$/u, '')) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function parseDeepLink(
   rawUrl: string,
   expectedScheme = 'atlas',

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Markets root
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/markets?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'hub-markets' }
+- assertVisible: 'Piyasada ne oluyor?'

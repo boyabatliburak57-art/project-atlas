@@ -1,4 +1,4 @@
-import { ScannerScreen } from '../../src/features/operations/operations-screens';
+import { LegacyRouteAlias } from '../../src/navigation/legacy-route-alias';
 export default function Page() {
-  return <ScannerScreen />;
+  return <LegacyRouteAlias destination="/radar/scanner" />;
 }

@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Portfolio to Positions
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/portfolio?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-portfolio-positions' }
+- tapOn:
+    id: 'feature-portfolio-positions'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible: { id: 'portfolio-positions' }
+    timeout: 60000

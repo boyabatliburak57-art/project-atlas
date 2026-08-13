@@ -1,4 +1,4 @@
-import { OperationsScreen } from '../../src/features/reports-settings/reports-settings-screen';
+import { LegacyRouteAlias } from '../../src/navigation/legacy-route-alias';
 export default function Page() {
-  return <OperationsScreen />;
+  return <LegacyRouteAlias destination="/research/reports" />;
 }

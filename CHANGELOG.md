@@ -1,5 +1,39 @@
 # Changelog
 
+## task-110a-bist-intelligence-expansion — 2026-08-12
+
+### Karar
+
+```text
+Decision: GO_FOR_TASK_110B
+Scope Expansion: APPROVED_AND_DOCUMENTED
+TASK-100R: SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```
+
+### Eklendi
+
+- BIST investment research and market-intelligence product scope, IA V2 direction, canonical domain
+  map and expanded provider capability model.
+- All 53 approved domain capabilities plus 10 Atlas-native intelligence capabilities in an
+  existing-vs-new ownership matrix.
+- Sequential TASK-110A–TASK-110S task contracts, ending with expanded parity and a new authoritative
+  non-staging completeness audit.
+
+### Değişti
+
+- TASK-100R and its preserved report artefacts are marked historical/pre-expansion and
+  `SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION`.
+- Product definition expands beyond scanner/portfolio/backtest while preserving all existing mobile
+  v1 domains.
+
+### Değişmedi
+
+- No feature, API, worker, database, dependency or provider integration was implemented.
+- Fake production data remains zero; external blockers and release posture remain unchanged.
+
 ## task-100f-mobile-operations — 2026-08-06
 
 - Added iOS scanner, saved-scan revisions, cursor results/history, watchlists and price/indicator/

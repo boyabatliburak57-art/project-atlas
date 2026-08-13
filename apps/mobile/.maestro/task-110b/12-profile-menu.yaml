@@ -1,0 +1,12 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B profile menu
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-profile' }
+- tapOn:
+    id: 'global-profile'
+    retryTapIfNoChange: true
+- assertVisible: { id: 'profile-menu' }
+- assertVisible: 'Gizlilik ve güvenlik'

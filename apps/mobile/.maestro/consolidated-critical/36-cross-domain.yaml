@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 36 Navigation V2 Cross Domain
+---
+- runFlow: ../task-100f/11-result-symbol.yaml

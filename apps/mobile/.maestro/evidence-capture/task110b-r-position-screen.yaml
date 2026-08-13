@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B-R position native visual evidence screen
+---
+- launchApp: { clearState: true }
+- openLink: '${EVIDENCE_ROUTE}'
+- assertVisible: { id: '${EVIDENCE_TEST_ID}' }
+- waitForAnimationToEnd

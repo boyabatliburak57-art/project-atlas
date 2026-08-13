@@ -37,7 +37,7 @@ Project Atlas, Borsa İstanbul (BIST) paylarını teknik ve temel verilerle tara
 5. `architecture/`, `database/` ve `api/` belgeleri
 6. Uygulanacak `tasks/TASK-xxx.md`
 
-**Sürüm:** 0.1.0-foundation  
+**Sürüm:** 0.1.0-foundation
 **Aşama:** Dokümantasyon ve temel proje hazırlığı
 
 ## v0.2 ile eklenenler
@@ -336,3 +336,42 @@ TASK-100A -> TASK-100B -> TASK-100C -> TASK-100D -> TASK-100E
 TASK-100L GO olmadan TASK-100R çalıştırılmaz. TASK-100R yalnız
 `GO_FOR_FINAL_STAGING_GATE` veya `NO-GO_FOR_FINAL_STAGING_GATE` verebilir; production readiness
 `NO-GO`, staging gate `DEFERRED_EXTERNAL_GATE` ve production launch `BLOCKED` kalır.
+
+The sequence above is retained as the existing mobile baseline. As of 2026-08-12, TASK-100R is
+`SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION`; its preserved artefacts are not authoritative for the
+expanded product.
+
+## BIST Investment Research & Market Intelligence Expansion
+
+Atlas is a BIST-focused investment research and market-intelligence platform combining market
+data, company intelligence, institutional flows, event intelligence, screening, portfolio
+analytics and strategy research in one connected mobile experience. Atlas is not a broker, does
+not execute trades, does not provide investment advice and does not create orders for users.
+
+The expansion adds KAP and corporate events, institutional flow and settlement, BIST measures,
+calendars, company/peer/ownership intelligence, Radar 2.0, fund and VIOP analytics, depth and
+advanced chart workspaces, plus the explainable Atlas intelligence layer. Existing mobile v1
+features are preserved.
+
+Authoritative documents:
+
+- `docs/product/ATLAS_BIST_INTELLIGENCE_PRODUCT_SCOPE.md`
+- `docs/product/ATLAS_INFORMATION_ARCHITECTURE_V2.md`
+- `docs/product/ATLAS_INTELLIGENCE_DOMAIN_MAP.md`
+- `docs/product/ATLAS_PROVIDER_CAPABILITY_EXPANSION.md`
+- `reports/mobile/task-110a-existing-vs-new-capability-matrix.md`
+- `reports/mobile/task-110a-audit-supersession.md`
+
+Primary navigation is `Home`, `Markets`, `Radar`, `Portfolio`, `Research`; Search and Smart Inbox
+are global actions, and Settings/Account is profile-level navigation. Maximum primary tabs is five.
+
+```text
+TASK-110A -> TASK-110B -> TASK-110C -> TASK-110D -> TASK-110E -> TASK-110F
+-> TASK-110G -> TASK-110H -> TASK-110I -> TASK-110J -> TASK-110K -> TASK-110L
+-> TASK-110M -> TASK-110N -> TASK-110O -> TASK-110P -> TASK-110Q -> TASK-110R
+-> TASK-110S
+
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```

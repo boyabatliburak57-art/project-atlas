@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Home root
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'hub-home' }
+- assertVisible: 'Bugün ne dikkat gerektiriyor?'

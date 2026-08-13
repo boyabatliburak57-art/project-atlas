@@ -11,8 +11,14 @@ Tablet Support: DEFERRED_TO_V1_1
 Android and tablet validation are not mobile v1 release gates. Existing code remains
 experimental and does not establish production support.
 
-**Durum:** BLOCKED_BY_TASK-100L_GO  
-**Bağımlılıklar:** TASK-100L = GO_FOR_TASK_100_REAUDIT
+**Durum:** SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION
+**Supersession nedeni:** Original mobile parity scope did not include the newly approved BIST
+intelligence expansion.
+**Historical dependency:** TASK-100L = GO_FOR_TASK_100R
+
+> This task and its existing evidence are retained as pre-expansion history. They are not the
+> authoritative final audit for the expanded product. The new authoritative audits are TASK-110R
+> followed by TASK-110S.
 
 ## Amaç
 

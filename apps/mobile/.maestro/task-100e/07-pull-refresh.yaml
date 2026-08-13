@@ -2,7 +2,7 @@ appId: com.atlasfinance.mobile
 name: Pull to refresh contract
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/home?fixture=1'
+- openLink: 'atlas:///markets/overview?fixture=1'
 - swipe:
     start: 50%, 20%
     end: 50%, 75%

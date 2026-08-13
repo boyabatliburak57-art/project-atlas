@@ -193,6 +193,7 @@ export function OnboardingScreen() {
           step === 'summary' ? 'Onboarding’i tamamla' : 'Kaydet ve devam et'
         }
         onPress={next}
+        testID="onboarding-primary-action"
       />
       {message ? (
         <Text accessibilityRole="alert" style={styles.note}>

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B old Report route compatibility
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://reports?fixture=1&view=reports'
+- waitForAnimationToEnd
+- assertVisible: { id: 'operations-reports' }

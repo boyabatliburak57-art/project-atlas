@@ -153,6 +153,15 @@ export const lightTheme = {
   inverse: palette.textInverse,
   financial,
   chartGrid: chartColors.gridLight,
+  header: {
+    background: palette.background,
+    foreground: palette.textPrimary,
+    secondaryForeground: palette.textSecondary,
+    icon: palette.textPrimary,
+    border: palette.border,
+    pressed: palette.surfaceSecondary,
+    badge: palette.negative600,
+  },
 } as const;
 export const darkTheme = {
   mode: 'dark',
@@ -167,5 +176,14 @@ export const darkTheme = {
   inverse: palette.navy950,
   financial,
   chartGrid: chartColors.gridDark,
+  header: {
+    background: palette.darkBackground,
+    foreground: palette.darkTextPrimary,
+    secondaryForeground: palette.darkTextSecondary,
+    icon: palette.darkTextPrimary,
+    border: palette.darkBorder,
+    pressed: palette.darkSurfaceSecondary,
+    badge: palette.negative600,
+  },
 } as const;
 export type AtlasTheme = typeof lightTheme | typeof darkTheme;

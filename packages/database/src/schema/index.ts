@@ -16,3 +16,4 @@ export * from './communications';
 export * from './legal-consent';
 export * from './demo-resources';
 export * from './support';
+export * from './bist-intelligence';

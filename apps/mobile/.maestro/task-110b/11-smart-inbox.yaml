@@ -1,0 +1,15 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Smart Inbox foundation
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-inbox' }
+- tapOn:
+    id: 'global-inbox'
+    retryTapIfNoChange: true
+- tapOn:
+    id: 'global-inbox'
+    optional: true
+- waitForAnimationToEnd
+- assertVisible: { id: 'notification-center' }

@@ -6,7 +6,10 @@ name: Login invalid credentials
 - extendedWaitUntil:
     visible: 'Giriş yap'
     timeout: 120000
-- tapOn: 'Giriş yap'
+- waitForAnimationToEnd
+- tapOn:
+    id: 'welcome-login'
+    retryTapIfNoChange: true
 - extendedWaitUntil:
     visible: 'E-posta'
     timeout: 30000

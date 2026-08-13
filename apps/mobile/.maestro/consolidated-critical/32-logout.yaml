@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 32 Logout
+---
+- runFlow: ../task-100d/13-logout-cleanup.yaml

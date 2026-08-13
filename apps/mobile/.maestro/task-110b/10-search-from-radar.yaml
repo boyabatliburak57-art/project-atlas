@@ -1,0 +1,17 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B global search from Radar
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/radar?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-search' }
+- tapOn:
+    text: 'Global Search'
+    retryTapIfNoChange: true
+- tapOn:
+    text: 'Global Search'
+    optional: true
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: 'symbol-search-input' }
+    timeout: 60000

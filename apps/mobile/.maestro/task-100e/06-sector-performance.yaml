@@ -3,6 +3,7 @@ name: Sector performance
 ---
 - launchApp: { clearState: true }
 - openLink: 'atlas:///(tabs)/markets?fixture=1'
-- tapOn: 'Sectors'
+- tapOn: 'Sektörler'
+- assertVisible: { id: 'markets-screen' }
 - assertVisible: 'Teknoloji'
 - assertVisible: 'Banka'

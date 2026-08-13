@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 01 Authentication
+---
+- runFlow: ../task-100d/02-login-success.yaml

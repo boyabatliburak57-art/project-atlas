@@ -7,14 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { AtlasApiError } from '@atlas/api-client';
 import { router, useLocalSearchParams } from 'expo-router';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { radius, spacing, touchTargets } from '@atlas/design-tokens';
 import {
   AppHeader,
@@ -31,6 +24,7 @@ import {
   tradeRows,
 } from './strategy-evidence-data';
 import { useAuth } from '../../providers/auth-provider';
+import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
 
 type ViewName =
   | 'lab'
@@ -56,17 +50,39 @@ type ViewName =
 const fixtureEnabled = (value: string | string[] | undefined) =>
   __DEV__ && value === '1';
 
-export function StrategyLabScreen() {
+export function StrategyLabScreen({
+  initialView,
+}: {
+  initialView?: ViewName;
+} = {}) {
   const params = useLocalSearchParams<{
     fixture?: string;
     view?: ViewName;
     offline?: string;
   }>();
   const fixture = fixtureEnabled(params.fixture);
-  const view = params.view ?? 'lab';
+  const view = params.view ?? initialView ?? 'lab';
   const go = (next: ViewName) =>
     router.replace({
-      pathname: '/strategies',
+      pathname:
+        next === 'experiments' ||
+        [
+          'config',
+          'provider',
+          'progress',
+          'result',
+          'equity',
+          'drawdown',
+          'metrics',
+          'not-evaluable',
+          'trades',
+          'trade-detail',
+          'benchmark',
+          'quality',
+          'rerun',
+        ].includes(next)
+          ? '/research/backtests'
+          : '/research/strategies',
       params: { fixture: '1', view: next },
     });
   if (params.offline === '1')
@@ -129,9 +145,9 @@ export function StrategyLabScreen() {
 
 function Shell({ children, id }: { children: React.ReactNode; id: string }) {
   return (
-    <ScrollView contentContainerStyle={styles.screen} testID={id}>
+    <SafeAreaScrollScreen contentContainerStyle={styles.screen} testID={id}>
       {children}
-    </ScrollView>
+    </SafeAreaScrollScreen>
   );
 }
 function Section({
@@ -830,8 +846,8 @@ function LiveStrategyLab() {
         subtitle="Geçmiş veri araştırması · yatırım tavsiyesi değildir"
       />
       <Button
-        label="More'a dön"
-        onPress={() => router.replace('/(tabs)/more')}
+        label="Research'e dön"
+        onPress={() => router.replace('/(tabs)/research')}
       />
       <Card>
         <Text style={styles.note}>
@@ -959,7 +975,6 @@ const styles = StyleSheet.create({
     gap: spacing[4],
     minHeight: '100%',
     padding: spacing[4],
-    paddingBottom: 80,
     paddingTop: 64,
   },
   section: { gap: spacing[2] },

@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B profile Settings
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///profile?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-settings' }
+- tapOn:
+    text: 'Ayarlar'
+    retryTapIfNoChange: true
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: 'operations-settings' }
+    timeout: 60000

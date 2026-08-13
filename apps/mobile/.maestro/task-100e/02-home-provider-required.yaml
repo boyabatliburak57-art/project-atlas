@@ -2,6 +2,26 @@ appId: com.atlasfinance.mobile
 name: Home provider required
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/home'
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- waitForAnimationToEnd
+- tapOn:
+    id: 'welcome-login'
+    retryTapIfNoChange: true
+- extendedWaitUntil: { visible: 'E-posta', timeout: 60000 }
+- tapOn: { id: 'auth-email' }
+- inputText: 'mobile@example.test'
+- tapOn: { id: 'auth-password' }
+- inputText: 'Atlas-Test-2026!'
+- tapOn: { text: 'Giriş yap', index: 1 }
+- waitForAnimationToEnd
+- repeat:
+    times: 3
+    commands:
+      - tapOn: { text: 'Sonra', optional: true }
+      - waitForAnimationToEnd
+- tapOn: { text: 'Onboarding’i tamamla', optional: true }
+- extendedWaitUntil:
+    { visible: 'Bugün ne dikkat gerektiriyor?', timeout: 30000 }
+- openLink: 'atlas:///markets/overview'
 - assertVisible: 'Veri sağlayıcısı gerekli'
 - assertNotVisible: '10.742,30'

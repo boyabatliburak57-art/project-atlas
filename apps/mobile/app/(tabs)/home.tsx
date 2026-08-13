@@ -1,4 +1,4 @@
-import { MarketOverviewScreen } from '../../src/features/market/market-screens';
+import { HomeHubScreen } from '../../src/navigation/hub-screens';
 export default function HomeRoute() {
-  return <MarketOverviewScreen />;
+  return <HomeHubScreen />;
 }

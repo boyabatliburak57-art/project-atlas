@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 13 Push Destination
+---
+- runFlow: ../task-100f/22-push-deep-links.yaml

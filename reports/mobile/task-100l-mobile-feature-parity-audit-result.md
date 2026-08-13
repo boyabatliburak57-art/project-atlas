@@ -1,6 +1,11 @@
 # TASK-100L Mobile Feature-Parity Audit Result
 
-Candidate: `fac5bfe45c2f + source-sha256:3c07165f2692e4a3c5498b53483e31325f19d802380fcf9a0443ff5e9dc0736c`  
+> **Expansion note (2026-08-12):** The recorded `GO_FOR_TASK_100R` remains baseline evidence for
+> the original mobile v1 scope. Its transition was superseded by
+> `SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION`; authoritative expanded audits are TASK-110R and
+> TASK-110S. The evidence below is preserved unchanged.
+
+Candidate: `fac5bfe45c2f + source-sha256:3c07165f2692e4a3c5498b53483e31325f19d802380fcf9a0443ff5e9dc0736c`
 Audit date: `2026-08-11`
 
 ```text

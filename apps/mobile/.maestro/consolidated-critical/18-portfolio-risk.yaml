@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 18 Portfolio Risk
+---
+- runFlow: ../task-100g/20-risk.yaml

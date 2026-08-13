@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Radar to Scanner
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/radar?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-scanner' }
+- tapOn:
+    id: 'feature-scanner'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible: { id: 'scanner-saved' }
+    timeout: 60000

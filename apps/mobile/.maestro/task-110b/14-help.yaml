@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B profile Help
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///profile?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-help' }
+- tapOn:
+    text: 'Yardım Merkezi'
+    retryTapIfNoChange: true
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: { id: 'operations-help' }
+    timeout: 60000

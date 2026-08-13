@@ -5,6 +5,10 @@ name: Onboarding optional step skip
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
-- tapOn: 'Kaydet ve devam et'
-- tapOn: 'Bu adımı geç'
-- assertVisible: 'Benchmark ve kullanım profili'
+- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Dil, saat dilimi ve piyasa', timeout: 60000 }
+- tapOn:
+    text: 'Bu adımı geç'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    { visible: 'Benchmark ve kullanım profili', timeout: 60000 }

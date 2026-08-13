@@ -5,6 +5,9 @@ name: Logout and account switch cleanup
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///verification'
-- assertVisible: 'Hesap değiştir'
-- tapOn: 'Hesap değiştir'
-- assertVisible: 'Giriş yap'
+- extendedWaitUntil: { visible: 'Hesap değiştir', timeout: 60000 }
+- waitForAnimationToEnd
+- tapOn:
+    id: 'verification-switch-account'
+    retryTapIfNoChange: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 60000 }

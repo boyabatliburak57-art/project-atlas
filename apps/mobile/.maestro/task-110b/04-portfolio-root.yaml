@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Portfolio root
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/portfolio?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'hub-portfolio' }
+- assertVisible: 'Portföyüm nasıl konumlanıyor?'

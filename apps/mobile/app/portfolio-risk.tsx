@@ -1,4 +1,4 @@
-import { PortfolioScreen } from '../src/features/portfolio/portfolio-screens';
+import { LegacyRouteAlias } from '../src/navigation/legacy-route-alias';
 export default function Page() {
-  return <PortfolioScreen />;
+  return <LegacyRouteAlias destination="/portfolio/overview" />;
 }

@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Radar to Alerts
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/radar?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'feature-alerts' }
+- tapOn:
+    id: 'feature-alerts'
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible: { id: 'operations-alert-active' }
+    timeout: 60000

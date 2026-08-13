@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B bounded navigation cycle
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- repeat:
+    times: 20
+    commands:
+      - tapOn: 'Markets'
+      - tapOn: 'Radar'
+      - tapOn: 'Portfolio'
+      - tapOn: 'Research'
+      - tapOn: 'Home'
+- assertVisible: { id: 'hub-home' }

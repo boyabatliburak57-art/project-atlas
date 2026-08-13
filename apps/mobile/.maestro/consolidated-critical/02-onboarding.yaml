@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 02 Onboarding
+---
+- runFlow: ../task-100d/06-onboarding-full.yaml

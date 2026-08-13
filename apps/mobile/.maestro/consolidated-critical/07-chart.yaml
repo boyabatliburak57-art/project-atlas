@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 07 Chart
+---
+- runFlow: ../task-100e/14-chart-timeframe.yaml

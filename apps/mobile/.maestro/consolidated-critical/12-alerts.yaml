@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 12 Alerts
+---
+- runFlow: ../task-100f/17-price-alert.yaml

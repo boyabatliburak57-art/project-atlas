@@ -1,0 +1,12 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B five-tab order
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: 'Home'
+- assertVisible: 'Markets'
+- assertVisible: 'Radar'
+- assertVisible: 'Portfolio'
+- assertVisible: 'Research'
+- assertNotVisible: 'More'

@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 22 Backtest Result
+---
+- runFlow: ../task-100h/12-result.yaml

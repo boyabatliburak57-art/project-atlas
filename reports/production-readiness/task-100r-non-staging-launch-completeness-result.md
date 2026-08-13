@@ -1,7 +1,11 @@
 # TASK-100R Non-Staging Launch Completeness Result
 
-Audit date: `2026-08-11`  
-HEAD: `fac5bfe45c2fafad159bb223a01e870bbd26bf07`  
+> **Status: `SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION` (2026-08-12).** This preserved report is
+> historical pre-expansion evidence. Original mobile parity scope did not include the newly
+> approved BIST intelligence expansion; it cannot satisfy TASK-110R or TASK-110S.
+
+Audit date: `2026-08-11`
+HEAD: `fac5bfe45c2fafad159bb223a01e870bbd26bf07`
 Runtime-source fingerprint: `sha256:0e4301488a0abc14687e3338026936f1d0a0ca681ce2a64e15c5f21a3892bd39`
 
 ```text

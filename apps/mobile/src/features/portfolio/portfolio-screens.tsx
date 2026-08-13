@@ -9,7 +9,6 @@ import { AtlasApiError } from '@atlas/api-client';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -33,6 +32,7 @@ import {
 } from './portfolio-evidence-data';
 import { maskFinancialValue } from './portfolio-model';
 import { useAuth } from '../../providers/auth-provider';
+import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
 
 type ViewName =
   | 'overview'
@@ -61,18 +61,22 @@ type ViewName =
 const enabled = (value: string | string[] | undefined) =>
   __DEV__ && value === '1';
 
-export function PortfolioScreen() {
+export function PortfolioScreen({
+  initialView,
+}: {
+  initialView?: ViewName;
+} = {}) {
   const params = useLocalSearchParams<{
     fixture?: string;
     view?: ViewName;
     offline?: string;
   }>();
   const fixture = enabled(params.fixture);
-  const view = params.view ?? 'overview';
+  const view = params.view ?? initialView ?? 'overview';
   const [hidden, setHidden] = useState(view === 'privacy');
   const go = (next: ViewName) =>
     router.replace({
-      pathname: '/portfolio-risk',
+      pathname: `/portfolio/${next === 'position' || next === 'positions' || next === 'position-provider' ? 'positions' : next === 'transactions' || ['buy', 'sell', 'validation', 'cash', 'dividend'].includes(next) ? 'transactions' : next === 'performance' || next === 'benchmark' || next === 'allocation' || next === 'sector' ? 'performance' : next.startsWith('risk') ? 'risk' : next === 'quality' ? 'quality' : 'overview'}`,
       params: { fixture: '1', view: next },
     });
   if (params.offline === '1')
@@ -143,9 +147,9 @@ export function PortfolioScreen() {
 
 function Shell({ children, id }: { children: React.ReactNode; id: string }) {
   return (
-    <ScrollView contentContainerStyle={styles.screen} testID={id}>
+    <SafeAreaScrollScreen contentContainerStyle={styles.screen} testID={id}>
       {children}
-    </ScrollView>
+    </SafeAreaScrollScreen>
   );
 }
 function PrivacyBand({
@@ -1053,7 +1057,6 @@ const styles = StyleSheet.create({
     gap: spacing[16],
     minHeight: '100%',
     padding: spacing[24],
-    paddingBottom: 120,
   },
   privacy: {
     alignItems: 'center',

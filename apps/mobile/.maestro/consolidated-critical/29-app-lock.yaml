@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 29 App Lock
+---
+- runFlow: ../task-100j/12-biometric-lock.yaml

@@ -13,9 +13,19 @@ name: Forgot and reset password contract
 - waitForAnimationToEnd
 - tapOn:
     id: 'auth-email'
-- eraseText
+    retryTapIfNoChange: true
+- waitForAnimationToEnd
 - inputText: 'mobile@example.test'
-- tapOn: 'Sıfırlama bağlantısı iste'
+- runFlow:
+    when:
+      notVisible: 'mobile@example.test'
+    commands:
+      - tapOn: { id: 'auth-email', retryTapIfNoChange: true }
+      - inputText: 'mobile@example.test'
+- assertVisible: 'mobile@example.test'
+- tapOn:
+    text: 'Sıfırlama bağlantısı iste'
+    retryTapIfNoChange: true
 - extendedWaitUntil:
     visible: 'Hesap uygunsa şifre sıfırlama talimatı gönderilecektir.'
     timeout: 30000

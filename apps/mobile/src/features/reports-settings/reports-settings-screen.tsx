@@ -7,14 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { AtlasApiError } from '@atlas/api-client';
 import { router, useLocalSearchParams } from 'expo-router';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   palette,
   radius,
@@ -30,6 +23,7 @@ import {
   supportRows,
 } from './reports-settings-evidence-data';
 import { useAuth } from '../../providers/auth-provider';
+import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
 import { ReportsSettingsApi } from './reports-settings-api';
 
 type ViewName =
@@ -58,17 +52,30 @@ type ViewName =
 const fixtureEnabled = (value: string | string[] | undefined) =>
   __DEV__ && value === '1';
 
-export function OperationsScreen() {
+export function OperationsScreen({
+  initialView,
+}: {
+  initialView?: ViewName;
+} = {}) {
   const params = useLocalSearchParams<{
     fixture?: string;
     view?: ViewName;
     offline?: string;
   }>();
   const fixture = fixtureEnabled(params.fixture);
-  const view = params.view ?? 'reports';
+  const view = params.view ?? initialView ?? 'reports';
   const go = (next: ViewName) =>
     router.replace({
-      pathname: '/reports',
+      pathname:
+        next === 'methodology'
+          ? '/research/methodology'
+          : next.startsWith('help') || next === 'article'
+            ? '/help'
+            : next.startsWith('support')
+              ? '/support'
+              : ['settings', 'appearance', 'privacy', 'about'].includes(next)
+                ? '/settings'
+                : '/research/reports',
       params: { fixture: '1', view: next },
     });
   if (fixture && params.offline === '1')
@@ -85,7 +92,7 @@ export function OperationsScreen() {
         </Text>
       </Shell>
     );
-  if (!fixture) return <LiveReportsSettings />;
+  if (!fixture) return <LiveReportsSettings initialView={view} />;
   return (
     <Shell id={`operations-${view}`}>
       <AppHeader
@@ -101,9 +108,9 @@ export function OperationsScreen() {
 
 function Shell({ children, id }: { children: React.ReactNode; id: string }) {
   return (
-    <ScrollView contentContainerStyle={styles.screen} testID={id}>
+    <SafeAreaScrollScreen contentContainerStyle={styles.screen} testID={id}>
       {children}
-    </ScrollView>
+    </SafeAreaScrollScreen>
   );
 }
 
@@ -787,15 +794,23 @@ function liveError(error: unknown): string {
     : 'İstek tamamlanamadı.';
 }
 
-function LiveReportsSettings() {
+function LiveReportsSettings({ initialView }: { initialView: ViewName }) {
   const auth = useAuth();
   const queryClient = useQueryClient();
   const api = new ReportsSettingsApi(auth.client);
   const owner =
     'session' in auth.state ? auth.state.session.userId : 'anonymous';
+  const initialSection =
+    initialView.startsWith('help') || initialView === 'article'
+      ? 'help'
+      : initialView.startsWith('support')
+        ? 'support'
+        : ['settings', 'appearance', 'privacy', 'about'].includes(initialView)
+          ? 'settings'
+          : 'reports';
   const [section, setSection] = useState<
     'reports' | 'help' | 'support' | 'settings'
-  >('reports');
+  >(initialSection);
   const [reportType, setReportType] = useState<
     | 'portfolio'
     | 'scanner'
@@ -877,8 +892,8 @@ function LiveReportsSettings() {
         subtitle="Raporlar · Yardım · Destek · Ayarlar"
       />
       <Button
-        label="More'a dön"
-        onPress={() => router.replace('/(tabs)/more')}
+        label="Research'e dön"
+        onPress={() => router.replace('/(tabs)/research')}
       />
       <View style={styles.pills}>
         {(['reports', 'help', 'support', 'settings'] as const).map((item) => (

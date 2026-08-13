@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 27 Settings
+---
+- runFlow: ../task-100i/19-settings.yaml

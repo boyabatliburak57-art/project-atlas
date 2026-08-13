@@ -9,5 +9,8 @@ name: Biometric available contract
     times: 6
     commands:
       - tapOn: 'Kaydet ve devam et'
-- assertVisible: 'Biyometri ve demo içerik'
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: 'Biyometri ve demo içerik'
+    timeout: 30000
 - assertVisible: 'Face ID’yi daha sonra etkinleştir'

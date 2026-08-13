@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B protected deep link
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas://alert/123e4567-e89b-12d3-a456-426614174000'
+- waitForAnimationToEnd
+- assertVisible: 'Giriş yap'

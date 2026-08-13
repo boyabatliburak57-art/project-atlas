@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 34 Smart Inbox
+---
+- runFlow: ../task-100f/24-notification-center.yaml

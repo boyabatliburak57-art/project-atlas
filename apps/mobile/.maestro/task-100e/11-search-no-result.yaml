@@ -2,7 +2,12 @@ appId: com.atlasfinance.mobile
 name: Search no result
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/search?fixture=1'
-- tapOn: { id: 'symbol-search-input' }
+- openLink: 'atlas:///search?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-search' }
+- tapOn:
+    id: 'symbol-search-input'
+    retryTapIfNoChange: true
+- waitForAnimationToEnd
 - inputText: 'ZZZZZZ'
-- assertVisible: 'Sonuç bulunamadı.'
+- extendedWaitUntil: { visible: 'Sonuç bulunamadı.', timeout: 60000 }

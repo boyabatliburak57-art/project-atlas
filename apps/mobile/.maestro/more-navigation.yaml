@@ -7,16 +7,16 @@ appId: com.atlasfinance.mobile
 - tapOn: 'Continue to onboarding foundation'
 - tapOn: 'Open Home foundation'
 - assertVisible: 'Home foundation'
-- tapOn: 'More'
-- assertVisible: 'More foundation'
+- openLink: 'atlas://more?fixture=1'
+- assertVisible: 'Neden oldu, geçmişte nasıl davrandı?'
 - openLink: 'atlas://watchlists'
-- assertVisible: 'Watchlists and Alerts'
+- assertVisible: 'İzleme listeleri ve alarmlar'
 - back
 - openLink: 'atlas://scanner'
 - assertVisible: 'Scanner'
 - back
 - openLink: 'atlas://strategies'
-- assertVisible: 'Strategy Lab / Backtest'
+- assertVisible: 'Strategy Lab'
 - back
 - openLink: 'atlas://reports'
-- assertVisible: 'Reports / Help / Settings'
+- assertVisible: 'Raporlar'

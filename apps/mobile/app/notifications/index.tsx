@@ -1,5 +1,5 @@
-import { WatchlistsAlertsScreen } from '../../src/features/operations/operations-screens';
+import { LegacyRouteAlias } from '../../src/navigation/legacy-route-alias';
 
 export default function NotificationsRoute() {
-  return <WatchlistsAlertsScreen />;
+  return <LegacyRouteAlias destination="/inbox" />;
 }

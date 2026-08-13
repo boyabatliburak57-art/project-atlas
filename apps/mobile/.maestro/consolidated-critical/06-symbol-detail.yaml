@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 06 Symbol Detail
+---
+- runFlow: ../task-100e/13-symbol-overview.yaml

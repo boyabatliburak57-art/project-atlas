@@ -14,51 +14,10 @@ import {
   consumeTokenDeepLink,
   gateDeepLink,
   parseDeepLink,
+  resolveStaticRouteAlias,
   type DeepLinkTarget,
 } from './deep-links';
-
-function resourcePath(target: DeepLinkTarget): string {
-  switch (target.kind) {
-    case 'symbol':
-      return `/symbol/${target.id}`;
-    case 'scan-result':
-      return `/scanner?runId=${target.id}`;
-    case 'watchlist':
-    case 'alert':
-      return `/watchlists?resourceId=${target.id}`;
-    case 'portfolio':
-      return `/portfolio-risk?resourceId=${target.id}`;
-    case 'strategy':
-    case 'backtest':
-      return `/strategies?resourceId=${target.id}`;
-    case 'report':
-    case 'support':
-      return `/reports?resourceId=${target.id}`;
-  }
-}
-
-function ownershipPath(target: DeepLinkTarget): string | null {
-  switch (target.kind) {
-    case 'symbol':
-      return null;
-    case 'scan-result':
-      return `/scanner/runs/${target.id}`;
-    case 'watchlist':
-      return `/watchlists/${target.id}`;
-    case 'alert':
-      return `/alerts/${target.id}`;
-    case 'portfolio':
-      return `/portfolios/${target.id}`;
-    case 'strategy':
-      return `/strategies/${target.id}`;
-    case 'backtest':
-      return `/backtests/${target.id}`;
-    case 'report':
-      return `/reports/${target.id}`;
-    case 'support':
-      return `/support/requests/${target.id}`;
-  }
-}
+import { ownershipPath, resourcePath } from './resource-routes';
 
 export function AppRouteGuard({ children }: PropsWithChildren) {
   const auth = useAuth();
@@ -186,6 +145,11 @@ export function AppRouteGuard({ children }: PropsWithChildren) {
       }
       if (/^atlas:\/\/\/?verification\/?$/u.test(url)) {
         router.replace('/(auth)/verification');
+        return;
+      }
+      const staticAlias = resolveStaticRouteAlias(url);
+      if (staticAlias !== null) {
+        router.replace(staticAlias as never);
         return;
       }
       try {

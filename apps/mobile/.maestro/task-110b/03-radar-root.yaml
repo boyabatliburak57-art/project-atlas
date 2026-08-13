@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Radar root
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/radar?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'hub-radar' }
+- assertVisible: 'Neyi araştırmalıyım?'

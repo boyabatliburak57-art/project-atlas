@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 03 Home
+---
+- runFlow: ../task-100e/01-home-available.yaml

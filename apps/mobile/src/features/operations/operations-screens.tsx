@@ -5,7 +5,6 @@ import { Link, router, useLocalSearchParams } from 'expo-router';
 import {
   FlatList,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -34,6 +33,7 @@ import {
   watchlistSymbols,
 } from './operations-evidence-data';
 import { useAuth } from '../../providers/auth-provider';
+import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
 
 type ScannerView =
   | 'saved'
@@ -69,9 +69,9 @@ function Screen({
   testID: string;
 }) {
   return (
-    <ScrollView contentContainerStyle={styles.screen} testID={testID}>
+    <SafeAreaScrollScreen contentContainerStyle={styles.screen} testID={testID}>
       {children}
-    </ScrollView>
+    </SafeAreaScrollScreen>
   );
 }
 function Disclosure() {
@@ -125,17 +125,21 @@ function Action({
   );
 }
 
-export function ScannerScreen() {
+export function ScannerScreen({
+  initialView,
+}: {
+  initialView?: ScannerView;
+} = {}) {
   const params = useLocalSearchParams<{
     fixture?: string;
     view?: ScannerView;
     offline?: string;
   }>();
   const fixture = evidenceEnabled(params.fixture);
-  const view = params.view ?? 'saved';
+  const view = params.view ?? initialView ?? 'saved';
   const navigate = (next: ScannerView) =>
     router.replace({
-      pathname: '/scanner',
+      pathname: '/radar/scanner',
       params: { fixture: '1', view: next },
     });
   if (params.offline === '1')
@@ -429,11 +433,13 @@ function ScanResults({ matched }: { matched: boolean }) {
       <View style={styles.actions}>
         <Action
           label="İzleme listesine ekle"
-          onPress={() => router.push('/watchlists?fixture=1&view=detail')}
+          onPress={() => router.push('/radar/watchlists?fixture=1&view=detail')}
         />
         <Action
           label="Alarm oluştur"
-          onPress={() => router.push('/watchlists?fixture=1&view=alert-create')}
+          onPress={() =>
+            router.push('/radar/alerts?fixture=1&view=alert-create')
+          }
         />
       </View>
     </View>
@@ -475,16 +481,20 @@ function ScanHistory({
   );
 }
 
-export function WatchlistsAlertsScreen() {
+export function WatchlistsAlertsScreen({
+  initialView,
+}: {
+  initialView?: OperationsView;
+} = {}) {
   const params = useLocalSearchParams<{
     fixture?: string;
     view?: OperationsView;
   }>();
   const fixture = evidenceEnabled(params.fixture);
-  const view = params.view ?? 'lists';
+  const view = params.view ?? initialView ?? 'lists';
   const navigate = (next: OperationsView) =>
     router.replace({
-      pathname: '/watchlists',
+      pathname: '/radar/watchlists',
       params: { fixture: '1', view: next },
     });
   if (!fixture)
@@ -920,8 +930,8 @@ function LiveScannerScreen() {
         subtitle="Kısıtlı taramalar özel ve revision tabanlıdır"
       />
       <Button
-        label="More'a dön"
-        onPress={() => router.replace('/(tabs)/more')}
+        label="Radar'a dön"
+        onPress={() => router.replace('/(tabs)/radar')}
       />
       {scans.isPending ? <Text>Kayıtlı taramalar yükleniyor…</Text> : null}
       {scans.isError ? (
@@ -1017,8 +1027,8 @@ function LiveOperationsScreen({
         subtitle="Owner-scoped kaynaklar · piyasa değerleri capability-gated"
       />
       <Button
-        label="More'a dön"
-        onPress={() => router.replace('/(tabs)/more')}
+        label="Radar'a dön"
+        onPress={() => router.replace('/(tabs)/radar')}
       />
       <TabStrip
         active={section}
@@ -1190,7 +1200,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: spacing[12],
     padding: spacing[16],
-    paddingBottom: 120,
   },
   sectionHeader: {
     alignItems: 'center',

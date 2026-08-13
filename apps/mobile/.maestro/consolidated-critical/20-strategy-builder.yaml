@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 20 Strategy Builder
+---
+- runFlow: ../task-100h/04-rules.yaml

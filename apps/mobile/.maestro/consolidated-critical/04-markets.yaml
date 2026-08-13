@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 04 Markets
+---
+- runFlow: ../task-100e/03-market-status.yaml

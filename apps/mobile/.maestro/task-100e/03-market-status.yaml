@@ -2,7 +2,7 @@ appId: com.atlasfinance.mobile
 name: Market status
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/home?fixture=1'
+- openLink: 'atlas:///markets/overview?fixture=1'
 - assertVisible: 'PİYASA DURUMU'
 - assertVisible: 'Kapalı'
 - assertVisible: 'MARKET_CLOSED'

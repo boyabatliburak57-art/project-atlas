@@ -5,6 +5,55 @@ const publicAuthRoutes = new Set([
   'session-expired',
 ]);
 
+const staticAliases = new Map<string, string>([
+  ['home', '/(tabs)/home'],
+  ['markets', '/(tabs)/markets'],
+  ['search', '/search'],
+  ['scanner', '/radar/scanner'],
+  ['watchlists', '/radar/watchlists'],
+  ['alerts', '/radar/alerts'],
+  ['notifications', '/inbox'],
+  ['portfolio', '/portfolio/overview'],
+  ['strategies', '/research/strategies'],
+  ['backtests', '/research/backtests'],
+  ['reports', '/research/reports'],
+  ['settings', '/settings'],
+  ['help', '/help'],
+  ['support', '/support'],
+]);
+
+const canonicalStaticPaths = new Set([
+  '/(tabs)/home',
+  '/(tabs)/markets',
+  '/(tabs)/radar',
+  '/(tabs)/portfolio',
+  '/(tabs)/research',
+  '/markets/overview',
+  '/markets/indices',
+  '/markets/sectors',
+  '/radar/scanner',
+  '/radar/saved',
+  '/radar/watchlists',
+  '/radar/alerts',
+  '/radar/activity',
+  '/portfolio/overview',
+  '/portfolio/positions',
+  '/portfolio/transactions',
+  '/portfolio/performance',
+  '/portfolio/risk',
+  '/portfolio/quality',
+  '/research/strategies',
+  '/research/backtests',
+  '/research/reports',
+  '/research/methodology',
+  '/search',
+  '/inbox',
+  '/profile',
+  '/settings',
+  '/help',
+  '/support',
+]);
+
 /**
  * Normalizes custom-scheme URLs before Expo Router resolves the first screen.
  * This closes the cold-launch race where JavaScript link listeners are not yet
@@ -23,6 +72,16 @@ export function redirectSystemPath({
     if (url.username || url.password || url.hash) return '/+not-found';
     if (publicAuthRoutes.has(url.hostname) && !url.search)
       return `/(auth)/${url.hostname}`;
+    if (!url.search && url.pathname.replace(/\/+$/u, '') === '') {
+      const alias = staticAliases.get(url.hostname);
+      if (alias) return alias;
+    }
+    if (
+      url.hostname === '' &&
+      !url.search &&
+      canonicalStaticPaths.has(url.pathname.replace(/\/+$/u, ''))
+    )
+      return url.pathname.replace(/\/+$/u, '');
     if (url.hostname === 'reset-password') {
       const token = url.searchParams.get('token');
       if (

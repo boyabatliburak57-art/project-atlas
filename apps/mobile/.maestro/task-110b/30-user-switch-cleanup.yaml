@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B user-switch navigation cleanup
+---
+- launchApp: { clearState: false }
+- openLink: 'atlas://security?fixture=1&view=privacy-cleanup'
+- waitForAnimationToEnd
+- assertVisible: 'CROSS-USER LEAKAGE: 0'
+- assertVisible: 'Hesap değişimi ve çıkışta özel cihaz durumu temizlenir.'

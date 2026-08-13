@@ -286,6 +286,14 @@ describe('PostgreSQL strategy, backtest and experiment migration invariants', ()
   });
 
   it('executes the documented rollback and reapplies the forward migration', async () => {
+    const intelligenceRollbackSql = await readFile(
+      resolve(
+        migrationFolder(),
+        'rollback/0025_familiar_krista_starr.down.sql',
+      ),
+      'utf8',
+    );
+    await pool.query(intelligenceRollbackSql);
     const pushDevicesRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0024_push_devices.down.sql'),
       'utf8',
@@ -386,7 +394,7 @@ describe('PostgreSQL strategy, backtest and experiment migration invariants', ()
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 17
+        limit 18
       )
     `);
     await runMigrations(db);

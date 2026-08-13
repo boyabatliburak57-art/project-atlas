@@ -1,0 +1,12 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B logout navigation cleanup
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///verification'
+- waitForAnimationToEnd
+- assertVisible: 'Hesap değiştir'
+- tapOn:
+    text: 'Hesap değiştir'
+    retryTapIfNoChange: true
+- assertVisible: 'Giriş yap'

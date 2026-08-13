@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 31 Deep Links
+---
+- runFlow: ../task-100d/14-protected-deep-link.yaml

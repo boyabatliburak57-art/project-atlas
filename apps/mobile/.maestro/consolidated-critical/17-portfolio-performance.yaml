@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 17 Portfolio Performance
+---
+- runFlow: ../task-100g/15-performance.yaml

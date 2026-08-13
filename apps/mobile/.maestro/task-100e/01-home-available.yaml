@@ -2,7 +2,7 @@ appId: com.atlasfinance.mobile
 name: Home market overview available fixture
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/home?fixture=1'
+- openLink: 'atlas:///markets/overview?fixture=1'
 - assertVisible: 'Piyasa Özeti'
 - assertVisible: 'DEMO_UI_FIXTURE · NOT_LIVE_MARKET_DATA'
 - assertVisible: 'Piyasa genişliği'

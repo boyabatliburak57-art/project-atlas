@@ -1,5 +1,8 @@
 # Non-Staging Launch Completeness Re-audit — Mobile Scope
 
+> **Status: `SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION` (2026-08-12).** This pointer and its target
+> are preserved historical pre-expansion evidence and are not authoritative for the expanded scope.
+
 Authoritative TASK-100R result:
 `production-readiness/task-100r-non-staging-launch-completeness-result.md`.
 

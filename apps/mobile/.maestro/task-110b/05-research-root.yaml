@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Research root
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/research?fixture=1'
+- waitForAnimationToEnd
+- assertVisible: { id: 'hub-research' }
+- assertVisible: 'Neden oldu, geçmişte nasıl davrandı?'

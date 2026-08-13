@@ -1,0 +1,45 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B Navigation V2 visual migration
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///(tabs)/home?fixture=1'
+- assertVisible: { id: 'hub-home' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '157-home-v2-light'
+- tapOn: 'Markets'
+- assertVisible: { id: 'hub-markets' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '158-markets-v2-light'
+- tapOn: 'Radar'
+- assertVisible: { id: 'hub-radar' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '159-radar-v2-light'
+- tapOn: 'Portfolio'
+- assertVisible: { id: 'hub-portfolio' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '160-portfolio-v2-light'
+- tapOn: 'Research'
+- assertVisible: { id: 'hub-research' }
+- assertVisible: { id: 'global-search' }
+- waitForAnimationToEnd
+- takeScreenshot: '161-research-v2-light'
+- openLink: 'atlas:///search?fixture=1'
+- assertVisible: { id: 'symbol-search-input' }
+- waitForAnimationToEnd
+- takeScreenshot: '162-global-search-light'
+- openLink: 'atlas:///inbox?fixture=1'
+- assertVisible: { id: 'notification-center' }
+- waitForAnimationToEnd
+- takeScreenshot: '163-smart-inbox-light'
+- openLink: 'atlas:///profile?fixture=1'
+- assertVisible: { id: 'profile-menu' }
+- waitForAnimationToEnd
+- takeScreenshot: '164-profile-menu-light'
+- openLink: 'atlas://scanner?fixture=1&view=saved'
+- assertVisible: { id: 'scanner-saved' }
+- waitForAnimationToEnd
+- takeScreenshot: '165-existing-scanner-canonical-light'

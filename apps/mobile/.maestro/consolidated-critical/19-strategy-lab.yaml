@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 19 Strategy Lab
+---
+- runFlow: ../task-100h/02-list.yaml

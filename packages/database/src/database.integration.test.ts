@@ -110,7 +110,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the ninety-five domain tables', async () => {
+  it('clean-migrates exactly the one-hundred-seven domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -137,13 +137,16 @@ describe('PostgreSQL migrations', () => {
       'communication_delivery_attempts',
       'communication_provider_events',
       'communication_templates',
+      'corporate_disclosure_revisions',
       'data_correction_requests',
       'data_providers',
       'data_quality_findings',
       'data_quality_issues',
+      'derivative_contracts',
       'email_verification_tokens',
       'feature_flag_versions',
       'feature_flags',
+      'fund_holding_revisions',
       'fundamental_metric_snapshots',
       'fundamental_ratio_snapshots',
       'fundamental_statement_snapshots',
@@ -151,8 +154,16 @@ describe('PostgreSQL migrations', () => {
       'incident_timeline_events',
       'incidents',
       'ingestion_runs',
+      'institutional_flow_observations',
       'instrument_symbol_history',
       'instruments',
+      'intelligence_companies',
+      'intelligence_external_identity_mappings',
+      'intelligence_funds',
+      'intelligence_institutions',
+      'intelligence_market_events',
+      'intelligence_market_measures',
+      'intelligence_provider_capabilities',
       'legal_documents',
       'legal_holds',
       'market_overview_snapshots',
@@ -201,6 +212,7 @@ describe('PostgreSQL migrations', () => {
       'sectors',
       'security_rate_limit_buckets',
       'security_users',
+      'settlement_snapshots',
       'stored_artifacts',
       'strategies',
       'strategy_revisions',
@@ -1049,6 +1061,14 @@ describe('PostgreSQL migrations', () => {
   });
 
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const intelligenceRollbackSql = await readFile(
+      resolve(
+        migrationFolder(),
+        'rollback/0025_familiar_krista_starr.down.sql',
+      ),
+      'utf8',
+    );
+    await pool.query(intelligenceRollbackSql);
     const pushDevicesRollbackSql = await readFile(
       resolve(migrationFolder(), 'rollback/0024_push_devices.down.sql'),
       'utf8',
@@ -1238,7 +1258,7 @@ describe('PostgreSQL migrations', () => {
       where created_at in (
         select created_at from drizzle.__drizzle_migrations
         order by created_at desc
-        limit 23
+        limit 24
       )
     `);
     await runMigrations(db);

@@ -79,7 +79,11 @@ function Welcome() {
         izleyin ve stratejilerinizi geçmiş verilerle test edin. Atlas yatırım
         tavsiyesi vermez.
       </Text>
-      <Button label="Giriş yap" onPress={() => router.push('/(auth)/login')} />
+      <Button
+        label="Giriş yap"
+        onPress={() => router.push('/(auth)/login')}
+        testID="welcome-login"
+      />
       <Button
         label="Hesap erişimi"
         onPress={() => router.push('/(auth)/register')}
@@ -402,6 +406,7 @@ function Verification() {
             .catch(() => undefined)
             .finally(() => router.replace('/(auth)/login'))
         }
+        testID="verification-switch-account"
       />
     </Shell>
   );

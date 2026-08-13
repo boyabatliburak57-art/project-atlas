@@ -1,5 +1,47 @@
 # Project Atlas Roadmap
 
+## BIST Investment Research & Market Intelligence Expansion
+
+```text
+Milestone: BIST Intelligence Expansion
+Task Range: TASK-110A–TASK-110S
+Scope Expansion: APPROVED_AND_DOCUMENTED
+TASK-100R: SUPERSEDED_BY_BIST_INTELLIGENCE_EXPANSION
+Production Readiness: NO-GO
+Staging Gate: DEFERRED_EXTERNAL_GATE
+Production Launch: BLOCKED
+```
+
+Atlas expands the existing mobile baseline into one connected BIST research platform covering
+market/company/event/institutional intelligence, scanners, portfolio analytics and strategy
+research. This is an expansion, not a replacement. Broker, order-routing, trade-execution and
+investment-advice capabilities remain out of scope.
+
+Sequence:
+
+1. TASK-110A — BIST Intelligence Expansion and Audit Supersession
+2. TASK-110B — Information Architecture & Navigation V2
+3. TASK-110C — BIST Intelligence Data Architecture
+4. TASK-110D — KAP & Corporate Event Intelligence
+5. TASK-110E — Institutional Intelligence
+6. TASK-110F — BIST Market Structure & Restrictions
+7. TASK-110G — Calendar & Event Center
+8. TASK-110H — Company Intelligence & Compare
+9. TASK-110I — Scanner / Radar 2.0
+10. TASK-110J — Funds & Institutional Ownership
+11. TASK-110K — VIOP Analytics
+12. TASK-110L — Advanced Charts & Workspaces
+13. TASK-110M — Atlas Intelligence Layer
+14. TASK-110N — Unified Alerts & Smart Inbox
+15. TASK-110O — Cross-Module Intelligence
+16. TASK-110P — UX Simplification Audit
+17. TASK-110Q — Accessibility / Performance / QA
+18. TASK-110R — Expanded Feature-Parity Audit
+19. TASK-110S — Re-run Non-Staging Launch Completeness Audit
+
+Every dependency is sequential. TASK-100A–TASK-100L remain the existing-functionality baseline;
+preserved TASK-100R evidence is historical and cannot satisfy TASK-110R or TASK-110S.
+
 ## Mobile v1.1 — Android and Tablet Expansion
 
 - Android productionization, Maestro E2E and failure-state validation
@@ -15,6 +57,9 @@
 - Android and tablet store support
 
 ## Mobile-First Product Transformation
+
+This milestone is retained as the existing mobile baseline and is superseded for final audit scope
+by the BIST Intelligence Expansion above.
 
 ```text
 Milestone: Mobile-First Product Transformation

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110B old Scanner route compatibility
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://scanner?fixture=1&view=saved'
+- waitForAnimationToEnd
+- assertVisible: { id: 'scanner-saved' }
