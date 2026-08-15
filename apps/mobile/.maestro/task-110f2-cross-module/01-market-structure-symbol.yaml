@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Market Structure to Symbol
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- tapOn: { id: 'measure-row-ASELS-active' }
+- extendedWaitUntil:
+    { visible: { id: 'market-measure-detail' }, timeout: 60000 }

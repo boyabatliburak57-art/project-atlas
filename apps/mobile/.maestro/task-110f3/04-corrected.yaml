@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 Corrected measure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/KCHOL?fixture=1'
+- assertVisible: 'Düzeltildi'
+- assertVisible: '.*Önceki sürüm revizyon geçmişinde korunur.*'

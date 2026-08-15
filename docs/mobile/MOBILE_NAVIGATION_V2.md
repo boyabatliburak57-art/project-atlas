@@ -1,5 +1,9 @@
 # Atlas Mobile Navigation V2
 
+## Market Structure extension (TASK-110F2)
+
+`Markets → Piyasa Yapısı` is the single canonical owner for market measures and short-selling research. It preserves five primary tabs, does not add a VBTS root, and uses at most three local tabs: Özet, Tedbirler, Açığa Satış. Symbol, watchlist, and portfolio contexts link back to this owner through compact contextual navigation.
+
 **Status:** `IMPLEMENTED_TASK_110B`  
 **Objective:** `MORE_CAPABILITY_LESS_PERCEIVED_COMPLEXITY`
 

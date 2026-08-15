@@ -1,0 +1,11 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Market Structure overview light remediation
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/market-structure?fixture=1'
+- extendedWaitUntil:
+    { visible: { id: 'market-structure-overview' }, timeout: 60000 }
+- extendedWaitUntil: { visible: 'AKTİF TEDBİRLİ HİSSELER', timeout: 60000 }
+- waitForAnimationToEnd
+- takeScreenshot: '205-market-structure-overview-light'

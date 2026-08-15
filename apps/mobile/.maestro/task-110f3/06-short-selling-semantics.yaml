@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 Short-selling restriction and activity
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/short-selling?fixture=1&state=activity-provider-required&symbol=THYAO'
+- assertVisible: 'Açığa satış / kredili işlem kısıtı'
+- assertVisible: 'Açığa satış aktivitesi'
+- assertVisible: 'Aktivite sağlayıcısı gerekli'

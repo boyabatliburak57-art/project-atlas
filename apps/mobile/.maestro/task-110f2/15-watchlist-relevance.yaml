@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Watchlist relevance
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- tapOn: { id: 'measure-relevance-watchlist' }
+- assertVisible: { id: 'measure-row-ASELS-active' }
+- assertVisible: { id: 'measure-row-THYAO-scheduled' }

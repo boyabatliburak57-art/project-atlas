@@ -1,0 +1,15 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Watchlist Symbol to Market Structure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///radar/watchlists?fixture=1'
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-market-structure' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'company-market-structure' }
+- assertVisible: 'Brüt Takas'

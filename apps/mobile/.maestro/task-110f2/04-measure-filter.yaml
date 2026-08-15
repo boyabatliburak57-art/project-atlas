@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Measure filter
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- tapOn: { id: 'measure-type-GROSS_SETTLEMENT' }
+- assertVisible: 'Brüt Takas'

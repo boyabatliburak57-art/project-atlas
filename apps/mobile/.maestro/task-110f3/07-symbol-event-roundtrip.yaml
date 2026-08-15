@@ -1,0 +1,18 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 Symbol to measure event to symbol
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-market-structure' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'company-market-structure' }
+- assertVisible: { id: 'market-measure-detail' }
+- tapOn: { id: 'related-market-event' }
+- assertVisible: { id: 'market-measure-event-detail' }
+- tapOn: { id: 'market-measure-event-symbol' }
+- assertVisible: 'ASELS'

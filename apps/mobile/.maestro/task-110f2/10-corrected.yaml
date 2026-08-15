@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Corrected measure semantics
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/KCHOL?fixture=1'
+- assertVisible: 'Düzeltildi'

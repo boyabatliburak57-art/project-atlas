@@ -448,6 +448,18 @@ export const atlasFeatureRegistry = [
     searchable: true,
     analyticsCategory: 'markets',
   }),
+  available({
+    id: 'market-structure',
+    domain: 'market-measures',
+    primaryHub: 'markets',
+    canonicalRoute: '/markets/market-structure',
+    title: 'Piyasa Yapısı',
+    shortDescription: 'Aktif tedbirler, dönemler ve açığa satış verisi',
+    icon: 'T',
+    capability: 'marketMeasure.restrictions',
+    searchable: false,
+    analyticsCategory: 'markets',
+  }),
   future({
     id: 'derivatives',
     domain: 'derivatives',

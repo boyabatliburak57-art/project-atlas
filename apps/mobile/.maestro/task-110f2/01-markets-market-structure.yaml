@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Markets to Market Structure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://markets?fixture=1'
+- extendedWaitUntil:
+    { visible: { id: 'feature-market-structure' }, timeout: 60000 }
+- tapOn: { id: 'feature-market-structure' }
+- assertVisible: { id: 'market-structure-overview' }

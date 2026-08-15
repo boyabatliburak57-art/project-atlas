@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Active measures
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- assertVisible: { id: 'measure-row-ASELS-active' }

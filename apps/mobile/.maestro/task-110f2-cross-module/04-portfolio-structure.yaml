@@ -1,0 +1,15 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Portfolio Position to Market Structure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///portfolio/positions?fixture=1'
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-market-structure' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'company-market-structure' }
+- assertVisible: { id: 'market-measure-detail' }

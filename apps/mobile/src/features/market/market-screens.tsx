@@ -56,6 +56,7 @@ import {
 import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 import { MobileInstitutionalApi } from '../institutional/institutional-api';
 import { institutions as institutionFixtures } from '../institutional/institutional-evidence-data';
+import { SymbolMarketStructureSummary } from '../market-structure/market-structure-screens';
 
 function evidenceEnabled(value: string | string[] | undefined) {
   return isRuntimeLocalMobileE2EHarness() && value === '1';
@@ -500,6 +501,7 @@ export function SymbolDetailScreen() {
         <Link href={`/markets/institutional/akd?symbol=${symbol}` as never}>
           Kurumsal görünümü incele
         </Link>
+        <SymbolMarketStructureSummary symbol={symbol} fixture={false} />
       </Screen>
     );
   const company =
@@ -631,6 +633,7 @@ export function SymbolDetailScreen() {
       >
         <Text>Kurumsal görünümü incele ›</Text>
       </Pressable>
+      <SymbolMarketStructureSummary symbol={symbol} fixture />
       <IntegratedFeature title="İzleme listesine ekle / Alarm oluştur" />
     </Screen>
   );

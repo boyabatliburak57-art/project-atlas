@@ -10,6 +10,7 @@ function reader(
 ): MarketStructureReader {
   return {
     measures: vi.fn().mockResolvedValue([]),
+    event: vi.fn().mockResolvedValue(null),
     shortSelling: vi.fn().mockResolvedValue([]),
     capability: vi.fn().mockResolvedValue({
       availability: 'PROVIDER_REQUIRED',
@@ -35,6 +36,28 @@ describe('MarketStructureService bounded API', () => {
   it('uses canonical server-side active mode', async () => {
     const measures = vi.fn().mockResolvedValue([]);
     await service({ measures }).active('client', 'ASELS');
+    expect(measures).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'ACTIVE', symbol: 'ASELS' }),
+    );
+  });
+  it('uses canonical bounded history mode', async () => {
+    const measures = vi.fn().mockResolvedValue([]);
+    await service({ measures }).history('client', 'ASELS', { limit: 20 });
+    expect(measures).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'HISTORY', symbol: 'ASELS', limit: 21 }),
+    );
+  });
+  it('uses one market-wide projection instead of symbol fan-out', async () => {
+    const measures = vi.fn().mockResolvedValue([]);
+    await service({ measures }).marketWide('client', { limit: 20 });
+    expect(measures).toHaveBeenCalledTimes(1);
+    expect(measures).toHaveBeenCalledWith(
+      expect.objectContaining({ mode: 'MARKET_WIDE', symbol: null }),
+    );
+  });
+  it('uses the active projection for symbol summaries', async () => {
+    const measures = vi.fn().mockResolvedValue([]);
+    await service({ measures }).summary('client', 'ASELS');
     expect(measures).toHaveBeenCalledWith(
       expect.objectContaining({ mode: 'ACTIVE', symbol: 'ASELS' }),
     );
@@ -118,4 +141,21 @@ describe('MarketStructureService bounded API', () => {
     }).active('client', 'ASELS');
     expect(value.data.items[0]).not.toHaveProperty('rawPayload');
   });
+  it('returns the canonical MarketEvent linked to a measure revision', async () => {
+    const revisionId = '62000000-0000-4000-8000-000000000001';
+    const value = await service({
+      event: vi.fn().mockResolvedValue({
+        revisionId,
+        eventType: 'MARKET_MEASURE',
+      }),
+    }).event('client', revisionId);
+    expect(value.data).toEqual({
+      revisionId,
+      eventType: 'MARKET_MEASURE',
+    });
+  });
+  it('rejects malformed canonical MarketEvent identifiers', () =>
+    expect(service().event('client', '../event')).rejects.toBeInstanceOf(
+      BadRequestException,
+    ));
 });

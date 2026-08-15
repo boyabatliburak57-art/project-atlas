@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 Scheduled and active semantics
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- assertVisible: { id: 'measure-row-THYAO-scheduled' }
+- assertVisible: { id: 'measure-row-ASELS-active' }

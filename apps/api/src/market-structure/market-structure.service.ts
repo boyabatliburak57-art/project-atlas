@@ -1,5 +1,10 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { z } from 'zod';
 import {
@@ -61,6 +66,25 @@ export class MarketStructureService {
   }
   summary(clientKey: string, rawSymbol: string) {
     return this.query(clientKey, { symbol: rawSymbol, limit: 20 }, 'ACTIVE');
+  }
+
+  async event(clientKey: string, rawRevisionId: string) {
+    this.consume(clientKey, 'market-structure-event');
+    const revisionId = z.uuid().safeParse(rawRevisionId);
+    if (!revisionId.success) throw invalid('MARKET_EVENT_ID_INVALID');
+    const event = await this.reader.event(revisionId.data);
+    if (!event)
+      throw new NotFoundException({
+        code: 'MARKET_EVENT_NOT_FOUND',
+        message: 'Market event is not available',
+      });
+    const capability = await this.reader.capability(
+      'marketMeasure.restrictions',
+    );
+    return {
+      data: event,
+      meta: this.meta(capability, 'market-measure-event-v1'),
+    };
   }
 
   async shortSelling(

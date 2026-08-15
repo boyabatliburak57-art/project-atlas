@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 Provider required is not no data
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure?fixture=1&state=provider-required'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- assertNotVisible: 'Tedbir bulunmuyor'

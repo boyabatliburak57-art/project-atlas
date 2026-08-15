@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Overview
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure?fixture=1'
+- assertVisible: 'AKTİF TEDBİRLİ HİSSELER'
+- assertVisible: 'Metodoloji'

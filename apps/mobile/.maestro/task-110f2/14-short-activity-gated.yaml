@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Short-selling activity provider gated
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/short-selling?fixture=1&state=activity-provider-required'
+- assertVisible: 'Aktivite sağlayıcısı gerekli'

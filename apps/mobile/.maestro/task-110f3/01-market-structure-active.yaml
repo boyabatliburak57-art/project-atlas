@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 Markets to active measure
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas://markets?fixture=1'
+- extendedWaitUntil:
+    { visible: { id: 'feature-market-structure' }, timeout: 60000 }
+- tapOn: { id: 'feature-market-structure' }
+- tapOn: { id: 'market-structure-tab-measures' }
+- assertVisible: { id: 'measure-row-ASELS-active' }

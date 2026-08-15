@@ -103,12 +103,18 @@ function Entry({ id }: { id: string }) {
       ? '/(tabs)/research/events'
       : item.id === 'institutional'
         ? '/(tabs)/markets/institutional'
-        : item.canonicalRoute;
+        : item.id === 'market-structure'
+          ? '/(tabs)/markets/market-structure'
+          : item.canonicalRoute;
   const destination = fixture
     ? ({ pathname: internalRoute, params: { fixture: '1' } } as never)
     : (internalRoute as never);
   const open = () => {
-    if (item.id === 'events-calendar' || item.id === 'institutional') {
+    if (
+      item.id === 'events-calendar' ||
+      item.id === 'institutional' ||
+      item.id === 'market-structure'
+    ) {
       router.navigate(destination);
       return;
     }
@@ -172,6 +178,7 @@ export function MarketsHubScreen() {
         title="Genişleyen araştırma alanları"
       >
         <Entry id="institutional" />
+        <Entry id="market-structure" />
         <MutedNote>
           VİOP ve fonlar ilgili capability uygulanana kadar customer
           navigation'da gizli kalır.

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F3 MarketMeasure event closure visual
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/ASELS?fixture=1'
+- extendedWaitUntil: { visible: { id: 'related-market-event' }, timeout: 60000 }
+- waitForAnimationToEnd
+- takeScreenshot: '208-measure-detail-light'

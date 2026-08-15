@@ -32,6 +32,9 @@ describe('Atlas navigation V2 registry', () => {
     expect(customerFeaturesForHub('markets').map((item) => item.id)).toContain(
       'institutional',
     );
+    expect(customerFeaturesForHub('markets').map((item) => item.id)).toContain(
+      'market-structure',
+    );
     expect(
       developmentFeatureCatalog().find((item) => item.id === 'institutional')
         ?.visibility,

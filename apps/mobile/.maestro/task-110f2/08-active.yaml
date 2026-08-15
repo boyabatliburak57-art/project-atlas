@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Active measure semantics
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/ASELS?fixture=1'
+- assertVisible: 'Brüt Takas'

@@ -63,6 +63,13 @@ if (process.env.EXPO_PUBLIC_APP_ENV === 'production') {
         platform,
       );
     }
+    if (moduleName.endsWith('/market-structure-evidence-data')) {
+      return context.resolveRequest(
+        context,
+        `${moduleName}.production`,
+        platform,
+      );
+    }
     return defaultResolveRequest
       ? defaultResolveRequest(context, moduleName, platform)
       : context.resolveRequest(context, moduleName, platform);

@@ -1,0 +1,38 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Market Structure focused visuals light
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/market-structure?fixture=1'
+- assertVisible: 'AKTİF TEDBİRLİ HİSSELER'
+- waitForAnimationToEnd
+- takeScreenshot: '205-market-structure-overview-light'
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- assertVisible: { id: 'measure-row-ASELS-active' }
+- waitForAnimationToEnd
+- takeScreenshot: '207-active-measures-light'
+- openLink: 'atlas:///markets/market-structure/ASELS?fixture=1'
+- assertVisible: 'YAYINLANDI'
+- waitForAnimationToEnd
+- takeScreenshot: '208-measure-detail-light'
+- scrollUntilVisible: { element: { text: 'Geçmiş' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '209-measure-history-light'
+- openLink: 'atlas:///markets/market-structure/short-selling?fixture=1'
+- assertVisible: 'Açığa satış aktivitesi'
+- waitForAnimationToEnd
+- takeScreenshot: '210-short-selling-light'
+- openLink: 'atlas:///markets/market-structure?fixture=1&state=provider-required'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- waitForAnimationToEnd
+- takeScreenshot: '211-market-structure-provider-required-light'
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-market-structure' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- waitForAnimationToEnd
+- takeScreenshot: '212-symbol-market-structure-summary-light'

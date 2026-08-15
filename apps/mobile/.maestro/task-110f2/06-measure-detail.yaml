@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Measure detail
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/ASELS?fixture=1'
+- assertVisible: { id: 'market-measure-detail' }
+- assertVisible: 'YAYINLANDI'
+- assertVisible: 'BAŞLANGIÇ'
+- assertVisible: 'BİTİŞ'

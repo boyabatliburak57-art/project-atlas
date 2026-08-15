@@ -53,6 +53,11 @@ export class MarketStructureController {
   ) {
     return this.wrap(req, this.service.summary(this.key(req), symbol));
   }
+  @Get('market-structure/events/:revisionId')
+  @ApiOperation({ summary: 'Get the canonical event for a market measure' })
+  event(@Req() req: Request, @Param('revisionId') revisionId: string) {
+    return this.wrap(req, this.service.event(this.key(req), revisionId));
+  }
   private async wrap(
     req: Request,
     result: Promise<{ data: unknown; meta: unknown }>,

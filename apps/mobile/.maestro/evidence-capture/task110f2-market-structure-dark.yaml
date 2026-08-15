@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Market Structure focused visual dark
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/market-structure?fixture=1'
+- assertVisible: 'AKTİF TEDBİRLİ HİSSELER'
+- waitForAnimationToEnd
+- takeScreenshot: '206-market-structure-overview-dark'

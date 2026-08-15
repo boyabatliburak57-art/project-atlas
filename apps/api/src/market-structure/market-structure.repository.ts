@@ -46,7 +46,7 @@ export class PostgresMarketStructureReader implements MarketStructureReader {
   async measures(query: MeasureQuery) {
     const result = await this.connection.pool.query<Record<string, unknown>>(
       `
-      select m.revision_id as "revisionId", m.measure_id as "measureId", i.id as "instrumentId", i.symbol, i.name as "instrumentName",
+      select m.revision_id as "revisionId", m.measure_id as "measureId", e.revision_id as "marketEventId", i.id as "instrumentId", i.symbol, i.name as "instrumentName",
         m.type as "measureType",
         case
           when m.status in ('CORRECTED','SUPERSEDED','CANCELLED') then m.status
@@ -62,6 +62,7 @@ export class PostgresMarketStructureReader implements MarketStructureReader {
       from intelligence_market_measures m
       join instruments i on i.id=m.instrument_id
       join data_providers p on p.id=m.provider_id
+      left join intelligence_market_events e on e.revision_id=m.revision_id and e.provider_id=m.provider_id
       where m.available_at <= $6
         and m.license_class in ('DISPLAY_ALLOWED','DELAYED_DISPLAY_ONLY','DERIVED_DISPLAY_ALLOWED')
         and ($1::text is null or i.normalized_symbol=$1)
@@ -86,6 +87,29 @@ export class PostgresMarketStructureReader implements MarketStructureReader {
       ],
     );
     return result.rows;
+  }
+
+  async event(revisionId: string) {
+    return (
+      (
+        await this.connection.pool.query<Record<string, unknown>>(
+          `select e.revision_id as "revisionId", e.event_id as "eventId", e.event_type as "eventType",
+          e.entity_type as "entityType", e.entity_id as "entityId", i.symbol, i.name as "instrumentName",
+          e.occurred_at as "occurredAt", e.published_at as "publishedAt", e.effective_at as "effectiveAt",
+          e.available_at as "availableAt", e.source_reference as "sourceReference", e.methodology_version as "methodologyVersion",
+          e.attributes, p.code as provider, e.provider_dataset as "providerDataset", e.delivery_mode as "deliveryMode",
+          e.quality_state as quality, e.license_class as "licenseClass", e.redistribution_classes as "redistributionClasses"
+        from intelligence_market_events e
+        join intelligence_market_measures m on m.revision_id=e.revision_id and m.provider_id=e.provider_id
+        join instruments i on i.id=m.instrument_id
+        join data_providers p on p.id=e.provider_id
+        where e.revision_id=$1 and e.available_at <= now()
+          and e.license_class in ('DISPLAY_ALLOWED','DELAYED_DISPLAY_ONLY','DERIVED_DISPLAY_ALLOWED')
+        limit 1`,
+          [revisionId],
+        )
+      ).rows[0] ?? null
+    );
   }
 
   async shortSelling(input: {

@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Symbol search
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/measures?fixture=1'
+- tapOn: { id: 'market-structure-search' }
+- inputText: ASELS
+- assertVisible: { id: 'measure-row-ASELS-active' }
+- assertNotVisible: { id: 'measure-row-THYAO-scheduled' }

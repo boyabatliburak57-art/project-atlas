@@ -32,6 +32,7 @@ export interface MeasureQuery {
 
 export interface MarketStructureReader {
   measures(query: MeasureQuery): Promise<readonly Record<string, unknown>[]>;
+  event(revisionId: string): Promise<Record<string, unknown> | null>;
   shortSelling(input: {
     readonly symbol: string;
     readonly from: string;

@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Measure history
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/market-structure/ASELS?fixture=1'
+- assertVisible: 'Geçmiş'
+- assertVisible: { id: 'measure-row-ASELS-active' }

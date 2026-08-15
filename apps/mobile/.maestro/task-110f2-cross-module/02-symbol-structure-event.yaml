@@ -1,0 +1,16 @@
+appId: com.atlasfinance.mobile
+name: TASK-110F2 Symbol to Market Structure and Event
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-market-structure' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'company-market-structure' }
+- assertVisible: 'Piyasa yapısı detayı'
+- openLink: 'atlas:///research/events?fixture=1&symbol=ASELS'
+- assertVisible: { id: 'events-screen' }
