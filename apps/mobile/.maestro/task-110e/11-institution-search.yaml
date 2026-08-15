@@ -1,0 +1,16 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institution search
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/institutions?fixture=1'
+- tapOn: { id: 'institution-search-input' }
+- waitForAnimationToEnd
+- inputText: Atlas
+- runFlow:
+    when: { notVisible: Atlas }
+    commands:
+      - tapOn: { id: 'institution-search-input' }
+      - eraseText
+      - inputText: Atlas
+- hideKeyboard
+- extendedWaitUntil: { visible: { id: 'institution-ATY' }, timeout: 60000 }

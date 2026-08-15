@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institution top sold
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/institutions/31000000-0000-4000-8000-000000000001?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { text: 'En çok satılanlar' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: 'En çok satılanlar'

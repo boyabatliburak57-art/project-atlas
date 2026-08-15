@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Latest KAP feed
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events?fixture=1'
+- assertVisible: { id: 'event-30000000-0000-4000-a000-000000000001' }
+- assertVisible: { id: 'event-30000000-0000-4000-a000-000000000002' }

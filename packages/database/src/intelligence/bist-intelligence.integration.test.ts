@@ -19,6 +19,8 @@ const tables = [
   'derivative_contracts',
   'intelligence_external_identity_mappings',
   'intelligence_provider_capabilities',
+  'corporate_disclosure_entities',
+  'corporate_disclosure_revision_links',
   'corporate_disclosure_revisions',
   'intelligence_market_events',
   'institutional_flow_observations',
@@ -120,6 +122,28 @@ describe('BIST intelligence PostgreSQL foundation', () => {
     ).rejects.toMatchObject({ code: 'P0001' });
   });
 
+  it('stores exact institutional metrics while constraining ratios', async () => {
+    await pool.query(
+      `insert into institutional_flow_observations
+       (instrument_id,institution_id,trade_date,currency,buy_value,sell_value,net_value,buy_average_price,sell_average_price,total_volume,market_share,coverage_ratio,as_of,data_cutoff,provider_id,provider_dataset,provider_revision,source_timestamp,available_at,delivery_mode,license_class,quality_state)
+       values ($1,$2,'2026-08-13','TRY','1000000000000.1234','999999999999.1234','1.0000','123.456789','123.400001','1999999999999.2468','0.250000','0.800000',now(),now(),$3,'akd','precision-r1',now(),now(),'DELAYED','DELAYED_DISPLAY_ONLY','PARTIAL')`,
+      [instrumentId, institutionId, providerId],
+    );
+    const row = (
+      await pool.query<{ net_value: string; coverage_ratio: string }>(
+        `select net_value::text,coverage_ratio::text from institutional_flow_observations where provider_revision='precision-r1'`,
+      )
+    ).rows[0]!;
+    expect(row.net_value).toBe('1.0000000000');
+    expect(row.coverage_ratio).toBe('0.800000000000');
+    await expect(
+      pool.query(
+        `insert into institutional_flow_observations (instrument_id,institution_id,trade_date,currency,coverage_ratio,as_of,data_cutoff,provider_id,provider_dataset,provider_revision,source_timestamp,available_at,delivery_mode,license_class,quality_state) values ($1,$2,'2026-08-14','TRY','1.1',now(),now(),$3,'akd','bad-coverage',now(),now(),'DELAYED','DELAYED_DISPLAY_ONLY','PARTIAL')`,
+        [instrumentId, institutionId, providerId],
+      ),
+    ).rejects.toMatchObject({ code: '23514' });
+  });
+
   it('keeps trade-date distinct from settlement-date and deduplicates snapshots', async () => {
     const values = [instrumentId, institutionId, providerId];
     const statement = `insert into settlement_snapshots (instrument_id,institution_id,trade_date,settlement_date,residency,data_cutoff,provider_id,provider_dataset,provider_revision,source_timestamp,available_at,delivery_mode,license_class,quality_state) values ($1,$2,'2026-08-12','2026-08-14','UNKNOWN',now(),$3,'settlement','r1',now(),now(),'DELAYED','DELAYED_DISPLAY_ONLY','DELAYED')`;
@@ -133,6 +157,30 @@ describe('BIST intelligence PostgreSQL foundation', () => {
       )
     ).rows[0]!;
     expect(String(row.trade_date)).not.toBe(String(row.settlement_date));
+  });
+
+  it('rejects invalid settlement ratios and residency classifications', async () => {
+    const base = `insert into settlement_snapshots (instrument_id,institution_id,settlement_date,residency,holding_ratio,data_cutoff,provider_id,provider_dataset,provider_revision,source_timestamp,available_at,delivery_mode,license_class,quality_state) values ($1,$2,'2026-08-15',$4,$5,now(),$3,'settlement',$6,now(),now(),'DELAYED','DELAYED_DISPLAY_ONLY','PARTIAL')`;
+    await expect(
+      pool.query(base, [
+        instrumentId,
+        institutionId,
+        providerId,
+        'FOREIGN',
+        '1.01',
+        'bad-ratio',
+      ]),
+    ).rejects.toMatchObject({ code: '23514' });
+    await expect(
+      pool.query(base, [
+        instrumentId,
+        institutionId,
+        providerId,
+        'INFERRED',
+        '0.2',
+        'bad-residency',
+      ]),
+    ).rejects.toMatchObject({ code: '23514' });
   });
 
   it('preserves fund holding revisions and derivative identity', async () => {

@@ -2,7 +2,7 @@ appId: com.atlasfinance.mobile
 name: TASK-110B Research to Backtests
 ---
 - launchApp: { clearState: true }
-- openLink: 'atlas:///(tabs)/research?fixture=1'
+- openLink: 'atlas://research?fixture=1'
 - waitForAnimationToEnd
 - assertVisible: { id: 'feature-backtests' }
 - tapOn:

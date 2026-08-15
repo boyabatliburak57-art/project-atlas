@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Disclosure detail
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000001?fixture=1'
+- assertVisible: 'Kurumsal olay detayı'
+- scrollUntilVisible:
+    { element: { text: 'Kaynak ve metodoloji' }, direction: DOWN }
+- assertVisible: 'Kaynak ve metodoloji'

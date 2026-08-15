@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Foreign classification unavailable
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=foreign-unknown'
+- scrollUntilVisible:
+    {
+      element: { id: 'settlement-row-OMD' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'settlement-row-OMD' }

@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Event search
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events?fixture=1&view=search'
+- extendedWaitUntil:
+    visible: { id: 'event-30000000-0000-4000-a000-000000000003' }
+    timeout: 60000

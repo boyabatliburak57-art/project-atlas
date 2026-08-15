@@ -1,0 +1,23 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institutional native visual remediation light
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/institutional/institutions/31000000-0000-4000-8000-000000000001?fixture=1'
+- scrollUntilVisible: { element: { id: 'flow-row-OMD' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '196-institution-top-sold-light'
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1'
+- assertVisible: 'TAKAS TARİHİ · ASELS'
+- assertVisible: { id: 'settlement-row-MSK' }
+- waitForAnimationToEnd
+- takeScreenshot: '198-takas-overview-light'
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=change'
+- assertVisible: 'TAKAS TARİHİ · ASELS'
+- assertVisible: { id: 'settlement-row-MSK' }
+- waitForAnimationToEnd
+- takeScreenshot: '200-takas-change-light'

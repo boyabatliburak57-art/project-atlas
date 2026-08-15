@@ -1,7 +1,10 @@
 appId: com.atlasfinance.mobile
 name: Report ownership safe fallback
 ---
-- launchApp: { clearState: false }
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas://reports'
 - assertVisible: 'Giriş yap'
 - assertNotVisible: 'Hazır raporlar'

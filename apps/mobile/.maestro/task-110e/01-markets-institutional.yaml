@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Markets to Institutional
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas://markets?fixture=1'
+- extendedWaitUntil:
+    { visible: { id: 'feature-institutional' }, timeout: 60000 }
+- tapOn: { point: '50%, 62%' }
+- assertVisible: { id: 'institutional-overview' }

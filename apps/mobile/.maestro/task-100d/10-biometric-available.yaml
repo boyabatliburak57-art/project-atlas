@@ -1,15 +1,28 @@
 appId: com.atlasfinance.mobile
 name: Biometric available contract
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
-- repeat:
-    times: 6
-    commands:
-      - tapOn: 'Kaydet ve devam et'
-      - waitForAnimationToEnd
+- extendedWaitUntil:
+    { visible: 'Ürün kapsamı ve yasal bildirimler', timeout: 60000 }
+- waitForAnimationToEnd
+- swipe:
+    start: 50%, 70%
+    end: 50%, 45%
+    duration: 1000
+- swipe:
+    start: 50%, 45%
+    end: 50%, 70%
+    duration: 1000
+- tapOn: { point: '50%, 58%' }
+- tapOn: { id: 'onboarding-marketLocaleTimezone-action' }
+- tapOn: { id: 'onboarding-benchmark-action' }
+- tapOn: { id: 'onboarding-watchlist-action' }
+- tapOn: { id: 'onboarding-scannerPreset-action' }
+- tapOn: { id: 'onboarding-notifications-action' }
 - extendedWaitUntil:
     visible: 'Biyometri ve demo içerik'
     timeout: 30000

@@ -1,13 +1,23 @@
 import {
   createDatabase,
+  corporateDisclosureRevisionLinks,
+  corporateDisclosureRevisions,
   dataProviders,
   dataQualityIssues,
   instruments,
+  intelligenceCompanies,
+  intelligenceExternalIdentityMappings,
+  intelligenceInstitutions,
+  intelligenceMarketEvents,
+  institutionalFlowObservations,
   priceBars,
   providerInstrumentMappings,
+  providerConnections,
+  settlementSnapshots,
   runMigrations,
 } from '@atlas/database';
 import { count, eq } from 'drizzle-orm';
+import type { KapProviderDisclosure } from '@atlas/domain';
 import { Queue, QueueEvents } from 'bullmq';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -25,11 +35,19 @@ import {
 } from '../observability/structured-logger';
 import {
   enqueueBarIngestion,
+  enqueueInstitutionalFlowSync,
+  enqueueKapDisclosureSync,
   enqueueInstrumentSync,
+  enqueueSettlementSync,
 } from '../queue/market-data-queue';
 import { DEFAULT_JOB_OPTIONS, QUEUE_NAMES } from '../queue/queue-contracts';
 import { createRedisConnection } from '../queue/redis-connection';
 import { WorkerRuntime } from './worker-runtime';
+import type { KapDisclosureProvider } from '../intelligence/kap';
+import type {
+  InstitutionalFlowProviderAdapter,
+  SettlementProviderAdapter,
+} from '../intelligence/institutional';
 
 function requireTestDatabaseUrl(): string {
   const value = process.env.TEST_DATABASE_URL;
@@ -95,6 +113,88 @@ class TransientProvider implements RawMarketDataProviderAdapter {
   }
 }
 
+class KapContractProvider implements KapDisclosureProvider {
+  readonly code = 'kap-contract';
+  readonly dataset = 'kap-contract-v1';
+  readonly deliveryMode = 'DELAYED' as const;
+  readonly license = {
+    licenseClass: 'DELAYED_DISPLAY_ONLY' as const,
+    redistribution: ['EXPORT_PROHIBITED' as const, 'SHARE_PROHIBITED' as const],
+  };
+  readonly allowedSourceHosts = new Set(['kap.example.test']);
+  fetchDisclosures() {
+    // Correction deliberately arrives before its prior revision.
+    return Promise.resolve({
+      items: [
+        kapFixture({
+          providerRevision: '2',
+          state: 'CORRECTED',
+          supersedesProviderRevision: '1',
+          title: 'Düzeltilmiş bildirim',
+        }),
+        kapFixture(),
+      ],
+      nextCursor: 'checkpoint-2',
+    });
+  }
+}
+
+class InstitutionalContractProvider
+  implements InstitutionalFlowProviderAdapter, SettlementProviderAdapter
+{
+  readonly code = 'institutional-contract';
+  readonly dataset = 'institutional-contract-v1';
+  readonly deliveryMode = 'DELAYED' as const;
+  readonly license = {
+    licenseClass: 'DELAYED_DISPLAY_ONLY' as const,
+    redistribution: ['EXPORT_PROHIBITED' as const, 'SHARE_PROHIBITED' as const],
+  };
+  fetchInstitutionalFlows() {
+    return Promise.resolve({
+      items: [
+        {
+          instrumentExternalId: 'instrument-thy',
+          institutionExternalId: 'institution-test',
+          tradeDate: '2026-08-13',
+          buyValue: '120.25',
+          sellValue: '20.10',
+          currency: 'TRY',
+          asOf: '2026-08-13T18:00:00Z',
+          dataCutoff: '2026-08-13T18:00:00Z',
+          sourceTimestamp: '2026-08-13T18:01:00Z',
+          availableAt: '2026-08-13T18:02:00Z',
+          providerRevision: 'flow-r1',
+          coverageRatio: '0.8',
+        },
+      ],
+      nextCursor: 'flow-checkpoint',
+    });
+  }
+  fetchSettlements() {
+    return Promise.resolve({
+      items: [
+        {
+          instrumentExternalId: 'instrument-thy',
+          institutionExternalId: 'institution-test',
+          tradeDate: '2026-08-13',
+          settlementDate: '2026-08-15',
+          holdingQuantity: '1000',
+          holdingRatio: '0.2',
+          changeQuantity: '50',
+          changeRatio: '0.01',
+          residency: 'UNKNOWN' as const,
+          dataCutoff: '2026-08-15T18:00:00Z',
+          sourceTimestamp: '2026-08-15T18:01:00Z',
+          availableAt: '2026-08-13T18:02:00Z',
+          providerRevision: 'settlement-r1',
+          coverageRatio: '0.7',
+        },
+      ],
+      nextCursor: 'settlement-checkpoint',
+    });
+  }
+}
+
 describe('market-data BullMQ composition root', () => {
   const databaseUrl = requireTestDatabaseUrl();
   const { db, pool } = createDatabase(databaseUrl);
@@ -126,7 +226,33 @@ describe('market-data BullMQ composition root', () => {
         name: 'Transient Provider',
         status: 'active',
       },
+      {
+        code: 'kap-contract',
+        name: 'KAP Contract Test Provider',
+        status: 'active',
+      },
+      {
+        code: 'institutional-contract',
+        name: 'Institutional Contract Test Provider',
+        status: 'active',
+      },
     ]);
+    await db.insert(providerConnections).values({
+      providerKey: 'kap-contract',
+      environment: 'test',
+      status: 'healthy',
+      credentialReference: 'secret://test/kap-contract',
+      capabilities: ['disclosure.kap'],
+      licenseMetadata: { fixture: true },
+    });
+    await db.insert(providerConnections).values({
+      providerKey: 'institutional-contract',
+      environment: 'test',
+      status: 'healthy',
+      credentialReference: 'secret://test/institutional-contract',
+      capabilities: ['institutional.akd', 'settlement.snapshot'],
+      licenseMetadata: { fixture: true },
+    });
 
     const fakeProvider = new FakeMarketDataProviderAdapter({
       capabilities,
@@ -147,6 +273,9 @@ describe('market-data BullMQ composition root', () => {
       database: db,
       logger,
       providerAdapters: [fakeProvider, transientProvider],
+      kapProviders: [new KapContractProvider()],
+      institutionalFlowProviders: [new InstitutionalContractProvider()],
+      settlementProviders: [new InstitutionalContractProvider()],
       close: () => pool.end(),
     });
     runtime = await WorkerRuntime.start(
@@ -190,6 +319,153 @@ describe('market-data BullMQ composition root', () => {
     expect(await db.select({ value: count() }).from(instruments)).toEqual([
       { value: 1 },
     ]);
+    const kapProvider = (
+      await db
+        .select({ id: dataProviders.id })
+        .from(dataProviders)
+        .where(eq(dataProviders.code, 'kap-contract'))
+    )[0]!;
+    const canonicalInstrument = (
+      await db.select({ id: instruments.id }).from(instruments)
+    )[0]!;
+    const company = (
+      await db
+        .insert(intelligenceCompanies)
+        .values({
+          canonicalName: 'Test Hava Yolları',
+          primaryInstrumentId: canonicalInstrument.id,
+          active: true,
+        })
+        .returning({ id: intelligenceCompanies.id })
+    )[0]!;
+    await db.insert(intelligenceExternalIdentityMappings).values([
+      {
+        providerId: kapProvider.id,
+        entityType: 'COMPANY',
+        externalId: 'company-thy',
+        canonicalEntityId: company.id,
+        validFrom: new Date('2020-01-01'),
+        confidence: '1',
+        status: 'RESOLVED',
+        source: 'contract',
+        manualReviewState: 'APPROVED',
+      },
+      {
+        providerId: kapProvider.id,
+        entityType: 'INSTRUMENT',
+        externalId: 'instrument-thy',
+        canonicalEntityId: canonicalInstrument.id,
+        validFrom: new Date('2020-01-01'),
+        confidence: '1',
+        status: 'RESOLVED',
+        source: 'contract',
+        manualReviewState: 'APPROVED',
+      },
+    ]);
+    const kapJob = await enqueueKapDisclosureSync(queue, {
+      providerCode: 'kap-contract',
+      from: '2026-08-13T00:00:00.000Z',
+      to: '2026-08-13T23:00:00.000Z',
+      cursor: null,
+      limit: 100,
+      correlationId: 'correlation-kap',
+    });
+    await kapJob.waitUntilFinished(queueEvents, 10_000);
+    expect(
+      await db.select({ value: count() }).from(corporateDisclosureRevisions),
+    ).toEqual([{ value: 2 }]);
+    expect(
+      await db.select({ value: count() }).from(intelligenceMarketEvents),
+    ).toEqual([{ value: 2 }]);
+    expect(
+      await db
+        .select({ value: count() })
+        .from(corporateDisclosureRevisionLinks),
+    ).toEqual([{ value: 1 }]);
+    const link = (await db.select().from(corporateDisclosureRevisionLinks))[0]!;
+    expect(link).toMatchObject({ resolutionState: 'COMPLETE' });
+    expect(link.parentRevisionId).not.toBeNull();
+    const duplicateKap = await enqueueKapDisclosureSync(queue, {
+      providerCode: 'kap-contract',
+      from: '2026-08-13T00:00:00.000Z',
+      to: '2026-08-13T23:00:00.000Z',
+      cursor: null,
+      limit: 100,
+      correlationId: 'correlation-kap',
+    });
+    expect(duplicateKap.id).toBe(kapJob.id);
+
+    const institutionalProvider = (
+      await db
+        .select({ id: dataProviders.id })
+        .from(dataProviders)
+        .where(eq(dataProviders.code, 'institutional-contract'))
+    )[0]!;
+    const canonicalInstitution = (
+      await db
+        .insert(intelligenceInstitutions)
+        .values({
+          type: 'BROKERAGE',
+          canonicalName: 'Canonical Test Institution',
+          code: 'CTI',
+          validFrom: '2020-01-01',
+        })
+        .returning({ id: intelligenceInstitutions.id })
+    )[0]!;
+    await db.insert(intelligenceExternalIdentityMappings).values([
+      {
+        providerId: institutionalProvider.id,
+        entityType: 'INSTRUMENT',
+        externalId: 'instrument-thy',
+        canonicalEntityId: canonicalInstrument.id,
+        validFrom: new Date('2020-01-01'),
+        confidence: '1',
+        status: 'RESOLVED',
+        source: 'contract',
+        manualReviewState: 'APPROVED',
+      },
+      {
+        providerId: institutionalProvider.id,
+        entityType: 'INSTITUTION',
+        externalId: 'institution-test',
+        canonicalEntityId: canonicalInstitution.id,
+        validFrom: new Date('2020-01-01'),
+        confidence: '1',
+        status: 'RESOLVED',
+        source: 'contract',
+        manualReviewState: 'APPROVED',
+      },
+    ]);
+    const institutionalJobData = {
+      providerCode: 'institutional-contract',
+      from: '2026-08-13T00:00:00.000Z',
+      to: '2026-08-15T23:00:00.000Z',
+      cursor: null,
+      limit: 100,
+      correlationId: 'correlation-institutional',
+    };
+    const flowJob = await enqueueInstitutionalFlowSync(
+      queue,
+      institutionalJobData,
+    );
+    await flowJob.waitUntilFinished(queueEvents, 10_000);
+    const settlementJob = await enqueueSettlementSync(
+      queue,
+      institutionalJobData,
+    );
+    await settlementJob.waitUntilFinished(queueEvents, 10_000);
+    expect(
+      await db.select({ value: count() }).from(institutionalFlowObservations),
+    ).toEqual([{ value: 1 }]);
+    expect(
+      await db.select({ value: count() }).from(settlementSnapshots),
+    ).toEqual([{ value: 1 }]);
+    expect(
+      (await enqueueInstitutionalFlowSync(queue, institutionalJobData)).id,
+    ).toBe(flowJob.id);
+    expect((await enqueueSettlementSync(queue, institutionalJobData)).id).toBe(
+      settlementJob.id,
+    );
 
     const barJob = await enqueueBarIngestion(queue, {
       providerCode: 'fake-provider',
@@ -279,3 +555,29 @@ describe('market-data BullMQ composition root', () => {
     expect(await afterShutdown.getState()).toBe('waiting');
   }, 30_000);
 });
+
+function kapFixture(
+  overrides: Partial<KapProviderDisclosure> = {},
+): KapProviderDisclosure {
+  return {
+    externalDisclosureId: 'KAP-THY-1',
+    providerRevision: '1',
+    supersedesProviderRevision: null,
+    state: 'ACTIVE',
+    sourceCategory: 'MATERIAL_DISCLOSURE',
+    title: 'Özel durum açıklaması',
+    sourceSummary: null,
+    companyExternalIds: ['company-thy'],
+    instrumentExternalIds: ['instrument-thy'],
+    publishedAt: '2026-08-13T12:00:00.000Z',
+    effectiveAt: null,
+    reportingPeriod: null,
+    sourceTimestamp: '2026-08-13T12:00:30.000Z',
+    availableAt: '2026-08-13T12:01:00.000Z',
+    sourceUrl: 'https://kap.example.test/disclosure/thy-1',
+    language: 'tr',
+    structuredAttributes: {},
+    attachments: [],
+    ...overrides,
+  };
+}

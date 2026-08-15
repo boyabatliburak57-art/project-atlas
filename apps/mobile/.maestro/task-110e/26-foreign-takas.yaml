@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Source classified foreign Takas
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=foreign'
+- assertVisible: 'YABANCI TAKAS'
+- assertVisible: 'Kaynak sınıflandırması.*'

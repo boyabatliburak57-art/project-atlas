@@ -3,14 +3,19 @@ name: Home provider required
 ---
 - launchApp: { clearState: true }
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
-- waitForAnimationToEnd
-- tapOn:
-    id: 'welcome-login'
-    retryTapIfNoChange: true
+- openLink: 'atlas:///login'
 - extendedWaitUntil: { visible: 'E-posta', timeout: 60000 }
 - tapOn: { id: 'auth-email' }
+- waitForAnimationToEnd
 - inputText: 'mobile@example.test'
+- runFlow:
+    when: { notVisible: 'mobile@example.test' }
+    commands:
+      - tapOn: { id: 'auth-email' }
+      - eraseText
+      - inputText: 'mobile@example.test'
 - tapOn: { id: 'auth-password' }
+- waitForAnimationToEnd
 - inputText: 'Atlas-Test-2026!'
 - tapOn: { text: 'Giriş yap', index: 1 }
 - waitForAnimationToEnd

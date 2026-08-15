@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Attachment metadata
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000001?fixture=1'
+- scrollUntilVisible: { element: { id: 'event-attachment-0' }, direction: DOWN }
+- assertVisible: { id: 'event-attachment-0' }

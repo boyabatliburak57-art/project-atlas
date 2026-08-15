@@ -16,8 +16,11 @@ import {
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { isRuntimeLocalMobileE2EHarness } from '../src/config/local-e2e-harness';
+
 export default function Catalog() {
-  if (!__DEV__) return <Redirect href="/" />;
+  if (!__DEV__ && !isRuntimeLocalMobileE2EHarness())
+    return <Redirect href="/" />;
   return <DevelopmentCatalog />;
 }
 

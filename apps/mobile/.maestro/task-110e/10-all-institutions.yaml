@@ -1,0 +1,21 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E All institutions
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/akd?fixture=1&state=all'
+- scrollUntilVisible:
+    {
+      element: { id: 'flow-row-ATY' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'flow-row-ATY' }
+- scrollUntilVisible:
+    {
+      element: { id: 'flow-row-MSK' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'flow-row-MSK' }

@@ -1,6 +1,6 @@
 # TASK-110F — BIST Market Structure & Restrictions
 
-**Durum:** BLOCKED_BY_TASK-110E
+**Durum:** IN_PROGRESS — TASK-110F1 backend/data/API foundation complete; TASK-110F2 pending
 **Bağımlılıklar:** TASK-110E = `GO_FOR_TASK_110F`
 
 ## Amaç

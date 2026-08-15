@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Other category
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000009?fixture=1'
+- assertVisible: 'Diğer bildirim'
+- assertVisible: 'DİĞER'

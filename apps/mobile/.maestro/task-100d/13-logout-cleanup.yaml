@@ -1,13 +1,12 @@
 appId: com.atlasfinance.mobile
 name: Logout and account switch cleanup
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///verification'
 - extendedWaitUntil: { visible: 'Hesap değiştir', timeout: 60000 }
 - waitForAnimationToEnd
-- tapOn:
-    id: 'verification-switch-account'
-    retryTapIfNoChange: true
+- tapOn: { id: 'verification-switch-account' }
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 60000 }

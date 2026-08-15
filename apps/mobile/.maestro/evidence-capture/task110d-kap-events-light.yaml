@@ -1,0 +1,93 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D KAP Events native visuals light
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- waitForAnimationToEnd
+- takeScreenshot: '161-research-v2-light'
+- openLink: 'atlas:///research/events?fixture=1'
+- assertVisible: { id: 'event-30000000-0000-4000-a000-000000000001' }
+- waitForAnimationToEnd
+- takeScreenshot: '169-events-landing-light'
+- waitForAnimationToEnd
+- takeScreenshot: '170-kap-feed-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events?fixture=1&category=DIVIDEND'
+- assertVisible: { id: 'event-30000000-0000-4000-a000-000000000003' }
+- waitForAnimationToEnd
+- takeScreenshot: '172-kap-category-filter-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events?fixture=1&view=watchlist'
+- assertVisible: { id: 'event-30000000-0000-4000-a000-000000000002' }
+- waitForAnimationToEnd
+- takeScreenshot: '173-kap-my-companies-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events?fixture=1&view=search'
+- assertVisible: { id: 'event-30000000-0000-4000-a000-000000000003' }
+- waitForAnimationToEnd
+- takeScreenshot: '174-kap-search-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000009?fixture=1'
+- assertVisible: 'Diğer bildirim'
+- waitForAnimationToEnd
+- takeScreenshot: '175-kap-detail-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000001?fixture=1'
+- assertVisible: 'Finansal raporların yayımlanması'
+- waitForAnimationToEnd
+- takeScreenshot: '176-financial-result-detail-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000002?fixture=1'
+- assertVisible: 'Yeni iş ilişkisinin açıklanması'
+- waitForAnimationToEnd
+- takeScreenshot: '177-new-business-detail-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000003?fixture=1'
+- assertVisible: 'Kâr payı dağıtım kararı'
+- waitForAnimationToEnd
+- takeScreenshot: '178-dividend-detail-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000004?fixture=1'
+- assertVisible: 'Pay geri alım programı işlemi'
+- waitForAnimationToEnd
+- takeScreenshot: '179-buyback-detail-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000007?fixture=1'
+- assertVisible: 'DÜZELTİLMİŞ BİLDİRİM'
+- waitForAnimationToEnd
+- takeScreenshot: '180-correction-state-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000007?fixture=1&view=history'
+- assertVisible: 'SÜRÜM 1 · SUPERSEDED'
+- waitForAnimationToEnd
+- takeScreenshot: '181-revision-history-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events?fixture=1&view=provider-required'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- waitForAnimationToEnd
+- takeScreenshot: '182-provider-required-light'
+- openLink: 'atlas://research?fixture=1'
+- assertVisible: { id: 'feature-events-calendar' }
+- openLink: 'atlas:///research/events?fixture=1&view=offline'
+- assertVisible: '.*önbelleğe alınmış bildirimler.*'
+- waitForAnimationToEnd
+- takeScreenshot: '183-offline-cached-event-light'
+- openLink: 'atlas:///symbol/THYAO?fixture=1'
+- scrollUntilVisible: { element: { id: 'company-events' }, direction: DOWN }
+- tapOn: { id: 'company-events' }
+- assertVisible: 'Şirket Olayları'
+- waitForAnimationToEnd
+- takeScreenshot: '184-company-events-light'

@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Takas trend
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=trend'
+- assertVisible: 'Takas payı trendi'

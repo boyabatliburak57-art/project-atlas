@@ -68,12 +68,23 @@ export class NavigationRepository {
           '/experiments/' || id::text, 7
         from research_experiments
         where owner_user_id = $2 and name ilike $1 escape '\\'
+        union all
+        select revision_id::text, 'event', title,
+          disclosure_type, '/events/' || revision_id::text, 8
+        from corporate_disclosure_revisions d
+        where d.available_at <= now()
+          and d.license_class in ('DISPLAY_ALLOWED', 'DELAYED_DISPLAY_ONLY', 'DERIVED_DISPLAY_ALLOWED')
+          and to_tsvector('simple', d.title) @@ plainto_tsquery('simple', $6)
+          and not exists (
+            select 1 from corporate_disclosure_revisions newer
+            where newer.supersedes_revision_id = d.revision_id
+          )
       ) searchable
       where type = any($3::text[])
       order by rank, lower(title), id
       offset $4 limit $5
       `,
-      [pattern, userId, types, offset, limit],
+      [pattern, userId, types, offset, limit, query],
     );
     return result.rows;
   }

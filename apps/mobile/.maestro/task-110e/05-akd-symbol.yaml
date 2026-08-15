@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E AKD symbol selection
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/akd?fixture=1&symbol=THYAO'
+- assertVisible: 'İŞLEM TARİHİ · THYAO'

@@ -21,6 +21,7 @@ import {
 import { useAuth } from '../../providers/auth-provider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AtlasApiError } from '@atlas/api-client';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 const copy: Record<
   OnboardingStep,
@@ -92,12 +93,13 @@ export function OnboardingScreen() {
   const queryClient = useQueryClient();
   const userId =
     'session' in auth.state ? auth.state.session.userId : 'anonymous';
+  const localE2EHarness = isRuntimeLocalMobileE2EHarness();
   const developmentRouteHarness =
-    __DEV__ && auth.state.status !== 'authenticated';
+    localE2EHarness || (auth.state.status !== 'authenticated' && __DEV__);
   const preferences = useQuery({
     queryKey: ['private', userId, 'preferences'],
     queryFn: () => auth.preferencesApi.get(),
-    enabled: auth.state.status === 'authenticated',
+    enabled: auth.state.status === 'authenticated' && !localE2EHarness,
   });
   const [draft, setDraft] = useState(() => startOnboarding());
   const [message, setMessage] = useState<string | null>(null);
@@ -193,7 +195,7 @@ export function OnboardingScreen() {
           step === 'summary' ? 'Onboarding’i tamamla' : 'Kaydet ve devam et'
         }
         onPress={next}
-        testID="onboarding-primary-action"
+        testID={`onboarding-${step}-action`}
       />
       {message ? (
         <Text accessibilityRole="alert" style={styles.note}>
@@ -210,6 +212,7 @@ export function OnboardingScreen() {
             else save.mutate({ complete: false, next: updated });
           }}
           style={styles.touch}
+          testID={`onboarding-${step}-skip`}
         >
           <Text>Bu adımı geç</Text>
         </Pressable>

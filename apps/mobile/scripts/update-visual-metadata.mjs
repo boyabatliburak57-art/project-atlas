@@ -30,9 +30,10 @@ const metadata = {
   fontScales: ['system-default', 'accessibility-extra-large'],
   reducedMotion: [
     'enabled-task100k-captures',
+    'enabled-task110e-captures',
     'mixed-existing-reviewed-baselines',
   ],
-  fixture: 'DEMO_UI_FIXTURE_NO_USER_OR_FINANCIAL_DATA_v5',
+  fixture: 'DEMO_UI_FIXTURE_NO_USER_OR_FINANCIAL_DATA_v6',
   fixedClock: '2026-08-08T12:00:00+03:00',
   native: true,
   sourceCommit,

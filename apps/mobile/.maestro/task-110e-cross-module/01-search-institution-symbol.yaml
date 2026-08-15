@@ -1,0 +1,28 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Search Institution to Symbol
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///search?fixture=1'
+- tapOn: { id: 'symbol-search-input' }
+- waitForAnimationToEnd
+- inputText: Atlas
+- runFlow:
+    when: { notVisible: Atlas }
+    commands:
+      - tapOn: { id: 'symbol-search-input' }
+      - eraseText
+      - inputText: Atlas
+- hideKeyboard
+- extendedWaitUntil:
+    { visible: { id: 'search-institution-ATY' }, timeout: 60000 }
+- tapOn: { id: 'search-institution-ATY' }
+- assertVisible: 'Kanonik kurum profili'
+- scrollUntilVisible:
+    {
+      element: { id: 'flow-row-ATY' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'flow-row-ATY' }
+- assertVisible: 'ASELS'

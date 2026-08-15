@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institutional native visual dark
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/institutional?fixture=1'
+- assertVisible: 'PİYASA NET KURUMSAL AKIŞI'
+- waitForAnimationToEnd
+- takeScreenshot: '186-institutional-overview-dark'

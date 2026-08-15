@@ -1,30 +1,32 @@
 appId: com.atlasfinance.mobile
 name: Login invalid credentials
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil:
     visible: 'Giriş yap'
     timeout: 120000
-- waitForAnimationToEnd
-- tapOn:
-    id: 'welcome-login'
-    retryTapIfNoChange: true
+- openLink: 'atlas:///login'
 - extendedWaitUntil:
     visible: 'E-posta'
     timeout: 30000
 - tapOn:
     id: 'auth-email'
+- waitForAnimationToEnd
 - inputText: 'missing@example.test'
+- runFlow:
+    when: { notVisible: 'missing@example.test' }
+    commands:
+      - tapOn: { id: 'auth-email' }
+      - eraseText
+      - inputText: 'missing@example.test'
 - tapOn:
     id: 'auth-password'
+- waitForAnimationToEnd
 - inputText: 'Wrong-Password-2026!'
 - tapOn:
-    text: 'Giriş yap'
-    index: 1
-- tapOn:
-    text: 'Sonra'
-    optional: true
+    id: 'auth-login-submit'
 - extendedWaitUntil:
     visible: 'Authentication failed'
     timeout: 30000

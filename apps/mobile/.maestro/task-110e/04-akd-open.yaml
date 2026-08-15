@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E AKD open
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/akd?fixture=1'
+- assertVisible: 'AKD işlem akışını gösterir.*'

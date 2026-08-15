@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Dividend
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000003?fixture=1'
+- assertVisible: 'Kâr payı dağıtım kararı'
+- assertVisible: 'paymentDate'

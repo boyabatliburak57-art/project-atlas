@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institutional to Symbol Detail
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/institutions/31000000-0000-4000-8000-000000000001?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'flow-row-ATY' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'flow-row-ATY' }
+- assertVisible: 'ASELS'

@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Financial result
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000001?fixture=1'
+- assertVisible: 'Finansal raporların yayımlanması'
+- assertVisible: '2026-Q2'

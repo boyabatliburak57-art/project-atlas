@@ -25,6 +25,7 @@ import {
 } from './auth-contracts';
 import { useAuth } from '../../providers/auth-provider';
 import { AtlasApiError } from '@atlas/api-client';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 type AuthScreenKind =
   | 'welcome'
@@ -102,6 +103,7 @@ function Welcome() {
 
 function AuthForm({ kind }: { kind: 'login' | 'forgot' | 'reset' }) {
   const auth = useAuth();
+  const localE2EHarness = isRuntimeLocalMobileE2EHarness();
   const parameters = useLocalSearchParams<{ token?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -197,33 +199,45 @@ function AuthForm({ kind }: { kind: 'login' | 'forgot' | 'reset' }) {
     <Shell title={title}>
       {kind !== 'reset' ? (
         <LabeledInput
-          autoComplete="email"
+          autoComplete={localE2EHarness ? 'off' : 'email'}
           keyboardType="email-address"
           label="E-posta"
           onChangeText={setEmail}
-          textContentType="username"
+          textContentType={localE2EHarness ? 'none' : 'username'}
           value={email}
           testID="auth-email"
         />
       ) : null}
       {kind !== 'forgot' ? (
         <LabeledInput
-          autoComplete={kind === 'login' ? 'current-password' : 'new-password'}
+          autoComplete={
+            localE2EHarness
+              ? 'off'
+              : kind === 'login'
+                ? 'current-password'
+                : 'new-password'
+          }
           label={kind === 'login' ? 'Şifre' : 'Yeni şifre'}
           onChangeText={setPassword}
           secureTextEntry={!visible}
-          textContentType={kind === 'login' ? 'password' : 'newPassword'}
+          textContentType={
+            localE2EHarness
+              ? 'none'
+              : kind === 'login'
+                ? 'password'
+                : 'newPassword'
+          }
           value={password}
           testID="auth-password"
         />
       ) : null}
       {kind === 'reset' ? (
         <LabeledInput
-          autoComplete="new-password"
+          autoComplete={localE2EHarness ? 'off' : 'new-password'}
           label="Yeni şifre tekrar"
           onChangeText={setConfirmation}
           secureTextEntry={!visible}
-          textContentType="newPassword"
+          textContentType={localE2EHarness ? 'none' : 'newPassword'}
           value={confirmation}
           testID="auth-password-confirmation"
         />
@@ -255,6 +269,7 @@ function AuthForm({ kind }: { kind: 'login' | 'forgot' | 'reset' }) {
                 : 'Giriş yap'
         }
         onPress={() => void submit()}
+        testID={`auth-${kind}-submit`}
       />
       {kind === 'login' ? (
         <Link href="/(auth)/forgot-password">Şifremi unuttum</Link>
@@ -303,7 +318,7 @@ function RegistrationUnavailable() {
 function Verification() {
   const auth = useAuth();
   const developmentRouteHarness =
-    __DEV__ &&
+    isRuntimeLocalMobileE2EHarness() &&
     auth.state.status !== 'authenticated' &&
     auth.state.status !== 'verificationRequired';
   const parameters = useLocalSearchParams<{ token?: string }>();

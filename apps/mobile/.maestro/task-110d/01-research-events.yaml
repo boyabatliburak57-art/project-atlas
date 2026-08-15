@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Research to Events
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas://research?fixture=1'
+- extendedWaitUntil:
+    { visible: { id: 'feature-events-calendar' }, timeout: 60000 }
+- tapOn: { text: 'Olaylar', retryTapIfNoChange: true }
+- extendedWaitUntil: { visible: 'Şirketler bugün ne açıkladı?', timeout: 60000 }

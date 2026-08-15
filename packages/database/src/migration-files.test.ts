@@ -15,9 +15,10 @@ function migrationSql(): string {
 describe('generated PostgreSQL migrations', () => {
   const sql = migrationSql();
 
-  it('creates the one-hundred-seven scoped tables and current revision view', () => {
-    expect(sql.match(/CREATE TABLE/g)).toHaveLength(107);
+  it('creates the one-hundred-ten scoped tables and current revision view', () => {
+    expect(sql.match(/CREATE TABLE/g)).toHaveLength(110);
     expect(sql).toContain('CREATE VIEW "public"."current_price_bars"');
+    expect(sql).toContain('CREATE TABLE "short_selling_activity_observations"');
   });
 
   it('contains DB-010 activity ownership, retention and deduplication guards', () => {
@@ -164,6 +165,8 @@ describe('generated PostgreSQL migrations', () => {
       'derivative_contracts',
       'intelligence_external_identity_mappings',
       'intelligence_provider_capabilities',
+      'corporate_disclosure_entities',
+      'corporate_disclosure_revision_links',
       'corporate_disclosure_revisions',
       'intelligence_market_events',
       'institutional_flow_observations',
@@ -174,11 +177,23 @@ describe('generated PostgreSQL migrations', () => {
       expect(sql).toContain(`CREATE TABLE "${table}"`);
 
     expect(sql).toContain('corporate_disclosure_available_check');
+    expect(sql).toContain('corporate_disclosure_entity_company_unique');
+    expect(sql).toContain('corporate_disclosure_state_check');
+    expect(sql).toContain('corporate_disclosure_revision_resolution_check');
     expect(sql).toContain('institutional_flow_natural_revision_unique');
     expect(sql).toContain('settlement_snapshot_natural_revision_unique');
     expect(sql).toContain('intelligence_external_identity_resolution_check');
     expect(sql).toContain('prevent_intelligence_revision_mutation');
     expect(sql).not.toContain('CREATE TABLE "order_book_levels"');
+  });
+
+  it('extends institutional observations without adding derived leaderboard tables', () => {
+    expect(sql).toContain('institutional_flow_market_share_check');
+    expect(sql).toContain('institutional_flow_coverage_ratio_check');
+    expect(sql).toContain('settlement_snapshot_residency_check');
+    expect(sql).toContain('settlement_snapshot_coverage_ratio_check');
+    expect(sql).not.toContain('CREATE TABLE "akd_leaderboards"');
+    expect(sql).not.toContain('CREATE TABLE "settlement_trends"');
   });
 
   it('contains strategy, backtest and experiment integrity guards', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseMobileEnvironment } from './environment';
+import { isLocalMobileE2EHarness, parseMobileEnvironment } from './environment';
 
 describe('mobile environment', () => {
   it('accepts typed configuration', () => {
@@ -33,5 +33,21 @@ describe('mobile environment', () => {
         ),
       ).toThrow('production transport');
     }
+  });
+
+  it('allows the E2E harness only in an explicit local environment', () => {
+    expect(
+      isLocalMobileE2EHarness({
+        EXPO_PUBLIC_E2E_MODE: 'true',
+        EXPO_PUBLIC_APP_ENV: 'local',
+      }),
+    ).toBe(true);
+    expect(
+      isLocalMobileE2EHarness({
+        EXPO_PUBLIC_E2E_MODE: 'true',
+        EXPO_PUBLIC_APP_ENV: 'production',
+      }),
+    ).toBe(false);
+    expect(isLocalMobileE2EHarness({})).toBe(false);
   });
 });

@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Provider required state
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional?fixture=1&state=provider-required'
+- assertVisible: 'Veri sağlayıcısı gerekli'

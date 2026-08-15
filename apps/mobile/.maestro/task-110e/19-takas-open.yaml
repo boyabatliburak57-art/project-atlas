@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Takas open
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1'
+- assertVisible: 'Takas saklama dağılımını gösterir.*'

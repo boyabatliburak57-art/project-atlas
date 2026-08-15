@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Top holders
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1'
+- tapOn: { id: 'takas-holding' }
+- scrollUntilVisible:
+    {
+      element: { id: 'settlement-row-MSK' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'settlement-row-MSK' }

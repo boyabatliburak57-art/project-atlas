@@ -1,9 +1,11 @@
 appId: com.atlasfinance.mobile
 name: Sector performance
 ---
+- stopApp
 - launchApp: { clearState: true }
 - openLink: 'atlas:///(tabs)/markets?fixture=1'
-- tapOn: 'Sektörler'
-- assertVisible: { id: 'markets-screen' }
+- extendedWaitUntil: { visible: { id: 'feature-sectors' }, timeout: 60000 }
+- tapOn: { point: '50%, 47%' }
+- extendedWaitUntil: { visible: { id: 'markets-screen' }, timeout: 60000 }
 - assertVisible: 'Teknoloji'
 - assertVisible: 'Banka'

@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Takas symbol selection
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&symbol=THYAO'
+- assertVisible: 'TAKAS TARİHİ · THYAO'

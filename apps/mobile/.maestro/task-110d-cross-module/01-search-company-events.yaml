@@ -1,0 +1,21 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Search company events
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///search?fixture=1'
+- tapOn: { id: 'symbol-search-input' }
+- waitForAnimationToEnd
+- inputText: THYAO
+- runFlow:
+    when: { notVisible: THYAO }
+    commands:
+      - tapOn: { id: 'symbol-search-input' }
+      - eraseText
+      - inputText: THYAO
+- extendedWaitUntil: { visible: { id: 'search-result-THYAO' }, timeout: 60000 }
+- hideKeyboard
+- tapOn: { id: 'search-result-THYAO', retryTapIfNoChange: true }
+- scrollUntilVisible: { element: { id: 'company-events' }, direction: DOWN }
+- tapOn: { id: 'company-events' }
+- assertVisible: 'Şirket Olayları'

@@ -110,7 +110,7 @@ describe('PostgreSQL migrations', () => {
     await pool.end();
   });
 
-  it('clean-migrates exactly the one-hundred-seven domain tables', async () => {
+  it('clean-migrates exactly the one-hundred-nine domain tables', async () => {
     const result = await pool.query<{ table_name: string }>(`
       select table_name
       from information_schema.tables
@@ -137,6 +137,8 @@ describe('PostgreSQL migrations', () => {
       'communication_delivery_attempts',
       'communication_provider_events',
       'communication_templates',
+      'corporate_disclosure_entities',
+      'corporate_disclosure_revision_links',
       'corporate_disclosure_revisions',
       'data_correction_requests',
       'data_providers',
@@ -1061,6 +1063,16 @@ describe('PostgreSQL migrations', () => {
   });
 
   it('executes the documented destructive rollback and reapplies forward', async () => {
+    const kapLinkRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0027_wealthy_diamondback.down.sql'),
+      'utf8',
+    );
+    await pool.query(kapLinkRollbackSql);
+    const kapRollbackSql = await readFile(
+      resolve(migrationFolder(), 'rollback/0026_brave_switch.down.sql'),
+      'utf8',
+    );
+    await pool.query(kapRollbackSql);
     const intelligenceRollbackSql = await readFile(
       resolve(
         migrationFolder(),
@@ -1255,10 +1267,10 @@ describe('PostgreSQL migrations', () => {
 
     await pool.query(`
       delete from drizzle.__drizzle_migrations
-      where created_at in (
+      where created_at not in (
         select created_at from drizzle.__drizzle_migrations
-        order by created_at desc
-        limit 24
+        order by created_at asc
+        limit 2
       )
     `);
     await runMigrations(db);

@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 40 Takas
+---
+- runFlow: ../task-110e/22-top-holders.yaml

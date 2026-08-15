@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institution detail
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/institutions/31000000-0000-4000-8000-000000000001?fixture=1'
+- assertVisible: 'Kanonik kurum profili'

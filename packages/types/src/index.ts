@@ -25,6 +25,10 @@ export const ATLAS_JOB_NAMES = {
   accountDeletionReconcile: 'system.account-deletion.reconcile.v1',
   instrumentSync: 'market-data.instrument-sync.v1',
   fundamentalsIngest: 'market-data.fundamentals-ingest.v1',
+  kapDisclosureSync: 'intelligence.kap-disclosure-sync.v1',
+  institutionalFlowSync: 'intelligence.institutional-flow-sync.v1',
+  settlementSync: 'intelligence.settlement-sync.v1',
+  marketMeasureSync: 'intelligence.market-measure-sync.v1',
   patternsDetect: 'market-data.patterns-detect.v1',
   marketIntelligenceReconcile: 'market-data.intelligence-reconcile.v1',
   scannerRun: 'scanner.run.v1',
@@ -132,6 +136,26 @@ export interface FundamentalsIngestionQueuePayload {
   readonly providerCode: string;
   readonly providerSymbol: string;
   readonly correlationId?: string;
+  readonly telemetry?: SafeTraceContext;
+}
+
+export interface KapDisclosureSyncQueuePayload {
+  readonly providerCode: string;
+  readonly from: string;
+  readonly to: string;
+  readonly cursor?: string | null;
+  readonly limit?: number;
+  readonly correlationId: string;
+  readonly telemetry?: SafeTraceContext;
+}
+
+export interface InstitutionalSyncQueuePayload {
+  readonly providerCode: string;
+  readonly from: string;
+  readonly to: string;
+  readonly cursor?: string | null;
+  readonly limit?: number;
+  readonly correlationId: string;
   readonly telemetry?: SafeTraceContext;
 }
 

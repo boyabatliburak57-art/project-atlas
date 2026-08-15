@@ -1,0 +1,6 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Partial coverage
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional?fixture=1&state=partial'
+- assertVisible: 'Kısmi veri'

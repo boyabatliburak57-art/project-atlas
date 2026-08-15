@@ -17,6 +17,21 @@ const schema = z.object({
 
 export type MobileEnvironment = z.infer<typeof schema>;
 
+export function isLocalMobileE2EHarness(
+  input?: Readonly<Record<string, string | undefined>>,
+): boolean {
+  const environment =
+    input ??
+    ({
+      EXPO_PUBLIC_E2E_MODE: process.env.EXPO_PUBLIC_E2E_MODE,
+      EXPO_PUBLIC_APP_ENV: process.env.EXPO_PUBLIC_APP_ENV,
+    } satisfies Readonly<Record<string, string | undefined>>);
+  return (
+    environment['EXPO_PUBLIC_E2E_MODE'] === 'true' &&
+    environment['EXPO_PUBLIC_APP_ENV'] === 'local'
+  );
+}
+
 export function parseMobileEnvironment(
   input: Readonly<Record<string, string | undefined>>,
   options: { readonly release: boolean },
@@ -60,7 +75,15 @@ function assertEnvironmentTransport(environment: MobileEnvironment): void {
 }
 
 export function currentMobileEnvironment(): MobileEnvironment {
-  return parseMobileEnvironment(process.env, {
-    release: process.env['NODE_ENV'] === 'production',
+  const environment = {
+    EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+    EXPO_PUBLIC_APP_ENV: process.env.EXPO_PUBLIC_APP_ENV,
+    EXPO_PUBLIC_ENABLE_DEV_TOOLS: process.env.EXPO_PUBLIC_ENABLE_DEV_TOOLS,
+    EXPO_PUBLIC_DEEP_LINK_SCHEME: process.env.EXPO_PUBLIC_DEEP_LINK_SCHEME,
+    EXPO_PUBLIC_FEATURE_FLAG_MODE: process.env.EXPO_PUBLIC_FEATURE_FLAG_MODE,
+    EXPO_PUBLIC_TELEMETRY_DSN: process.env.EXPO_PUBLIC_TELEMETRY_DSN,
+  };
+  return parseMobileEnvironment(environment, {
+    release: process.env.NODE_ENV === 'production',
   });
 }

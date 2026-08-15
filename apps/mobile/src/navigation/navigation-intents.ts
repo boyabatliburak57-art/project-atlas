@@ -13,6 +13,16 @@ export const navigationIntentSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('OpenBacktest'), id: uuid.optional() }),
   z.object({ kind: z.literal('OpenReport'), id: uuid.optional() }),
   z.object({ kind: z.literal('OpenInstitution'), id: uuid }),
+  z.object({
+    kind: z.literal('OpenInstitutionalInstrument'),
+    symbol,
+    period: z.enum(['1D', '5D', '20D']).optional(),
+  }),
+  z.object({
+    kind: z.literal('OpenSettlementInstrument'),
+    symbol,
+    settlementDate: z.iso.date().optional(),
+  }),
   z.object({ kind: z.literal('OpenEvent'), id: uuid }),
   z.object({ kind: z.literal('OpenFund'), id: uuid }),
   z.object({
@@ -122,15 +132,31 @@ export function resolveNavigationIntent(
       };
     case 'OpenInstitution':
       return {
-        route: `/markets/institutional?id=${intent.id}`,
+        route: `/markets/institutional/institutions/${intent.id}`,
         requiresAuth: true,
-        ownershipRequirement: 'SERVER_REVALIDATION',
-        capability: 'institutional-flow',
+        ownershipRequirement: 'NONE',
+        capability: 'institutional.akd',
+        fallback: '/markets',
+      };
+    case 'OpenInstitutionalInstrument':
+      return {
+        route: `/markets/institutional/akd?symbol=${intent.symbol}${intent.period ? `&period=${intent.period}` : ''}`,
+        requiresAuth: true,
+        ownershipRequirement: 'NONE',
+        capability: 'institutional.akd',
+        fallback: '/markets',
+      };
+    case 'OpenSettlementInstrument':
+      return {
+        route: `/markets/institutional/takas?symbol=${intent.symbol}${intent.settlementDate ? `&settlementDate=${intent.settlementDate}` : ''}`,
+        requiresAuth: true,
+        ownershipRequirement: 'NONE',
+        capability: 'settlement.snapshot',
         fallback: '/markets',
       };
     case 'OpenEvent':
       return {
-        route: `/research/events?id=${intent.id}`,
+        route: `/research/events/${intent.id}`,
         requiresAuth: true,
         ownershipRequirement: 'SERVER_REVALIDATION',
         capability: 'events',

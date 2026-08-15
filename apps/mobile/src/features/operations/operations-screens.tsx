@@ -34,6 +34,7 @@ import {
 } from './operations-evidence-data';
 import { useAuth } from '../../providers/auth-provider';
 import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 type ScannerView =
   | 'saved'
@@ -59,7 +60,7 @@ type OperationsView =
   | 'quiet';
 
 function evidenceEnabled(value: string | string[] | undefined) {
-  return __DEV__ && value === '1';
+  return isRuntimeLocalMobileE2EHarness() && value === '1';
 }
 function Screen({
   children,

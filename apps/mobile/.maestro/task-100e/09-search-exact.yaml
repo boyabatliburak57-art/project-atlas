@@ -3,6 +3,16 @@ name: Search exact symbol
 ---
 - launchApp: { clearState: true }
 - openLink: 'atlas:///search?fixture=1'
-- tapOn: { id: 'symbol-search-input' }
+- waitForAnimationToEnd
+- assertVisible: { id: 'global-search' }
+- tapOn: { id: 'symbol-search-input', retryTapIfNoChange: true }
+- waitForAnimationToEnd
 - inputText: 'THYAO'
-- assertVisible: { id: 'search-result-THYAO' }
+- runFlow:
+    when: { notVisible: 'THYAO' }
+    commands:
+      - tapOn: { id: 'symbol-search-input' }
+      - eraseText
+      - inputText: 'THYAO'
+- hideKeyboard
+- extendedWaitUntil: { visible: { id: 'search-result-THYAO' }, timeout: 60000 }

@@ -1,0 +1,13 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Methodology
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/akd?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { text: 'Metodoloji' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: '.*yatırım tavsiyesi değildir.*'

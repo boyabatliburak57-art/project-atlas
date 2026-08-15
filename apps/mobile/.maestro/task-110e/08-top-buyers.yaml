@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Top buyers
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/akd?fixture=1'
+- tapOn: { id: 'akd-buyers' }
+- scrollUntilVisible:
+    {
+      element: { id: 'flow-row-ATY' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'flow-row-ATY' }

@@ -14,3 +14,7 @@ paths = ['''(^|/)apps/mobile/src/test/visual/(baselines|current)/[^/]+/metadata\
 [[allowlists]]
 description = "Generated CocoaPods lockfile contains dependency checksums, not credentials"
 paths = ['''(^|/)apps/mobile/ios/Podfile\.lock$''']
+
+[[allowlists]]
+description = "Generated CocoaPods vendor artifacts contain signed framework hashes, not application credentials"
+paths = ['''(^|/)apps/mobile/ios/Pods/''']

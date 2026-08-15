@@ -225,6 +225,18 @@ import {
   STRATEGY_APPLICATION,
   StrategiesService,
 } from './backtests/backtests.service';
+import { EventsController } from './events/events.controller';
+import { PostgresEventReader } from './events/events.repository';
+import { EVENT_READER } from './events/events.ports';
+import { EventsService } from './events/events.service';
+import { InstitutionalController } from './institutional/institutional.controller';
+import { PostgresInstitutionalReader } from './institutional/institutional.repository';
+import { INSTITUTIONAL_READER } from './institutional/institutional.ports';
+import { InstitutionalService } from './institutional/institutional.service';
+import { MarketStructureController } from './market-structure/market-structure.controller';
+import { PostgresMarketStructureReader } from './market-structure/market-structure.repository';
+import { MARKET_STRUCTURE_READER } from './market-structure/market-structure.ports';
+import { MarketStructureService } from './market-structure/market-structure.service';
 
 @Module({
   controllers: [
@@ -270,6 +282,9 @@ import {
     RecoveryAdminController,
     DataOperationsController,
     MetricsController,
+    EventsController,
+    InstitutionalController,
+    MarketStructureController,
   ],
   imports: [
     ConfigModule.forRoot({
@@ -325,6 +340,9 @@ import {
     SymbolResponseCache,
     PostgresFundamentalsReader,
     PostgresPatternReadModel,
+    PostgresEventReader,
+    PostgresInstitutionalReader,
+    PostgresMarketStructureReader,
     PreferencesRepository,
     NavigationRepository,
     ReportsRepository,
@@ -403,6 +421,15 @@ import {
       useExisting: PostgresFundamentalsReader,
     },
     { provide: PATTERN_READ_MODEL, useExisting: PostgresPatternReadModel },
+    { provide: EVENT_READER, useExisting: PostgresEventReader },
+    {
+      provide: INSTITUTIONAL_READER,
+      useExisting: PostgresInstitutionalReader,
+    },
+    {
+      provide: MARKET_STRUCTURE_READER,
+      useExisting: PostgresMarketStructureReader,
+    },
     {
       provide: STRATEGY_REPOSITORY,
       useExisting: PostgresStrategyApiRepository,
@@ -489,6 +516,9 @@ import {
     FeatureFlagRuntimeService,
     AdminOperationsService,
     DataOperationsService,
+    EventsService,
+    InstitutionalService,
+    MarketStructureService,
   ],
 })
 export class AppModule implements NestModule {

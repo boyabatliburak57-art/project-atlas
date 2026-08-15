@@ -53,9 +53,12 @@ import {
   SafeAreaScreen,
   SafeAreaScrollScreen,
 } from '../../components/safe-area-scroll-screen';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
+import { MobileInstitutionalApi } from '../institutional/institutional-api';
+import { institutions as institutionFixtures } from '../institutional/institutional-evidence-data';
 
 function evidenceEnabled(value: string | string[] | undefined) {
-  return __DEV__ && value === '1';
+  return isRuntimeLocalMobileE2EHarness() && value === '1';
 }
 
 function Screen({
@@ -270,6 +273,10 @@ export function GlobalSearchScreen() {
       : [];
   const auth = useAuth();
   const api = useMemo(() => new MobileMarketApi(auth.client), [auth.client]);
+  const institutionalApi = useMemo(
+    () => new MobileInstitutionalApi(auth.client),
+    [auth.client],
+  );
   const live = useInfiniteQuery({
     queryKey: ['search', normalized],
     queryFn: ({ pageParam, signal }) =>
@@ -280,6 +287,18 @@ export function GlobalSearchScreen() {
   });
   const liveResults =
     live.data?.pages.flatMap((page) => page.data.items).map(searchItem) ?? [];
+  const institutionSearch = useQuery({
+    queryKey: ['search', 'institutions', normalized],
+    queryFn: ({ signal }) => institutionalApi.institutions(normalized, signal),
+    enabled: !fixture && canSearch(normalized),
+  });
+  const institutionResults = fixture
+    ? institutionFixtures.filter((item) =>
+        `${item.canonicalName} ${item.shortName ?? ''} ${item.code ?? ''}`
+          .toLocaleLowerCase('tr-TR')
+          .includes(normalized.toLocaleLowerCase('tr-TR')),
+      )
+    : (institutionSearch.data?.data.items ?? []);
   return (
     <SafeAreaScreen style={styles.searchScreen} testID="global-search">
       <AppHeader title="Ara" subtitle="Sembol, şirket, endeks veya sektör" />
@@ -310,9 +329,32 @@ export function GlobalSearchScreen() {
       {fixture && !canSearch(normalized) ? (
         <Text style={styles.muted}>Aramak için en az 2 karakter girin.</Text>
       ) : null}
-      {fixture && canSearch(normalized) && results.length === 0 ? (
+      {fixture &&
+      canSearch(normalized) &&
+      results.length === 0 &&
+      institutionResults.length === 0 ? (
         <Text accessibilityRole="alert">Sonuç bulunamadı.</Text>
       ) : null}
+      {institutionResults.map((item) => (
+        <Pressable
+          accessibilityLabel={`${item.canonicalName}, kurum, ${item.type}`}
+          accessibilityRole="button"
+          key={item.id}
+          onPress={() =>
+            router.push(
+              `/markets/institutional/institutions/${item.id}${fixture ? '?fixture=1' : ''}` as never,
+            )
+          }
+          style={styles.result}
+          testID={`search-institution-${item.code ?? item.id}`}
+        >
+          <View>
+            <Text style={styles.cardTitle}>{item.canonicalName}</Text>
+            <Text style={styles.muted}>Kurum · {item.code ?? item.type}</Text>
+          </View>
+          <Text>›</Text>
+        </Pressable>
+      ))}
       <FlatList
         data={fixture ? results : liveResults}
         keyExtractor={(item) => item.symbol}
@@ -452,6 +494,12 @@ export function SymbolDetailScreen() {
             <LiveQueryState queries={[patterns]} />
           )
         ) : null}
+        <Link href={`/research/events?symbol=${symbol}` as never}>
+          Şirket olaylarını incele
+        </Link>
+        <Link href={`/markets/institutional/akd?symbol=${symbol}` as never}>
+          Kurumsal görünümü incele
+        </Link>
       </Screen>
     );
   const company =
@@ -561,6 +609,28 @@ export function SymbolDetailScreen() {
       {tab === 'Patterns' ? <Patterns /> : null}
       {tab === 'Insights' ? <Insights /> : null}
       {tab === 'Company' ? <Company symbol={symbol} company={company} /> : null}
+      <Pressable
+        accessibilityRole="button"
+        onPress={() =>
+          router.push(`/research/events?fixture=1&symbol=${symbol}` as never)
+        }
+        style={styles.back}
+        testID="company-events"
+      >
+        <Text>Şirket olaylarını incele ›</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() =>
+          router.push(
+            `/markets/institutional/akd?fixture=1&symbol=${symbol}` as never,
+          )
+        }
+        style={styles.back}
+        testID="company-institutional"
+      >
+        <Text>Kurumsal görünümü incele ›</Text>
+      </Pressable>
       <IntegratedFeature title="İzleme listesine ekle / Alarm oluştur" />
     </Screen>
   );

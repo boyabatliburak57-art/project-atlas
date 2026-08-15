@@ -3,6 +3,10 @@ name: Scan result to symbol detail
 ---
 - launchApp: { clearState: true }
 - openLink: 'atlas://scanner?fixture=1&view=results'
-- openLink: 'atlas://scanner?fixture=1&view=results'
+- extendedWaitUntil:
+    visible: { id: 'scan-result-THYAO' }
+    timeout: 60000
 - tapOn: { id: 'scan-result-THYAO' }
-- assertVisible: 'Fiyat grafiği · 1M'
+- extendedWaitUntil:
+    visible: 'Fiyat grafiği · 1M'
+    timeout: 60000

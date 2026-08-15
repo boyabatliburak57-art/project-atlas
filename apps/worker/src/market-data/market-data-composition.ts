@@ -46,6 +46,29 @@ import {
   RedisMarketIntelligenceCacheBackend,
   SnapshotReconciliationService,
 } from './quality';
+import {
+  DatabaseKapIngestionStore,
+  KapIngestionError,
+  KapIngestionService,
+  processKapIngestionJob,
+  type KapDisclosureProvider,
+} from '../intelligence/kap';
+import {
+  DatabaseInstitutionalIngestionStore,
+  InstitutionalIngestionError,
+  InstitutionalIngestionService,
+  processInstitutionalFlowJob,
+  processSettlementJob,
+  type InstitutionalFlowProviderAdapter,
+  type SettlementProviderAdapter,
+} from '../intelligence/institutional';
+import {
+  DatabaseMarketStructureIngestionStore,
+  MarketStructureIngestionError,
+  MarketStructureIngestionService,
+  processMarketStructureJob,
+  type MarketStructureProviderAdapter,
+} from '../intelligence/market-structure';
 
 export interface MarketDataComposition {
   readonly process: (job: Job) => Promise<unknown>;
@@ -57,6 +80,10 @@ interface CompositionOptions {
   readonly logger: StructuredLogger;
   readonly providerAdapters: readonly RawMarketDataProviderAdapter[];
   readonly fundamentalsProviders?: readonly FundamentalsProvider[];
+  readonly kapProviders?: readonly KapDisclosureProvider[];
+  readonly institutionalFlowProviders?: readonly InstitutionalFlowProviderAdapter[];
+  readonly settlementProviders?: readonly SettlementProviderAdapter[];
+  readonly marketStructureProviders?: readonly MarketStructureProviderAdapter[];
   readonly close?: (() => Promise<void>) | undefined;
   readonly qualityCache?: CacheBackend;
 }
@@ -87,6 +114,27 @@ export function createMarketDataComposition(
       provider,
     ]),
   );
+  const kapProviders = new Map(
+    (options.kapProviders ?? []).map((provider) => [provider.code, provider]),
+  );
+  const institutionalFlowProviders = new Map(
+    (options.institutionalFlowProviders ?? []).map((provider) => [
+      provider.code,
+      provider,
+    ]),
+  );
+  const settlementProviders = new Map(
+    (options.settlementProviders ?? []).map((provider) => [
+      provider.code,
+      provider,
+    ]),
+  );
+  const marketStructureProviders = new Map(
+    (options.marketStructureProviders ?? []).map((provider) => [
+      provider.code,
+      provider,
+    ]),
+  );
   const patternService = new PatternDetectionService(
     new DatabasePatternDetectionStore(options.database),
   );
@@ -109,22 +157,49 @@ export function createMarketDataComposition(
         const result =
           job.name === JOB_NAMES.instrumentSync
             ? await processInstrumentImportJob(job, instrumentService)
-            : job.name === JOB_NAMES.barIngestion
-              ? await processBarIngestionJob(job, barService)
-              : job.name === JOB_NAMES.fundamentalsIngest
-                ? await processFundamentalsJob(
+            : job.name === JOB_NAMES.kapDisclosureSync
+              ? await processKapJob(job, kapProviders, options.database)
+              : job.name === JOB_NAMES.institutionalFlowSync
+                ? await processInstitutionalJob(
                     job,
-                    fundamentalsProviders,
+                    'FLOW',
+                    institutionalFlowProviders,
+                    settlementProviders,
                     options.database,
                   )
-                : job.name === JOB_NAMES.patternsDetect
-                  ? await processPatternDetectionJob(job, patternService)
-                  : job.name === JOB_NAMES.marketIntelligenceReconcile
-                    ? await processSnapshotReconciliationJob(
+                : job.name === JOB_NAMES.settlementSync
+                  ? await processInstitutionalJob(
+                      job,
+                      'SETTLEMENT',
+                      institutionalFlowProviders,
+                      settlementProviders,
+                      options.database,
+                    )
+                  : job.name === JOB_NAMES.marketMeasureSync
+                    ? await processMarketStructureIngestionJob(
                         job,
-                        qualityService,
+                        marketStructureProviders,
+                        options.database,
                       )
-                    : rejectUnknownJob(job.name);
+                    : job.name === JOB_NAMES.barIngestion
+                      ? await processBarIngestionJob(job, barService)
+                      : job.name === JOB_NAMES.fundamentalsIngest
+                        ? await processFundamentalsJob(
+                            job,
+                            fundamentalsProviders,
+                            options.database,
+                          )
+                        : job.name === JOB_NAMES.patternsDetect
+                          ? await processPatternDetectionJob(
+                              job,
+                              patternService,
+                            )
+                          : job.name === JOB_NAMES.marketIntelligenceReconcile
+                            ? await processSnapshotReconciliationJob(
+                                job,
+                                qualityService,
+                              )
+                            : rejectUnknownJob(job.name);
         options.logger.info('worker.market-data.job.completed', {
           correlationId,
           jobId: job.id,
@@ -227,6 +302,9 @@ function readCorrelationId(job: Job): string {
 }
 
 function isRetryable(error: unknown): boolean {
+  if (error instanceof KapIngestionError) return error.retryable;
+  if (error instanceof InstitutionalIngestionError) return error.retryable;
+  if (error instanceof MarketStructureIngestionError) return error.retryable;
   if (error instanceof FundamentalsProviderError) return error.retryable;
   if (error instanceof FundamentalsIngestionError) return false;
   if (error instanceof ProviderError) {
@@ -237,6 +315,59 @@ function isRetryable(error: unknown): boolean {
     error instanceof BarIngestionError ||
     error instanceof ZodError ||
     error instanceof UnrecoverableError
+  );
+}
+
+async function processInstitutionalJob(
+  job: Job,
+  kind: 'FLOW' | 'SETTLEMENT',
+  flowProviders: ReadonlyMap<string, InstitutionalFlowProviderAdapter>,
+  settlementProviders: ReadonlyMap<string, SettlementProviderAdapter>,
+  database: Database,
+) {
+  const providerCode = (job.data as { providerCode?: unknown }).providerCode;
+  const code = typeof providerCode === 'string' ? providerCode : '';
+  const service = new InstitutionalIngestionService(
+    flowProviders.get(code) ?? null,
+    settlementProviders.get(code) ?? null,
+    new DatabaseInstitutionalIngestionStore(database),
+  );
+  return kind === 'FLOW'
+    ? processInstitutionalFlowJob(job, service)
+    : processSettlementJob(job, service);
+}
+
+async function processMarketStructureIngestionJob(
+  job: Job,
+  providers: ReadonlyMap<string, MarketStructureProviderAdapter>,
+  database: Database,
+) {
+  const providerCode = (job.data as { providerCode?: unknown }).providerCode;
+  const provider =
+    typeof providerCode === 'string' ? providers.get(providerCode) : undefined;
+  return processMarketStructureJob(
+    job,
+    new MarketStructureIngestionService(
+      provider ?? null,
+      new DatabaseMarketStructureIngestionStore(database),
+    ),
+  );
+}
+
+async function processKapJob(
+  job: Job,
+  providers: ReadonlyMap<string, KapDisclosureProvider>,
+  database: Database,
+) {
+  const data = job.data as { providerCode?: unknown };
+  const provider =
+    typeof data.providerCode === 'string'
+      ? providers.get(data.providerCode)
+      : undefined;
+  if (!provider) throw new KapIngestionError('KAP_PROVIDER_REQUIRED', false);
+  return processKapIngestionJob(
+    job,
+    new KapIngestionService(provider, new DatabaseKapIngestionStore(database)),
   );
 }
 
@@ -263,6 +394,9 @@ async function processFundamentalsJob(
 
 function readErrorCode(error: unknown): string {
   if (
+    error instanceof KapIngestionError ||
+    error instanceof InstitutionalIngestionError ||
+    error instanceof MarketStructureIngestionError ||
     error instanceof FundamentalsProviderError ||
     error instanceof FundamentalsIngestionError
   )

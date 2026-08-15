@@ -1,0 +1,8 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institutional Overview
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional?fixture=1'
+- assertVisible: 'PİYASA NET KURUMSAL AKIŞI'
+- assertVisible: 'En yüksek net alıcı'
+- assertVisible: 'En yüksek net satıcı'

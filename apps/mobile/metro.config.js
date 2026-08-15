@@ -49,6 +49,20 @@ if (process.env.EXPO_PUBLIC_APP_ENV === 'production') {
         platform,
       );
     }
+    if (moduleName.endsWith('/events-evidence-data')) {
+      return context.resolveRequest(
+        context,
+        `${moduleName}.production`,
+        platform,
+      );
+    }
+    if (moduleName.endsWith('/institutional-evidence-data')) {
+      return context.resolveRequest(
+        context,
+        `${moduleName}.production`,
+        platform,
+      );
+    }
     return defaultResolveRequest
       ? defaultResolveRequest(context, moduleName, platform)
       : context.resolveRequest(context, moduleName, platform);

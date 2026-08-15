@@ -244,6 +244,27 @@ describe('OpenAPI document', () => {
       ),
     ).toContain('Idempotency-Key');
     expect(document.paths['/api/v1/market/overview']?.get).toBeDefined();
+    expect(document.paths['/api/v1/institutions']?.get).toBeDefined();
+    expect(document.paths['/api/v1/institutions/{id}']?.get).toBeDefined();
+    expect(document.paths['/api/v1/institutional/overview']?.get).toBeDefined();
+    expect(
+      document.paths['/api/v1/institutional/instruments/{symbol}/flow']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/settlement/instruments/{symbol}']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/settlement/instruments/{symbol}/history']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/settlement/instruments/{symbol}/foreign']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/settlement/institutions/{id}']?.get,
+    ).toBeDefined();
+    expect(
+      document.paths['/api/v1/symbols/{symbol}/institutional']?.get,
+    ).toBeDefined();
     expect(document.paths['/api/v1/market/breadth']?.get).toBeDefined();
     expect(document.paths['/api/v1/market/sectors']?.get).toBeDefined();
     expect(document.paths['/api/v1/market/rankings/{type}']?.get).toBeDefined();

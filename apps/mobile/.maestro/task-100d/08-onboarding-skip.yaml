@@ -1,14 +1,24 @@
 appId: com.atlasfinance.mobile
 name: Onboarding optional step skip
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- extendedWaitUntil:
+    { visible: 'Ürün kapsamı ve yasal bildirimler', timeout: 60000 }
+- waitForAnimationToEnd
+- swipe:
+    start: 50%, 70%
+    end: 50%, 45%
+    duration: 1000
+- swipe:
+    start: 50%, 45%
+    end: 50%, 70%
+    duration: 1000
+- tapOn: { point: '50%, 58%' }
 - extendedWaitUntil: { visible: 'Dil, saat dilimi ve piyasa', timeout: 60000 }
-- tapOn:
-    text: 'Bu adımı geç'
-    retryTapIfNoChange: true
+- tapOn: { point: '50%, 60%' }
 - extendedWaitUntil:
     { visible: 'Benchmark ve kullanım profili', timeout: 60000 }

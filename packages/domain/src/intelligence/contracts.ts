@@ -30,7 +30,9 @@ export const INTELLIGENCE_CAPABILITIES = [
   'disclosure.financialResult',
   'disclosure.corporateAction',
   'marketMeasure.vbts',
+  'marketMeasure.restrictions',
   'marketMeasure.shortSelling',
+  'marketMeasure.history',
   'calendar.economic',
   'calendar.earnings',
   'calendar.dividend',
@@ -300,10 +302,19 @@ export interface MarketMeasure extends RevisionMetadata {
   readonly effectiveFrom: Date;
   readonly effectiveUntil: Date | null;
   readonly publishedAt: Date;
-  readonly status: 'SCHEDULED' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED';
+  readonly status:
+    | 'SCHEDULED'
+    | 'ACTIVE'
+    | 'EXPIRED'
+    | 'CORRECTED'
+    | 'SUPERSEDED'
+    | 'CANCELLED';
+  readonly sourceReference: string;
+  readonly structuredAttributes: Readonly<Record<string, unknown>>;
   readonly provenance: DataProvenance;
 }
-export interface ShortSellingActivity {
+export interface ShortSellingActivity extends RevisionMetadata {
+  readonly activityId: string;
   readonly instrumentId: string;
   readonly tradeDate: string;
   readonly session: string | null;
@@ -455,6 +466,11 @@ export interface SettlementProvider {
 }
 export interface MarketMeasureProvider {
   fetchMarketMeasures(
+    query: IntelligenceQuery,
+  ): Promise<readonly ProviderDataEnvelope<unknown>[]>;
+}
+export interface ShortSellingActivityProvider {
+  fetchShortSellingActivity(
     query: IntelligenceQuery,
   ): Promise<readonly ProviderDataEnvelope<unknown>[]>;
 }

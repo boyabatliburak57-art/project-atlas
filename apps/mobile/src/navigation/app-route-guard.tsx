@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useRef, type PropsWithChildren } from 'react';
-import {
-  router,
-  useGlobalSearchParams,
-  usePathname,
-  useSegments,
-} from 'expo-router';
+import { router, usePathname, useSegments } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { palette, spacing } from '@atlas/design-tokens';
@@ -18,23 +13,22 @@ import {
   type DeepLinkTarget,
 } from './deep-links';
 import { ownershipPath, resourcePath } from './resource-routes';
+import { isRuntimeLocalMobileE2EHarness } from '../config/local-e2e-harness';
 
 export function AppRouteGuard({ children }: PropsWithChildren) {
   const auth = useAuth();
   const pathname = usePathname();
   const segments = useSegments();
-  const parameters = useGlobalSearchParams<{ fixture?: string }>();
   const routeGroup = segments[0];
-  const testHarness =
-    __DEV__ &&
-    (parameters.fixture === '1' ||
-      pathname.startsWith('/symbol/') ||
-      pathname === '/component-catalog' ||
-      pathname === '/preferences' ||
-      routeGroup === '(onboarding)');
+  const authRoute = routeGroup === '(auth)';
+  const localE2EHarness = isRuntimeLocalMobileE2EHarness();
+  // A local E2E build is an isolated simulator harness: all routes must remain
+  // deterministic while native URL delivery and Expo Router update their state
+  // asynchronously. Production cannot enable this state (the config contract
+  // requires both E2E mode and the local environment).
+  const testHarness = localE2EHarness && !authRoute;
   const initialLinkConsumed = useRef(false);
   const pendingResourceLink = useRef<DeepLinkTarget | null>(null);
-  const authRoute = routeGroup === '(auth)';
   const onboardingRoute = routeGroup === '(onboarding)';
   const publicRoute =
     authRoute ||
@@ -134,12 +128,27 @@ export function AppRouteGuard({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const handle = async (url: string) => {
-      if (__DEV__ && url.includes('fixture=1')) return;
-      if (__DEV__ && /^atlas:\/\/component-catalog\/?$/u.test(url)) {
+      if (localE2EHarness && url.includes('fixture=1')) {
+        const fixtureUrl = new URL(url);
+        const fixturePath = fixtureUrl.hostname
+          ? `/${fixtureUrl.hostname}${fixtureUrl.pathname}`
+          : fixtureUrl.pathname;
+        router.replace(
+          `${fixturePath}?${fixtureUrl.searchParams.toString()}` as never,
+        );
+        return;
+      }
+      if (
+        (__DEV__ || localE2EHarness) &&
+        /^atlas:\/\/component-catalog\/?$/u.test(url)
+      ) {
         router.replace('/component-catalog');
         return;
       }
-      if (__DEV__ && /^atlas:\/\/\/preferences\/?$/u.test(url)) {
+      if (
+        (__DEV__ || localE2EHarness) &&
+        /^atlas:\/\/\/preferences\/?$/u.test(url)
+      ) {
         router.replace('/preferences');
         return;
       }
@@ -149,6 +158,17 @@ export function AppRouteGuard({ children }: PropsWithChildren) {
       }
       const staticAlias = resolveStaticRouteAlias(url);
       if (staticAlias !== null) {
+        // Fixture URLs are handled above. Plain protected aliases must preserve
+        // the production auth boundary even when the local E2E harness keeps
+        // route rendering deterministic.
+        if (
+          localE2EHarness &&
+          auth.state.status !== 'authenticated' &&
+          auth.state.status !== 'verificationRequired'
+        ) {
+          router.replace('/(auth)/login');
+          return;
+        }
         router.replace(staticAlias as never);
         return;
       }
@@ -178,7 +198,7 @@ export function AppRouteGuard({ children }: PropsWithChildren) {
       // interprets token and resource links. Explicit mapping avoids treating a
       // normal app route as an invalid resource and racing Expo Router.
       if (url.startsWith('atlas:///(onboarding)')) {
-        if (__DEV__) router.replace('/(onboarding)');
+        if (localE2EHarness || __DEV__) router.replace('/(onboarding)');
         else router.replace('/welcome');
         return;
       }
@@ -194,7 +214,8 @@ export function AppRouteGuard({ children }: PropsWithChildren) {
         router.replace(`/(auth)/${publicRouteMatch[1]}` as never);
         return;
       }
-      if (__DEV__ && url.startsWith('atlas://symbol/')) return;
+      if ((localE2EHarness || __DEV__) && url.startsWith('atlas://symbol/'))
+        return;
       if (
         consumeTokenDeepLink(url, (target) => {
           router.replace({
@@ -240,7 +261,7 @@ export function AppRouteGuard({ children }: PropsWithChildren) {
       });
     }
     return linkingFoundation.subscribe((url) => void handle(url));
-  }, [auth.client, auth.state.status, onboardingComplete]);
+  }, [auth.client, auth.state.status, localE2EHarness, onboardingComplete]);
 
   const blocked = useMemo(() => {
     if (testHarness) return false;

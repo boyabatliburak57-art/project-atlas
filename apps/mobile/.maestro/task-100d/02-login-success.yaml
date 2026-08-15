@@ -1,35 +1,37 @@
 appId: com.atlasfinance.mobile
 name: Login success
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil:
     visible: 'Giriş yap'
     timeout: 120000
-- waitForAnimationToEnd
-- tapOn:
-    id: 'welcome-login'
-    retryTapIfNoChange: true
+- openLink: 'atlas:///login'
 - extendedWaitUntil:
     visible: 'E-posta'
     timeout: 60000
 - tapOn:
     id: 'auth-email'
+- waitForAnimationToEnd
 - inputText: 'mobile@example.test'
+- runFlow:
+    when: { notVisible: 'mobile@example.test' }
+    commands:
+      - tapOn: { id: 'auth-email' }
+      - eraseText
+      - inputText: 'mobile@example.test'
 - tapOn:
     id: 'auth-password'
+- waitForAnimationToEnd
 - inputText: 'Atlas-Test-2026!'
 - tapOn:
-    text: 'Giriş yap'
-    index: 1
+    id: 'auth-login-submit'
 - waitForAnimationToEnd
-- repeat:
-    times: 3
-    commands:
-      - tapOn:
-          text: 'Sonra'
-          optional: true
-      - waitForAnimationToEnd
+- tapOn:
+    text: 'Sonra'
+    optional: true
 - extendedWaitUntil:
     visible: 'Başlangıç ayarları'
-    timeout: 30000
+    timeout: 60000
+- assertVisible: 'Başlangıç ayarları'

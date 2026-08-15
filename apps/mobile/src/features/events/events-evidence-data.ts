@@ -1,0 +1,145 @@
+import type { KapEventDetail } from './events-api';
+
+export const eventFixturesEnabledAtCompileTime = true;
+export const eventFixtureLabel = 'TEST_ONLY_KAP_CONTRACT_FIXTURE_NO_LIVE_CLAIM';
+const company = (id: string, name: string) => [{ id, name }] as const;
+const instrument = (id: string, symbol: string) => [{ id, symbol }] as const;
+
+const base = {
+  disclosureId: '10000000-0000-4000-a000-000000000001',
+  marketEventId: '20000000-0000-4000-a000-000000000001',
+  sourceCategory: 'fixture-contract',
+  state: 'ACTIVE' as const,
+  corrected: false,
+  supersedesRevisionId: null,
+  providerRevision: '1',
+  publishedAt: '2026-08-13T12:00:00.000Z',
+  availableAt: '2026-08-13T12:01:00.000Z',
+  effectiveAt: null,
+  reportingPeriod: null,
+  relevance: 'NONE' as const,
+  summary: null,
+  attributes: {},
+  attachments: [],
+  source: {
+    reference: 'https://kap.example.test/disclosure/fixture',
+    provider: 'kap-contract-fixture',
+    dataset: 'contract-fixture-v1',
+    sourceTimestamp: '2026-08-13T12:00:30.000Z',
+    ingestedAt: '2026-08-13T12:02:00.000Z',
+    deliveryMode: 'DELAYED',
+    quality: 'COMPLETE',
+    licenseClass: 'DELAYED_DISPLAY_ONLY',
+    restrictions: ['EXPORT_PROHIBITED', 'SHARE_PROHIBITED'],
+  },
+};
+
+export const eventFixtures: readonly KapEventDetail[] = [
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000001',
+    title: 'Finansal raporların yayımlanması',
+    category: 'FINANCIAL_RESULT',
+    reportingPeriod: '2026-Q2',
+    companies: company(
+      '40000000-0000-4000-a000-000000000001',
+      'Atlas Test Sanayi',
+    ),
+    instruments: instrument('50000000-0000-4000-a000-000000000001', 'THYAO'),
+    relevance: 'BOTH',
+    attributes: { fiscalYear: 2026, fiscalPeriod: 'Q2' },
+    attachments: [
+      {
+        title: 'Finansal rapor',
+        mimeType: 'application/pdf',
+        sizeBytes: 245760,
+        sourceUrl: 'https://kap.example.test/document/fixture.pdf',
+      },
+    ],
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000002',
+    disclosureId: '10000000-0000-4000-a000-000000000002',
+    title: 'Yeni iş ilişkisinin açıklanması',
+    category: 'NEW_BUSINESS',
+    companies: company(
+      '40000000-0000-4000-a000-000000000002',
+      'Örnek Teknoloji',
+    ),
+    instruments: instrument('50000000-0000-4000-a000-000000000002', 'ORNEK'),
+    relevance: 'WATCHLIST_RELEVANT',
+    attributes: { counterparty: null, contractAmount: null, currency: null },
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000003',
+    disclosureId: '10000000-0000-4000-a000-000000000003',
+    title: 'Kâr payı dağıtım kararı',
+    category: 'DIVIDEND',
+    companies: company('40000000-0000-4000-a000-000000000003', 'Test Üretim'),
+    instruments: instrument('50000000-0000-4000-a000-000000000003', 'TEST'),
+    relevance: 'PORTFOLIO_RELEVANT',
+    attributes: { decisionState: 'DECIDED', paymentDate: '2026-09-02' },
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000004',
+    disclosureId: '10000000-0000-4000-a000-000000000004',
+    title: 'Pay geri alım programı işlemi',
+    category: 'BUYBACK',
+    companies: company(
+      '40000000-0000-4000-a000-000000000004',
+      'Deneme Holding',
+    ),
+    instruments: instrument('50000000-0000-4000-a000-000000000004', 'DNMH'),
+    attributes: { buybackStage: 'TRANSACTION' },
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000005',
+    disclosureId: '10000000-0000-4000-a000-000000000005',
+    title: 'Sermaye artırımı hakkında bildirim',
+    category: 'CAPITAL_INCREASE',
+    companies: company('40000000-0000-4000-a000-000000000005', 'Kurgu Enerji'),
+    instruments: instrument('50000000-0000-4000-a000-000000000005', 'KRGU'),
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000006',
+    disclosureId: '10000000-0000-4000-a000-000000000006',
+    title: 'Halka arz süreci hakkında açıklama',
+    category: 'IPO',
+    companies: company(
+      '40000000-0000-4000-a000-000000000006',
+      'Numune Lojistik',
+    ),
+    instruments: instrument('50000000-0000-4000-a000-000000000006', 'NMNE'),
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000007',
+    disclosureId: '10000000-0000-4000-a000-000000000007',
+    title: 'Düzeltilmiş özel durum açıklaması',
+    category: 'MATERIAL_EVENT',
+    state: 'CORRECTED',
+    corrected: true,
+    supersedesRevisionId: '30000000-0000-4000-a000-000000000008',
+    providerRevision: '2',
+    companies: company(
+      '40000000-0000-4000-a000-000000000007',
+      'Model İletişim',
+    ),
+    instruments: instrument('50000000-0000-4000-a000-000000000007', 'MDLI'),
+    attributes: { chainStatus: 'COMPLETE' },
+  },
+  {
+    ...base,
+    id: '30000000-0000-4000-a000-000000000009',
+    disclosureId: '10000000-0000-4000-a000-000000000009',
+    title: 'Diğer bildirim',
+    category: 'OTHER',
+    companies: company('40000000-0000-4000-a000-000000000009', 'Örnek Şirket'),
+    instruments: instrument('50000000-0000-4000-a000-000000000009', 'DIGER'),
+  },
+];

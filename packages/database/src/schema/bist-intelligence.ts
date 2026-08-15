@@ -246,6 +246,7 @@ export const corporateDisclosureRevisions = pgTable(
       onDelete: 'set null',
     }),
     disclosureType: varchar('disclosure_type', { length: 40 }).notNull(),
+    state: varchar('state', { length: 24 }).default('ACTIVE').notNull(),
     category: varchar('category', { length: 128 }).notNull(),
     title: text('title').notNull(),
     summary: text('summary'),
@@ -276,6 +277,94 @@ export const corporateDisclosureRevisions = pgTable(
     check(
       'corporate_disclosure_available_check',
       sql`${t.availableAt} >= ${t.publishedAt} and ${t.availableAt} <= ${t.ingestedAt}`,
+    ),
+    check(
+      'corporate_disclosure_state_check',
+      sql`${t.state} in ('ACTIVE','CORRECTED','SUPERSEDED','WITHDRAWN')`,
+    ),
+  ],
+);
+
+export const corporateDisclosureEntities = pgTable(
+  'corporate_disclosure_entities',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    disclosureRevisionId: uuid('disclosure_revision_id')
+      .notNull()
+      .references(() => corporateDisclosureRevisions.revisionId, {
+        onDelete: 'restrict',
+      }),
+    entityType: varchar('entity_type', { length: 16 }).notNull(),
+    companyId: uuid('company_id').references(() => intelligenceCompanies.id, {
+      onDelete: 'restrict',
+    }),
+    instrumentId: uuid('instrument_id').references(() => instruments.id, {
+      onDelete: 'restrict',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex('corporate_disclosure_entity_company_unique')
+      .on(t.disclosureRevisionId, t.companyId)
+      .where(sql`${t.entityType} = 'COMPANY'`),
+    uniqueIndex('corporate_disclosure_entity_instrument_unique')
+      .on(t.disclosureRevisionId, t.instrumentId)
+      .where(sql`${t.entityType} = 'INSTRUMENT'`),
+    index('corporate_disclosure_entity_company_idx').on(
+      t.companyId,
+      t.disclosureRevisionId,
+    ),
+    index('corporate_disclosure_entity_instrument_idx').on(
+      t.instrumentId,
+      t.disclosureRevisionId,
+    ),
+    check(
+      'corporate_disclosure_entity_shape_check',
+      sql`(${t.entityType} = 'COMPANY' and ${t.companyId} is not null and ${t.instrumentId} is null)
+        or (${t.entityType} = 'INSTRUMENT' and ${t.instrumentId} is not null and ${t.companyId} is null)`,
+    ),
+  ],
+);
+
+/**
+ * Mutable resolution projection for correction chains that arrive out of order.
+ * Canonical disclosure revisions remain immutable; only this linkage projection
+ * is completed when the referenced provider revision becomes available.
+ */
+export const corporateDisclosureRevisionLinks = pgTable(
+  'corporate_disclosure_revision_links',
+  {
+    childRevisionId: uuid('child_revision_id')
+      .primaryKey()
+      .references(() => corporateDisclosureRevisions.revisionId, {
+        onDelete: 'restrict',
+      }),
+    parentRevisionId: uuid('parent_revision_id').references(
+      () => corporateDisclosureRevisions.revisionId,
+      { onDelete: 'restrict' },
+    ),
+    supersedesProviderRevision: varchar('supersedes_provider_revision', {
+      length: 128,
+    }).notNull(),
+    resolutionState: varchar('resolution_state', { length: 32 })
+      .default('AWAITING_PREVIOUS_REVISION')
+      .notNull(),
+    resolvedAt: timestamp('resolved_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    index('corporate_disclosure_revision_parent_idx').on(t.parentRevisionId),
+    check(
+      'corporate_disclosure_revision_resolution_check',
+      sql`(${t.resolutionState} = 'COMPLETE' and ${t.parentRevisionId} is not null and ${t.resolvedAt} is not null)
+        or (${t.resolutionState} = 'AWAITING_PREVIOUS_REVISION' and ${t.parentRevisionId} is null and ${t.resolvedAt} is null)`,
     ),
   ],
 );
@@ -335,6 +424,18 @@ export const institutionalFlowObservations = pgTable(
     buyValue: numeric('buy_value', { precision: 28, scale: 10 }),
     sellValue: numeric('sell_value', { precision: 28, scale: 10 }),
     netValue: numeric('net_value', { precision: 28, scale: 10 }),
+    buyAveragePrice: numeric('buy_average_price', {
+      precision: 28,
+      scale: 10,
+    }),
+    sellAveragePrice: numeric('sell_average_price', {
+      precision: 28,
+      scale: 10,
+    }),
+    totalVolume: numeric('total_volume', { precision: 28, scale: 10 }),
+    marketShare: numeric('market_share', { precision: 20, scale: 12 }),
+    rank: numeric('rank', { precision: 10, scale: 0 }),
+    coverageRatio: numeric('coverage_ratio', { precision: 20, scale: 12 }),
     currency: varchar('currency', { length: 3 }).notNull(),
     asOf: timestamp('as_of', { withTimezone: true }).notNull(),
     dataCutoff: timestamp('data_cutoff', { withTimezone: true }).notNull(),
@@ -361,6 +462,14 @@ export const institutionalFlowObservations = pgTable(
       t.institutionId,
       t.tradeDate,
     ),
+    check(
+      'institutional_flow_market_share_check',
+      sql`${t.marketShare} is null or (${t.marketShare} >= 0 and ${t.marketShare} <= 1)`,
+    ),
+    check(
+      'institutional_flow_coverage_ratio_check',
+      sql`${t.coverageRatio} is null or (${t.coverageRatio} >= 0 and ${t.coverageRatio} <= 1)`,
+    ),
   ],
 );
 
@@ -381,6 +490,7 @@ export const settlementSnapshots = pgTable(
     changeQuantity: numeric('change_quantity', { precision: 28, scale: 10 }),
     changeRatio: numeric('change_ratio', { precision: 20, scale: 12 }),
     residency: varchar('residency', { length: 16 }).notNull(),
+    coverageRatio: numeric('coverage_ratio', { precision: 20, scale: 12 }),
     dataCutoff: timestamp('data_cutoff', { withTimezone: true }).notNull(),
     ...provenance,
   },
@@ -400,6 +510,22 @@ export const settlementSnapshots = pgTable(
       t.institutionId,
       t.settlementDate,
     ),
+    check(
+      'settlement_snapshot_holding_ratio_check',
+      sql`${t.holdingRatio} is null or (${t.holdingRatio} >= 0 and ${t.holdingRatio} <= 1)`,
+    ),
+    check(
+      'settlement_snapshot_change_ratio_check',
+      sql`${t.changeRatio} is null or (${t.changeRatio} >= -1 and ${t.changeRatio} <= 1)`,
+    ),
+    check(
+      'settlement_snapshot_coverage_ratio_check',
+      sql`${t.coverageRatio} is null or (${t.coverageRatio} >= 0 and ${t.coverageRatio} <= 1)`,
+    ),
+    check(
+      'settlement_snapshot_residency_check',
+      sql`${t.residency} in ('FOREIGN','DOMESTIC','UNKNOWN')`,
+    ),
   ],
 );
 
@@ -418,6 +544,11 @@ export const intelligenceMarketMeasures = pgTable(
     effectiveUntil: timestamp('effective_until', { withTimezone: true }),
     publishedAt: timestamp('published_at', { withTimezone: true }).notNull(),
     status: varchar('status', { length: 24 }).notNull(),
+    sourceReference: text('source_reference').notNull(),
+    structuredAttributes: jsonb('structured_attributes')
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
     ...provenance,
   },
   (t) => [
@@ -431,9 +562,68 @@ export const intelligenceMarketMeasures = pgTable(
       t.effectiveFrom,
       t.effectiveUntil,
     ),
+    index('intelligence_market_measure_type_period_idx').on(
+      t.type,
+      t.effectiveFrom,
+      t.effectiveUntil,
+    ),
+    index('intelligence_market_measure_published_idx').on(t.publishedAt),
+    index('intelligence_market_measure_available_idx').on(t.availableAt),
     check(
       'intelligence_market_measure_period_check',
       sql`${t.effectiveUntil} is null or ${t.effectiveUntil} >= ${t.effectiveFrom}`,
+    ),
+    check(
+      'intelligence_market_measure_status_check',
+      sql`${t.status} in ('SCHEDULED','ACTIVE','EXPIRED','CORRECTED','SUPERSEDED','CANCELLED')`,
+    ),
+  ],
+);
+
+/**
+ * Canonical observed short-selling statistics. This is deliberately separate
+ * from policy/restriction measures and stores no inferred or zero-filled data.
+ */
+export const shortSellingActivityObservations = pgTable(
+  'short_selling_activity_observations',
+  {
+    ...revision,
+    activityId: varchar('activity_id', { length: 255 }).notNull(),
+    instrumentId: uuid('instrument_id')
+      .notNull()
+      .references(() => instruments.id, { onDelete: 'restrict' }),
+    tradeDate: date('trade_date').notNull(),
+    session: varchar('session', { length: 32 }).default('ALL').notNull(),
+    quantity: numeric('quantity', { precision: 28, scale: 10 }),
+    value: numeric('value', { precision: 28, scale: 10 }),
+    shareOfTurnover: numeric('share_of_turnover', {
+      precision: 20,
+      scale: 12,
+    }),
+    dataCutoff: timestamp('data_cutoff', { withTimezone: true }).notNull(),
+    ...provenance,
+  },
+  (t) => [
+    uniqueIndex('short_selling_activity_revision_unique').on(
+      t.providerId,
+      t.activityId,
+      t.providerRevision,
+    ),
+    index('short_selling_activity_instrument_date_idx').on(
+      t.instrumentId,
+      t.tradeDate,
+    ),
+    check(
+      'short_selling_activity_nonnegative_check',
+      sql`(${t.quantity} is null or ${t.quantity} >= 0) and (${t.value} is null or ${t.value} >= 0)`,
+    ),
+    check(
+      'short_selling_activity_share_check',
+      sql`${t.shareOfTurnover} is null or (${t.shareOfTurnover} >= 0 and ${t.shareOfTurnover} <= 1)`,
+    ),
+    check(
+      'short_selling_activity_has_value_check',
+      sql`${t.quantity} is not null or ${t.value} is not null or ${t.shareOfTurnover} is not null`,
     ),
   ],
 );

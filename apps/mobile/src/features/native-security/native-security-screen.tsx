@@ -5,6 +5,7 @@ import {
   fixtureEnabledAtCompileTime,
   securityFixtureLabel,
 } from './native-security-evidence-data';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 type SecurityView =
   | 'offline-market'
@@ -235,7 +236,9 @@ export function NativeSecurityScreen() {
     view?: SecurityView;
   }>();
   const fixture =
-    __DEV__ && fixtureEnabledAtCompileTime && params.fixture === '1';
+    isRuntimeLocalMobileE2EHarness() &&
+    fixtureEnabledAtCompileTime &&
+    params.fixture === '1';
   if (!fixture) {
     return (
       <ScrollView

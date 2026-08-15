@@ -1,6 +1,7 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 const appEnvironment = process.env['EXPO_PUBLIC_APP_ENV'] ?? 'local';
+const e2eMode = process.env['EXPO_PUBLIC_E2E_MODE'] === 'true';
 const scheme = process.env['EXPO_PUBLIC_DEEP_LINK_SCHEME'] ?? 'atlas';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -46,6 +47,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     appEnvironment,
+    e2eMode,
     identifierStatus: 'PLACEHOLDER_NOT_STORE_APPROVED',
     backgroundRefresh: 'NOT_REQUIRED_FOR_V1',
     universalLinks: 'EXTERNAL_CONFIGURATION_REQUIRED',

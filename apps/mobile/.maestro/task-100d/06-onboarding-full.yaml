@@ -1,29 +1,37 @@
 appId: com.atlasfinance.mobile
 name: Onboarding full completion
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
 - openLink: 'atlas:///(onboarding)'
 - assertVisible: 'Başlangıç ayarları'
 - assertVisible: 'Ürün kapsamı ve yasal bildirimler'
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- waitForAnimationToEnd
+- swipe:
+    start: 50%, 70%
+    end: 50%, 45%
+    duration: 1000
+- swipe:
+    start: 50%, 45%
+    end: 50%, 70%
+    duration: 1000
+- tapOn: { point: '50%, 58%' }
 - extendedWaitUntil: { visible: 'Dil, saat dilimi ve piyasa', timeout: 60000 }
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- tapOn: { id: 'onboarding-marketLocaleTimezone-action' }
 - extendedWaitUntil:
     { visible: 'Benchmark ve kullanım profili', timeout: 60000 }
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- tapOn: { id: 'onboarding-benchmark-action' }
 - extendedWaitUntil: { visible: 'İzleme listesi başlangıcı', timeout: 60000 }
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- tapOn: { id: 'onboarding-watchlist-action' }
 - extendedWaitUntil: { visible: 'Tarama kriteri başlangıcı', timeout: 60000 }
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- tapOn: { id: 'onboarding-scannerPreset-action' }
 - extendedWaitUntil: { visible: 'Bildirim tercihleri', timeout: 60000 }
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- tapOn: { id: 'onboarding-notifications-action' }
 - extendedWaitUntil: { visible: 'Biyometri ve demo içerik', timeout: 60000 }
-- tapOn: { id: 'onboarding-primary-action', retryTapIfNoChange: true }
+- tapOn: { id: 'onboarding-demoData-action' }
 - extendedWaitUntil: { visible: 'Onboarding özeti', timeout: 60000 }
-- tapOn:
-    id: 'onboarding-primary-action'
-    retryTapIfNoChange: true
+- tapOn: { point: '50%, 55%' }
 - extendedWaitUntil: { visible: { id: 'hub-home' }, timeout: 60000 }
 - assertVisible: 'Bugün ne dikkat gerektiriyor?'

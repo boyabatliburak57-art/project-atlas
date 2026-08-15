@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D New business
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000002?fixture=1'
+- assertVisible: 'Yeni iş ilişkisinin açıklanması'
+- scrollUntilVisible:
+    { element: { text: '.*Atlas özet üretmedi.*' }, direction: DOWN }
+- assertVisible: '.*Atlas özet üretmedi.*'

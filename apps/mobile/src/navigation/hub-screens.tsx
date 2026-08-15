@@ -17,10 +17,12 @@ import {
 } from './feature-registry';
 import { useAuth } from '../providers/auth-provider';
 import { SafeAreaScrollScreen } from '../components/safe-area-scroll-screen';
+import { isRuntimeLocalMobileE2EHarness } from '../config/local-e2e-harness';
 
 function GlobalActions() {
   const parameters = useLocalSearchParams<{ fixture?: string }>();
-  const fixture = __DEV__ && parameters.fixture === '1';
+  const fixture =
+    (__DEV__ || isRuntimeLocalMobileE2EHarness()) && parameters.fixture === '1';
   const href = (pathname: string) =>
     fixture
       ? ({ pathname, params: { fixture: '1' } } as never)
@@ -94,20 +96,28 @@ function Entry({ id }: { id: string }) {
   const parameters = useLocalSearchParams<{ fixture?: string }>();
   const item = featureById(id);
   if (!item || item.visibility !== 'CUSTOMER') return null;
-  const fixture = __DEV__ && parameters.fixture === '1';
+  const fixture =
+    (__DEV__ || isRuntimeLocalMobileE2EHarness()) && parameters.fixture === '1';
+  const internalRoute =
+    item.id === 'events-calendar'
+      ? '/(tabs)/research/events'
+      : item.id === 'institutional'
+        ? '/(tabs)/markets/institutional'
+        : item.canonicalRoute;
+  const destination = fixture
+    ? ({ pathname: internalRoute, params: { fixture: '1' } } as never)
+    : (internalRoute as never);
+  const open = () => {
+    if (item.id === 'events-calendar' || item.id === 'institutional') {
+      router.navigate(destination);
+      return;
+    }
+    router.push(destination);
+  };
   return (
     <FeatureEntryRow
       description={item.shortDescription}
-      onPress={() =>
-        router.push(
-          fixture
-            ? ({
-                pathname: item.canonicalRoute,
-                params: { fixture: '1' },
-              } as never)
-            : (item.canonicalRoute as never),
-        )
-      }
+      onPress={open}
       testID={`feature-${item.id}`}
       title={item.title}
     />
@@ -158,12 +168,13 @@ export function MarketsHubScreen() {
         <Entry id="sectors" />
       </HubSection>
       <HubSection
-        description="Lisans veya provider doğrulanmadan görünmez"
+        description="AKD işlem akışı ile Takas saklama dağılımını ayırır"
         title="Genişleyen araştırma alanları"
       >
+        <Entry id="institutional" />
         <MutedNote>
-          Kurumsal akış, takas, VİOP ve fonlar registry içinde capability-gated
-          tutulur; bu ekranda sahte giriş üretilmez.
+          VİOP ve fonlar ilgili capability uygulanana kadar customer
+          navigation'da gizli kalır.
         </MutedNote>
       </HubSection>
     </HubShell>
@@ -213,6 +224,12 @@ export function ResearchHubScreen() {
       testID="hub-research"
       title="Research"
     >
+      <HubSection
+        title="Şirket olayları"
+        description="KAP kaynağı, düzeltmeler ve kişisel ilgi bağlamı"
+      >
+        <Entry id="events-calendar" />
+      </HubSection>
       <HubSection title="Araştırma araçları">
         <Entry id="strategy-lab" />
         <Entry id="backtests" />
@@ -220,8 +237,8 @@ export function ResearchHubScreen() {
         <Entry id="methodology" />
       </HubSection>
       <MutedNote>
-        Şirket, KAP, event ve compare rotaları TASK-110D+ capability'leri
-        uygulanana kadar customer navigation'da gizlidir.
+        Tam takvim merkezi ve şirket karşılaştırma araçları ilgili
+        capability'ler uygulanana kadar customer navigation'da gizlidir.
       </MutedNote>
     </HubShell>
   );
@@ -231,7 +248,8 @@ export function ProfileMenuScreen() {
   const auth = useAuth();
   const theme = useAtlasTheme();
   const parameters = useLocalSearchParams<{ fixture?: string }>();
-  const fixture = __DEV__ && parameters.fixture === '1';
+  const fixture =
+    (__DEV__ || isRuntimeLocalMobileE2EHarness()) && parameters.fixture === '1';
   return (
     <SafeAreaScrollScreen
       contentContainerStyle={[

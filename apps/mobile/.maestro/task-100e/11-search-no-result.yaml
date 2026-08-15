@@ -10,4 +10,11 @@ name: Search no result
     retryTapIfNoChange: true
 - waitForAnimationToEnd
 - inputText: 'ZZZZZZ'
+- runFlow:
+    when: { notVisible: 'ZZZZZZ' }
+    commands:
+      - tapOn: { id: 'symbol-search-input' }
+      - eraseText
+      - inputText: 'ZZZZZZ'
+- hideKeyboard
 - extendedWaitUntil: { visible: 'Sonuç bulunamadı.', timeout: 60000 }

@@ -33,6 +33,7 @@ import {
 import { maskFinancialValue } from './portfolio-model';
 import { useAuth } from '../../providers/auth-provider';
 import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 type ViewName =
   | 'overview'
@@ -59,7 +60,7 @@ type ViewName =
   | 'dividend'
   | 'conflict';
 const enabled = (value: string | string[] | undefined) =>
-  __DEV__ && value === '1';
+  isRuntimeLocalMobileE2EHarness() && value === '1';
 
 export function PortfolioScreen({
   initialView,

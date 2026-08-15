@@ -1,0 +1,4 @@
+appId: com.atlasfinance.mobile
+name: Consolidated 37 KAP Corporate Event
+---
+- runFlow: ../task-110d/16-correction.yaml

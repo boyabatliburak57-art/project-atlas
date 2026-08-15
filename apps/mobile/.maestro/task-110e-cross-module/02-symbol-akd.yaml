@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Symbol Institutional AKD
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-institutional' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- tapOn: { id: 'company-institutional' }
+- assertVisible: 'İŞLEM TARİHİ · ASELS'

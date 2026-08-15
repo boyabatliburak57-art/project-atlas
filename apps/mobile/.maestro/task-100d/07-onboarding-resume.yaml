@@ -1,6 +1,7 @@
 appId: com.atlasfinance.mobile
 name: Onboarding interruption contract
 ---
+- stopApp
 - launchApp:
     clearState: true
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
@@ -15,9 +16,7 @@ name: Onboarding interruption contract
     start: 50%, 45%
     end: 50%, 70%
     duration: 1000
-- tapOn:
-    text: 'Kaydet ve devam et'
-    retryTapIfNoChange: true
+- tapOn: { id: 'onboarding-disclosure-action' }
 - extendedWaitUntil:
     visible: 'Dil, saat dilimi ve piyasa'
     timeout: 30000

@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, RefObject } from 'react';
 import { ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSegments } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,9 +11,11 @@ import {
 export function SafeAreaScrollScreen({
   children,
   contentContainerStyle,
+  scrollViewRef,
   testID,
 }: PropsWithChildren<{
   contentContainerStyle?: StyleProp<ViewStyle>;
+  scrollViewRef?: RefObject<ScrollView | null>;
   testID?: string;
 }>) {
   const segments = useSegments() as string[];
@@ -30,6 +32,7 @@ export function SafeAreaScrollScreen({
           { paddingBottom: screenContentBottomSpacing() },
         ]}
         keyboardShouldPersistTaps="handled"
+        ref={scrollViewRef}
         testID={testID}
       >
         {children}

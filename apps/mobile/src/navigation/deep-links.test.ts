@@ -31,6 +31,14 @@ describe('deep links and guards', () => {
       kind: 'scan-result',
       id,
     });
+    expect(parseDeepLink(`atlas://event/${id}`)).toEqual({ kind: 'event', id });
+    expect(parseDeepLink(`atlas://institution/${id}`)).toEqual({
+      kind: 'institution',
+      id,
+    });
+    expect(
+      parseDeepLink(`atlas://institution/${id}?provider=vendor`),
+    ).toBeNull();
     expect(parseDeepLink('atlas://report/not-a-uuid')).toBeNull();
   });
 
@@ -116,6 +124,7 @@ describe('deep links and guards', () => {
     expect(resolveStaticRouteAlias('atlas://reports')).toBe(
       '/research/reports',
     );
+    expect(resolveStaticRouteAlias('atlas://events')).toBe('/research/events');
     expect(resolveStaticRouteAlias('atlas://settings')).toBe('/settings');
     expect(resolveStaticRouteAlias('atlas:///markets/overview')).toBe(
       '/markets/overview',
@@ -123,6 +132,7 @@ describe('deep links and guards', () => {
     expect(resolveStaticRouteAlias('atlas:///research/backtests')).toBe(
       '/research/backtests',
     );
+    expect(resolveStaticRouteAlias('atlas:///login')).toBe('/login');
     expect(resolveStaticRouteAlias('atlas://scanner?owner=other')).toBeNull();
   });
 
@@ -136,5 +146,11 @@ describe('deep links and guards', () => {
       `/research/backtests?resourceId=${id}`,
     );
     expect(ownershipPath({ kind: 'backtest', id })).toBe(`/backtests/${id}`);
+    expect(resourcePath({ kind: 'event', id })).toBe(`/research/events/${id}`);
+    expect(ownershipPath({ kind: 'event', id })).toBeNull();
+    expect(resourcePath({ kind: 'institution', id })).toBe(
+      `/markets/institutional/institutions/${id}`,
+    );
+    expect(ownershipPath({ kind: 'institution', id })).toBeNull();
   });
 });

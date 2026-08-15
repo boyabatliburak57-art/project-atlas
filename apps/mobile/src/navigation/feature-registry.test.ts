@@ -28,19 +28,20 @@ describe('Atlas navigation V2 registry', () => {
     );
   });
 
-  it('keeps future provider and license features out of customer hubs', () => {
+  it('publishes implemented gated surfaces while keeping future features hidden', () => {
+    expect(customerFeaturesForHub('markets').map((item) => item.id)).toContain(
+      'institutional',
+    );
     expect(
-      developmentFeatureCatalog().some(
-        (item) =>
-          item.id === 'institutional' && item.visibility === 'CAPABILITY_GATED',
-      ),
-    ).toBe(true);
-    expect(
-      customerFeaturesForHub('markets').map((item) => item.id),
-    ).not.toContain('institutional');
+      developmentFeatureCatalog().find((item) => item.id === 'institutional')
+        ?.visibility,
+    ).toBe('CUSTOMER');
     expect(
       customerFeaturesForHub('research').map((item) => item.id),
     ).not.toContain('company-research');
+    expect(customerFeaturesForHub('research').map((item) => item.id)).toContain(
+      'events-calendar',
+    );
   });
 
   it('keeps each customer hub within the first-viewport disclosure limit', () => {

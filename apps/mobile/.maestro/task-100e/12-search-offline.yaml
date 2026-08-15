@@ -3,14 +3,19 @@ name: Search provider-backed no fabricated result
 ---
 - launchApp: { clearState: true }
 - extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
-- waitForAnimationToEnd
-- tapOn:
-    id: 'welcome-login'
-    retryTapIfNoChange: true
+- openLink: 'atlas:///login'
 - extendedWaitUntil: { visible: 'E-posta', timeout: 60000 }
 - tapOn: { id: 'auth-email' }
+- waitForAnimationToEnd
 - inputText: 'mobile@example.test'
+- runFlow:
+    when: { notVisible: 'mobile@example.test' }
+    commands:
+      - tapOn: { id: 'auth-email' }
+      - eraseText
+      - inputText: 'mobile@example.test'
 - tapOn: { id: 'auth-password' }
+- waitForAnimationToEnd
 - inputText: 'Atlas-Test-2026!'
 - tapOn: { text: 'Giriş yap', index: 1 }
 - waitForAnimationToEnd
@@ -23,7 +28,14 @@ name: Search provider-backed no fabricated result
 - extendedWaitUntil:
     { visible: 'Bugün ne dikkat gerektiriyor?', timeout: 30000 }
 - openLink: 'atlas:///search'
-- tapOn: { id: 'symbol-search-input' }
+- waitForAnimationToEnd
+- tapOn: { id: 'symbol-search-input', retryTapIfNoChange: true }
 - inputText: 'TH'
+- runFlow:
+    when: { notVisible: 'TH' }
+    commands:
+      - tapOn: { id: 'symbol-search-input' }
+      - eraseText
+      - inputText: 'TH'
 - assertVisible: { id: 'global-search' }
 - assertNotVisible: 'THYAO'

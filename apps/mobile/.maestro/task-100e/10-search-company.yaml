@@ -10,4 +10,11 @@ name: Search company name
     retryTapIfNoChange: true
 - waitForAnimationToEnd
 - inputText: 'Aselsan'
+- runFlow:
+    when: { notVisible: 'Aselsan' }
+    commands:
+      - tapOn: { id: 'symbol-search-input' }
+      - eraseText
+      - inputText: 'Aselsan'
+- hideKeyboard
 - extendedWaitUntil: { visible: { id: 'search-result-ASELS' }, timeout: 60000 }

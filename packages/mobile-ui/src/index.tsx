@@ -154,8 +154,13 @@ export const CurrencyDisplay = (p: { value: number | null }) => (
   <FinancialValue {...p} currency />
 );
 export function Badge({ label }: { label: string }) {
+  const theme = useAtlasTheme();
   return (
-    <View accessibilityRole="text" accessibilityLabel={label} style={s.badge}>
+    <View
+      accessibilityRole="text"
+      accessibilityLabel={label}
+      style={[s.badge, { backgroundColor: theme.surfaceSecondary }]}
+    >
       <AtlasText role="labelSmall">{label}</AtlasText>
     </View>
   );

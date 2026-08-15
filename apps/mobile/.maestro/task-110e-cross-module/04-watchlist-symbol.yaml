@@ -1,0 +1,14 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Watchlist Symbol Institutional
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///radar/watchlists?fixture=1'
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    {
+      element: { id: 'company-institutional' },
+      direction: DOWN,
+      timeout: 60000,
+      visibilityPercentage: 50,
+    }
+- assertVisible: { id: 'company-institutional' }

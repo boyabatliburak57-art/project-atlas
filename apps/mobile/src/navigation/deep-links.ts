@@ -13,6 +13,8 @@ const targetSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('backtest'), id: z.uuid() }),
   z.object({ kind: z.literal('report'), id: z.uuid() }),
   z.object({ kind: z.literal('support'), id: z.uuid() }),
+  z.object({ kind: z.literal('event'), id: z.uuid() }),
+  z.object({ kind: z.literal('institution'), id: z.uuid() }),
 ]);
 
 const tokenTargetSchema = z.object({
@@ -39,6 +41,8 @@ const staticRouteAliases = new Map<string, string>([
   ['atlas://strategies', '/research/strategies'],
   ['atlas://backtests', '/research/backtests'],
   ['atlas://reports', '/research/reports'],
+  ['atlas://events', '/research/events'],
+  ['atlas://institutional', '/markets/institutional'],
   ['atlas://settings', '/settings'],
   ['atlas://help', '/help'],
   ['atlas://support', '/support'],
@@ -53,6 +57,10 @@ const canonicalStaticPaths = new Set([
   '/markets/overview',
   '/markets/indices',
   '/markets/sectors',
+  '/markets/institutional',
+  '/markets/institutional/akd',
+  '/markets/institutional/takas',
+  '/markets/institutional/institutions',
   '/radar/scanner',
   '/radar/saved',
   '/radar/watchlists',
@@ -68,6 +76,8 @@ const canonicalStaticPaths = new Set([
   '/research/backtests',
   '/research/reports',
   '/research/methodology',
+  '/research/events',
+  '/login',
   '/search',
   '/inbox',
   '/profile',

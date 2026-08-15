@@ -1,0 +1,80 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Institutional native visuals light
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///markets/institutional?fixture=1'
+- assertVisible: 'PİYASA NET KURUMSAL AKIŞI'
+- waitForAnimationToEnd
+- takeScreenshot: '185-institutional-overview-light'
+- openLink: 'atlas:///markets/institutional?fixture=1&state=provider-required'
+- assertVisible: 'Veri sağlayıcısı gerekli'
+- waitForAnimationToEnd
+- takeScreenshot: '187-institutional-provider-required-light'
+- openLink: 'atlas:///markets/institutional/akd?fixture=1'
+- assertVisible: 'İŞLEM TARİHİ · ASELS'
+- waitForAnimationToEnd
+- takeScreenshot: '188-akd-symbol-light'
+- tapOn: { id: 'akd-buyers' }
+- waitForAnimationToEnd
+- takeScreenshot: '189-akd-top-buyers-light'
+- tapOn: { id: 'akd-sellers' }
+- assertVisible: { id: 'flow-row-OMD' }
+- waitForAnimationToEnd
+- takeScreenshot: '190-akd-top-sellers-light'
+- tapOn: { id: 'akd-all' }
+- waitForAnimationToEnd
+- takeScreenshot: '191-akd-all-institutions-light'
+- openLink: 'atlas:///markets/institutional/akd?fixture=1&state=history'
+- scrollUntilVisible: { element: { text: 'Akış geçmişi' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '192-akd-history-light'
+- openLink: 'atlas:///markets/institutional/institutions?fixture=1'
+- assertVisible: { id: 'institution-search-input' }
+- waitForAnimationToEnd
+- takeScreenshot: '193-institution-search-light'
+- openLink: 'atlas:///markets/institutional/institutions/31000000-0000-4000-8000-000000000001?fixture=1'
+- assertVisible: 'Kanonik kurum profili'
+- waitForAnimationToEnd
+- takeScreenshot: '194-institution-detail-light'
+- scrollUntilVisible: { element: { text: 'En çok alınanlar' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '195-institution-top-bought-light'
+- scrollUntilVisible: { element: { id: 'flow-row-OMD' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '196-institution-top-sold-light'
+- openLink: 'atlas:///markets/institutional/akd?fixture=1&period=5D'
+- assertVisible: 'NET KURUMSAL AKIŞ'
+- waitForAnimationToEnd
+- takeScreenshot: '197-net-money-flow-light'
+- openLink: 'atlas:///markets/institutional/takas?fixture=1'
+- assertVisible: 'TAKAS TARİHİ · ASELS'
+- assertVisible: { id: 'settlement-row-MSK' }
+- waitForAnimationToEnd
+- takeScreenshot: '198-takas-overview-light'
+- tapOn: { id: 'takas-holding' }
+- waitForAnimationToEnd
+- takeScreenshot: '199-takas-top-holders-light'
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=change'
+- assertVisible: 'TAKAS TARİHİ · ASELS'
+- assertVisible: { id: 'settlement-row-MSK' }
+- waitForAnimationToEnd
+- takeScreenshot: '200-takas-change-light'
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=trend'
+- scrollUntilVisible:
+    { element: { text: 'Takas payı trendi' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '201-takas-trend-light'
+- openLink: 'atlas:///markets/institutional/takas?fixture=1&state=foreign'
+- scrollUntilVisible: { element: { text: 'YABANCI TAKAS' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '202-foreign-takas-light'
+- openLink: 'atlas:///markets/institutional?fixture=1&state=partial'
+- assertVisible: 'Kısmi veri'
+- waitForAnimationToEnd
+- takeScreenshot: '203-institutional-partial-coverage-light'
+- openLink: 'atlas:///symbol/ASELS?fixture=1'
+- scrollUntilVisible:
+    { element: { id: 'company-institutional' }, direction: DOWN }
+- waitForAnimationToEnd
+- takeScreenshot: '204-company-institutional-summary-light'

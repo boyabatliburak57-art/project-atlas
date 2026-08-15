@@ -12,6 +12,7 @@ import { Badge, Button, Card } from '@atlas/mobile-ui';
 import { useAuth } from '../../providers/auth-provider';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AtlasApiError } from '@atlas/api-client';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 export function PreferencesScreen() {
   const auth = useAuth();
@@ -21,7 +22,7 @@ export function PreferencesScreen() {
   // The direct development route is a deterministic UI contract and must not
   // inherit a Keychain session left by another native flow. Production reaches
   // this surface through authenticated Settings and remains server-authoritative.
-  const developmentRouteHarness = __DEV__;
+  const developmentRouteHarness = isRuntimeLocalMobileE2EHarness();
   const [developmentVersion, setDevelopmentVersion] = useState(1);
   const preferences = useQuery({
     queryKey: ['private', userId, 'preferences'],

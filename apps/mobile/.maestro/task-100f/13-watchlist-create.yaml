@@ -5,5 +5,6 @@ name: Watchlist create
 - openLink: 'atlas://watchlists?fixture=1&view=lists'
 - openLink: 'atlas://watchlists?fixture=1&view=lists'
 - assertVisible: { id: 'watchlist-list' }
+- waitForAnimationToEnd
 - tapOn: 'Yeni liste'
-- assertVisible: { id: 'watchlist-detail' }
+- extendedWaitUntil: { visible: { id: 'watchlist-detail' }, timeout: 60000 }

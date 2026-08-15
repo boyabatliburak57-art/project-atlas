@@ -1,0 +1,10 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Revision history
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events/30000000-0000-4000-a000-000000000007?fixture=1&view=history'
+- scrollUntilVisible:
+    { element: { text: 'SÜRÜM 1 · SUPERSEDED' }, direction: DOWN }
+- assertVisible: 'SÜRÜM 1 · SUPERSEDED'
+- assertVisible: '.*Önceki bildirim.*'

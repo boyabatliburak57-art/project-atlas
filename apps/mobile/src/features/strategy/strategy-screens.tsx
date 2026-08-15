@@ -25,6 +25,7 @@ import {
 } from './strategy-evidence-data';
 import { useAuth } from '../../providers/auth-provider';
 import { SafeAreaScrollScreen } from '../../components/safe-area-scroll-screen';
+import { isRuntimeLocalMobileE2EHarness } from '../../config/local-e2e-harness';
 
 type ViewName =
   | 'lab'
@@ -48,7 +49,7 @@ type ViewName =
   | 'experiments'
   | 'rerun';
 const fixtureEnabled = (value: string | string[] | undefined) =>
-  __DEV__ && value === '1';
+  isRuntimeLocalMobileE2EHarness() && value === '1';
 
 export function StrategyLabScreen({
   initialView,

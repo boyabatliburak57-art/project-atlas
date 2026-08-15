@@ -14,6 +14,7 @@ const SEARCH_TYPES = [
   'strategy',
   'backtest',
   'experiment',
+  'event',
 ] as const;
 const searchSchema = z
   .object({

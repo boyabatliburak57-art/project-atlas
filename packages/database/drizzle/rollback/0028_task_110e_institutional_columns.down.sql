@@ -1,0 +1,13 @@
+ALTER TABLE "settlement_snapshots" DROP CONSTRAINT IF EXISTS "settlement_snapshot_residency_check";
+ALTER TABLE "settlement_snapshots" DROP CONSTRAINT IF EXISTS "settlement_snapshot_coverage_ratio_check";
+ALTER TABLE "settlement_snapshots" DROP CONSTRAINT IF EXISTS "settlement_snapshot_change_ratio_check";
+ALTER TABLE "settlement_snapshots" DROP CONSTRAINT IF EXISTS "settlement_snapshot_holding_ratio_check";
+ALTER TABLE "institutional_flow_observations" DROP CONSTRAINT IF EXISTS "institutional_flow_coverage_ratio_check";
+ALTER TABLE "institutional_flow_observations" DROP CONSTRAINT IF EXISTS "institutional_flow_market_share_check";
+ALTER TABLE "settlement_snapshots" DROP COLUMN IF EXISTS "coverage_ratio";
+ALTER TABLE "institutional_flow_observations" DROP COLUMN IF EXISTS "coverage_ratio";
+ALTER TABLE "institutional_flow_observations" DROP COLUMN IF EXISTS "rank";
+ALTER TABLE "institutional_flow_observations" DROP COLUMN IF EXISTS "market_share";
+ALTER TABLE "institutional_flow_observations" DROP COLUMN IF EXISTS "total_volume";
+ALTER TABLE "institutional_flow_observations" DROP COLUMN IF EXISTS "sell_average_price";
+ALTER TABLE "institutional_flow_observations" DROP COLUMN IF EXISTS "buy_average_price";

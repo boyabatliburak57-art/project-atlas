@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E Settlement date semantics
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/takas?fixture=1'
+- assertVisible: 'TAKAS TARİHİ · ASELS'
+- assertNotVisible: 'İŞLEM TARİHİ · ASELS'

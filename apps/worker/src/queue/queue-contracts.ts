@@ -9,6 +9,9 @@ import {
 
 import type { BarIngestionJobData } from '../market-data/bars/bar-ingestion-job';
 import type { FundamentalsIngestionJobData } from '../market-data/fundamentals/fundamentals-ingestion-job';
+import type { KapIngestionJobData } from '../intelligence/kap';
+import type { InstitutionalIngestionJobData } from '../intelligence/institutional';
+import type { MarketStructureIngestionJobData } from '../intelligence/market-structure';
 import type { PatternDetectionJobData } from '../market-data/patterns/pattern-detection-job';
 import type { AlertEvaluationQueuePayload } from '@atlas/types';
 
@@ -68,6 +71,49 @@ export function createFundamentalsIngestionJobId(
   return stableJobId('fundamentals-ingestion', [
     data.providerCode,
     data.providerSymbol,
+  ]);
+}
+
+export function createKapIngestionJobId(data: KapIngestionJobData): string {
+  return stableJobId('kap-disclosure-sync', [
+    data.providerCode,
+    data.from,
+    data.to,
+    data.cursor ?? 'START',
+  ]);
+}
+
+export function createInstitutionalFlowJobId(
+  data: InstitutionalIngestionJobData,
+): string {
+  return stableJobId('institutional-flow-sync', [
+    data.providerCode,
+    data.from,
+    data.to,
+    data.cursor ?? 'START',
+  ]);
+}
+
+export function createSettlementJobId(
+  data: InstitutionalIngestionJobData,
+): string {
+  return stableJobId('settlement-sync', [
+    data.providerCode,
+    data.from,
+    data.to,
+    data.cursor ?? 'START',
+  ]);
+}
+
+export function createMarketStructureJobId(
+  data: MarketStructureIngestionJobData,
+): string {
+  return stableJobId('market-measure-sync', [
+    data.providerCode,
+    data.dataset ?? 'MEASURES',
+    data.from,
+    data.to,
+    data.cursor ?? 'START',
   ]);
 }
 

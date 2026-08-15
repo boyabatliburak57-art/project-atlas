@@ -1,0 +1,9 @@
+appId: com.atlasfinance.mobile
+name: TASK-110D Cursor pagination
+---
+- launchApp: { clearState: true }
+- extendedWaitUntil: { visible: 'Giriş yap', timeout: 120000 }
+- openLink: 'atlas:///research/events?fixture=1&view=pagination'
+- scrollUntilVisible: { element: { id: 'kap-load-more' }, direction: DOWN }
+- assertVisible: { id: 'kap-load-more' }
+- tapOn: { id: 'kap-load-more' }

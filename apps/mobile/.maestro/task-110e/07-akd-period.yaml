@@ -1,0 +1,7 @@
+appId: com.atlasfinance.mobile
+name: TASK-110E AKD period switch
+---
+- launchApp: { clearState: true }
+- openLink: 'atlas:///markets/institutional/akd?fixture=1'
+- tapOn: { id: 'period-5d' }
+- assertVisible: { id: 'period-5d' }
